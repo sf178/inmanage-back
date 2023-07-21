@@ -1,0 +1,4 @@
+INFO   :2023-04-03 01:11:13,955: ('stock', 'bonds', '2023-04-03')
+DEBUG  :2023-04-03 01:11:13,956: Request: https://iss.moex.com/iss/history/engines/stock/markets/bonds/securities.xml?limit=100&date=2023-04-03&start=0
+ERROR  :2023-04-03 01:11:25,541: No quotes for "stock, bonds, 2023-04-03, 0", pagination: {'total_items': 0, 'current_index': 0, 'page_size': 100}
+DEBUG  :2023-04-03 01:11:25,542: Got quotes:   0/  0, pagination: 0 + 100 < 0, params: stock, bonds, 2023-04-03, 0
