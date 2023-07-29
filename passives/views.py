@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Sum
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -288,22 +289,6 @@ class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
         return self.destroy(request, *args, **kwargs)
 
 
-class Income(models.Model):
-    id = models.AutoField(primary_key=True)
-    property = models.ForeignKey('passives.Property', on_delete=models.CASCADE, blank=True, null=True)
-    transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, null=True)
-    funds = models.FloatField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class Expenses(models.Model):
-    id = models.AutoField(primary_key=True)
-    property = models.ForeignKey('passives.Property', on_delete=models.CASCADE, blank=True, null=True)
-    transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, null=True)
-    funds = models.FloatField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
 class PassivesCreateView(generics.CreateAPIView):
     queryset = Passives.objects.all()
     serializer_class = PassivesSerializer
@@ -319,3 +304,29 @@ class PassivesCreateView(generics.CreateAPIView):
         # Return the serialized Passives object
         serializer = self.get_serializer(passives)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# View mixin for listing all Expenses objects and creating new Expenses objects
+class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
+    queryset = Expenses.objects.all()
+    serializer_class = ExpensesSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+# View mixin for retrieving, updating, and deleting a specific Expenses object
+class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
+    queryset = Expenses.objects.all()
+    serializer_class = ExpensesSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)

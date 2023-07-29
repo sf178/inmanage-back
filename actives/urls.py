@@ -30,6 +30,12 @@ urlpatterns = [
     path('bonds/', BondsListView.as_view(), name='bonds-list-create'),
     path('bonds/del/', BondsDeleteView.as_view(), name='bonds-list-delete'),
     path('bonds/up/<int:id>', BondsUpdateView.as_view(), name='bonds-list-update'),
+    path('incomes/', IncomeListView.as_view(), name='income-list'),
+    path('incomes/<int:pk>/', IncomeDetailView.as_view(), name='income-detail'),
+
+    # URL patterns for Expenses objects
+    path('expenses/', ExpensesListView.as_view(), name='expenses-list'),
+    path('expenses/<int:pk>/', ExpensesDetailView.as_view(), name='expenses-detail'),
     #path('actives_scripts/', ActiveList.as_view(), name='active-list'),
 
 

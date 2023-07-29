@@ -3,6 +3,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -573,22 +574,54 @@ class BondsDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
         return self.destroy_queryset(self.get_queryset())
 
 
-class Income(models.Model):
-    id = models.AutoField(primary_key=True)
-    property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True)
-    transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, null=True)
-    business = models.ForeignKey('actives.Business', on_delete=models.CASCADE, blank=True, null=True)
-    funds = models.FloatField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
+    queryset = Income.objects.all()
+    serializer_class = IncomeSerializer
 
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
-class Expenses(models.Model):
-    id = models.AutoField(primary_key=True)
-    property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True)
-    transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, null=True)
-    business = models.ForeignKey('actives.Business', on_delete=models.CASCADE, blank=True, null=True)
-    funds = models.FloatField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+# View mixin for retrieving, updating, and deleting a specific Income object
+class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
+    queryset = Income.objects.all()
+    serializer_class = IncomeSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+# View mixin for listing all Expenses objects and creating new Expenses objects
+class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
+    queryset = Expenses.objects.all()
+    serializer_class = ExpensesSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+# View mixin for retrieving, updating, and deleting a specific Expenses object
+class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
+    queryset = Expenses.objects.all()
+    serializer_class = ExpensesSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 # class ActiveList(generics.ListAPIView):

@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'simple_history',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [

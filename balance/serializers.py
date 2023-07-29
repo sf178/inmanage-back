@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Card, Balance
+from .models import *
 
 
 class CardSerializer(serializers.ModelSerializer):
@@ -30,3 +30,13 @@ class BalanceSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+class IncomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Income
+        fields = ('id', 'card', 'funds', 'created_at')
+
+class ExpensesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Expenses
+        fields = ('id', 'card', 'funds', 'created_at')

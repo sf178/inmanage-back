@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Loans, Property, PropertyAsset, Transport, Passives
+from .models import *
 
 
 class LoansSerializer(serializers.ModelSerializer):
@@ -30,3 +30,8 @@ class PassivesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Passives
         fields = '__all__'
+
+class ExpensesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Expenses
+        fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')

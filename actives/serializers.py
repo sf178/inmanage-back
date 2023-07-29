@@ -81,6 +81,24 @@ class ActivesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class IncomeSerializer(serializers.ModelSerializer):
+    property = PropertySerializer(required=False, allow_null=True)
+    transport = TransportSerializer(required=False, allow_null=True)
+    business = BusinessSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = Income
+        fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
+
+class ExpensesSerializer(serializers.ModelSerializer):
+    property = PropertySerializer(required=False, allow_null=True)
+    transport = TransportSerializer(required=False, allow_null=True)
+    business = BusinessSerializer(required=False, allow_null=True)
+
+    class Meta:
+        model = Expenses
+        fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
+
 # class PassivesSerializer(serializers.ModelSerializer):
 #     properties = PropertySerializer(many=True, read_only=True)
 #     transports = TransportSerializer(many=True, read_only=True)
