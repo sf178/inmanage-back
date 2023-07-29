@@ -43,46 +43,40 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
     queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
     permission_classes = [permissions.AllowAny]
-    from rest_framework import generics
-    from django.db.models import Sum, Q
-    from .models import Balance, Income, Expenses
-    from .serializers import BalanceSerializer
 
-    class BalanceView(generics.RetrieveAPIView, generics.ListCreateAPIView):
-        serializer_class = BalanceSerializer
 
-        def get_object(self):
+    def get_object(self):
             # Retrieve the user ID from the request (Assuming you have a way to identify the user)
-            user_id = self.request.user.id
+        user_id = self.request.user.id
 
             # Calculate total_expenses from all Expenses objects in the actives, passives, and balance apps
-            total_expenses = Expenses.objects.filter(
-                Q(card__user_id=user_id) |  # Related to the balance app
-                Q(property__transport__user_id=user_id) |  # Related to the passives app
-                Q(property__business__user_id=user_id)  # Related to the actives app
-            ).aggregate(total_expenses=Sum('funds'))['total_expenses'] or 0
+        total_expenses = Expenses.objects.filter(
+            Q(card__user_id=user_id) |  # Related to the balance app
+            Q(property__transport__user_id=user_id) |  # Related to the passives app
+            Q(property__business__user_id=user_id)  # Related to the actives app
+        ).aggregate(total_expenses=Sum('funds'))['total_expenses'] or 0
 
             # Calculate total_income from all Income objects in the actives, passives, and balance apps
-            total_income = Income.objects.filter(
-                Q(card__user_id=user_id) |  # Related to the balance app
-                Q(property__transport__user_id=user_id) |  # Related to the passives app
-                Q(property__business__user_id=user_id)  # Related to the actives app
-            ).aggregate(total_income=Sum('funds'))['total_income'] or 0
+        total_income = Income.objects.filter(
+            Q(card__user_id=user_id) |  # Related to the balance app
+            Q(property__transport__user_id=user_id) |  # Related to the passives app
+            Q(property__business__user_id=user_id)  # Related to the actives app
+        ).aggregate(total_income=Sum('funds'))['total_income'] or 0
 
             # Create or retrieve the Balance object for the user
-            balance, _ = Balance.objects.get_or_create(user_id=user_id)
+        balance, _ = Balance.objects.get_or_create(user_id=user_id)
 
             # Update the Balance object with the calculated totals
-            balance.total_expenses = total_expenses
-            balance.total_income = total_income
+        balance.total_expenses = total_expenses
+        balance.total_income = total_income
 
             # Calculate the total field (if needed)
-            balance.total = balance.total_income - balance.total_expenses
+        balance.total = balance.total_income - balance.total_expenses
 
             # Save the updated Balance object
-            balance.save()
+        balance.save()
 
-            return balance
+        return balance
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
