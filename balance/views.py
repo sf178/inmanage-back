@@ -2,6 +2,9 @@ from rest_framework import generics, permissions, mixins
 from django.db.models import Sum, Q
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from .models import Card, Balance, Expenses, Income
+from actives.models import Actives
+from passives.models import Passives
+
 from rest_framework.response import Response
 from .serializers import *
 
@@ -25,9 +28,35 @@ class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
+        income_instances = []
+        expenses_instances = []
+        if 'income' in request.data:
+            income_data = request.data.pop('income')
+            for income in income_data:
+                income_serializer = IncomeSerializer(data=income)
+                income_serializer.is_valid(raise_exception=True)
+                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instances.append(income_instance)
+        if 'expenses' in request.data:
+            expenses_data = request.data.pop('expenses')
+            for expense in expenses_data:
+                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer.is_valid(raise_exception=True)
+                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instances.append(expenses_instance)
+
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+
+        if income_instances:
+            instance.income.add(*[income.id for income in income_instances])
+        if expenses_instances:
+            instance.expenses.add(*[expense.id for expense in expenses_instances])
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
         return Response(serializer.data)
 
 
@@ -44,69 +73,47 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
     queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
     permission_classes = [permissions.AllowAny]
+    @staticmethod
 
-    def get_object(self):
-            # Retrieve the user ID from the request (Assuming you have a way to identify the user)
-        user_id = self.request.user.id
+    def calculate_totals(self, user):
+        total_expenses = 0
+        total_income = 0
+        total = 0
+        # From Actives
+        active = Actives.objects.filter(user=user).first()
+        if active:
+            total_expenses += (active.total_expenses or 0)
+            total_income += (active.total_income or 0)
 
-            # Calculate total_expenses from all Expenses objects in the actives, passives, and balance apps
-        total_expenses = Expenses.objects.filter(
-            Q(card__user_id=user_id) |  # Related to the balance app
-            Q(property__transport__user_id=user_id) |  # Related to the passives app
-            Q(property__business__user_id=user_id)  # Related to the actives app
-        ).aggregate(total_expenses=Sum('funds'))['total_expenses'] or 0
+        # From Passives
+        passive = Passives.objects.filter(user=user).first()
+        if passive:
+            total_expenses += (passive.total_expenses or 0)
 
-            # Calculate total_income from all Income objects in the actives, passives, and balance apps
-        total_income = Income.objects.filter(
-            Q(card__user_id=user_id) |  # Related to the balance app
-            Q(property__transport__user_id=user_id) |  # Related to the passives app
-            Q(property__business__user_id=user_id)  # Related to the actives app
-        ).aggregate(total_income=Sum('funds'))['total_income'] or 0
+        # From Cards
+        cards = Card.objects.filter(user=user)
+        for card in cards:
+            total_expenses += (card.expenses.aggregate(Sum('funds'))['funds__sum'] or 0)
+            total_income += (card.incomes.aggregate(Sum('funds'))['funds__sum'] or 0)
+            total += (card.remainder or 0)  # Add the remainder of each card to the total
 
-            # Create or retrieve the Balance object for the user
-        balance, _ = Balance.objects.get_or_create(user_id=user_id)
 
-            # Update the Balance object with the calculated totals
-        balance.total_expenses = total_expenses
-        balance.total_income = total_income
+        return total_income, total_expenses, total
 
-            # Calculate the total field (if needed)
-        balance.total = balance.total_income - balance.total_expenses
-
-            # Save the updated Balance object
-        balance.save()
-
-        return balance
 
     def get(self, request, *args, **kwargs):
-        instance = self.get_object()
+        user = 1
+        balance = Balance.objects.get(user_id=user)  # or create a new one
 
-        # Calculate total expenses from all apps
-        total_expenses = Expenses.objects.filter(Q(card__in=instance.card_list.all()) | Q(card__isnull=True)).aggregate(
-            total_expenses=Sum('funds'))['total_expenses']
-        if total_expenses is not None:
-            instance.total_expenses = total_expenses
+        total_income, total_expenses, total = self.calculate_totals(self, user=user)
 
-        # Calculate total income from all apps
-        total_income = Income.objects.filter(Q(card__in=instance.card_list.all()) | Q(card__isnull=True)).aggregate(
-            total_income=Sum('funds'))['total_income']
-        if total_income is not None:
-            instance.total_income = total_income
+        balance.total_income = total_income
+        balance.total_expenses = total_expenses
+        balance.total = total
+        balance.save()
 
-        # Calculate the remaining total if both total_expenses and total_income are present
-        if instance.total_expenses is not None and instance.total_income is not None:
-            instance.total = instance.total_income - instance.total_expenses
-
-        # Save the updated instance
-        instance.save()
-
-        serializer = self.get_serializer(instance)
+        serializer = self.get_serializer(balance)
         return Response(serializer.data)
-        # instance = Balance.objects.filter(user__id=request.data['user'])
-        # #for object in instance:
-        # serializer = self.get_serializer(instance)
-        # return Response(serializer.data)
-        #return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
@@ -118,9 +125,26 @@ class BalanceUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     lookup_field = 'id'
 
     def patch(self, request, *args, **kwargs):
+        # extract card data from request
+        card_data = request.data.pop('card', None)
+
+        if card_data:
+            card_serializer = CardSerializer(data=card_data)
+            if card_serializer.is_valid():
+                card = card_serializer.save()  # save card instance
+            else:
+                return Response(card_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            card = None
+
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+
+        # update card_list if card is not None
+        if card is not None:
+            instance.card_list.add(card)
+
         self.perform_update(serializer)
         return Response(serializer.data)
 

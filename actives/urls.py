@@ -36,7 +36,7 @@ urlpatterns = [
     # URL patterns for Expenses objects
     path('expenses/', ExpensesListView.as_view(), name='expenses-list'),
     path('expenses/<int:pk>/', ExpensesDetailView.as_view(), name='expenses-detail'),
-    #path('actives_scripts/', ActiveList.as_view(), name='active-list'),
+    path('', ActiveList.as_view(), name='active-list'),
 
 
 ]

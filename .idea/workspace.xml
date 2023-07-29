@@ -2,17 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="balance added&#10;изменен парсинг авто&#10;переделаны многие поля в моделях&#10;добавлено приложение инвентаризации, но не доделано&#10;проведены изменения из списка forBackend.txt">
+      <change afterPath="$PROJECT_DIR$/balance/signals.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/todo/signals.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actives/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actives/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actives/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/balance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/passives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/passives/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/passives/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/passives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/сars_parser/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/сars_parser/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/сars_parser/parser/captcha.py" beforeDir="false" afterPath="$PROJECT_DIR$/сars_parser/parser/captcha.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/сars_parser/parser/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/сars_parser/parser/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,7 +276,9 @@
       <workItem from="1690237526126" duration="7378000" />
       <workItem from="1690324490787" duration="2668000" />
       <workItem from="1690557179541" duration="1649000" />
-      <workItem from="1690645293524" duration="5103000" />
+      <workItem from="1690645293524" duration="5763000" />
+      <workItem from="1690750835885" duration="4596000" />
+      <workItem from="1690800124056" duration="22324000" />
     </task>
     <task id="LOCAL-00001" summary="balance added">
       <created>1689964645556</created>
@@ -289,7 +301,21 @@
       <option name="project" value="LOCAL" />
       <updated>1690652720004</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="balance added&#10;изменен парсинг авто&#10;переделаны многие поля в моделях&#10;добавлено приложение инвентаризации, но не доделано&#10;проведены изменения из списка forBackend.txt">
+      <created>1690654220244</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1690654220244</updated>
+    </task>
+    <task id="LOCAL-00005" summary="balance added&#10;изменен парсинг авто&#10;переделаны многие поля в моделях&#10;добавлено приложение инвентаризации, но не доделано&#10;проведены изменения из списка forBackend.txt">
+      <created>1690654294309</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1690654294309</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

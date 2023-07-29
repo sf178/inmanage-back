@@ -45,9 +45,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_online = models.DateTimeField(default=timezone.now)
-    all_actives = models.ManyToManyField('actives.Actives', blank=True)
-    all_passives = models.ManyToManyField('passives.Passives', blank=True)
-    all_plans = models.ManyToManyField('todo.Planner', blank=True)
+    all_actives = models.OneToOneField('actives.Actives', blank=True, null=True, on_delete=models.DO_NOTHING)
+    all_passives = models.OneToOneField('passives.Passives', blank=True, null=True, on_delete=models.DO_NOTHING)
+    all_plans = models.ManyToManyField('todo.Planner', blank=True, null=True)
+    balance = models.OneToOneField('balance.Balance', blank=True, null=True, on_delete=models.DO_NOTHING)
     active_objects = ArrayField(models.BigIntegerField(null=True), blank=True, default=list)
     deleted_objects = ArrayField(models.BigIntegerField(null=True), blank=True, default=list)
 

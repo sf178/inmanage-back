@@ -16,7 +16,7 @@ urlpatterns = [
     path('loans/', LoansListView.as_view(), name='loans-list-create'),
     path('loans/del/<int:pk>', LoansDeleteView.as_view(), name='loans-list-delete'),
     path('loans/up/<int:id>', LoansUpdateView.as_view(), name='loans-list-update'),
-
+    path('', PassivesListView.as_view(), name='passives-list'),
     # URL patterns for Expenses objects
     path('expenses/', ExpensesListView.as_view(), name='expenses-list'),
     path('expenses/<int:pk>/', ExpensesDetailView.as_view(), name='expenses-detail'),

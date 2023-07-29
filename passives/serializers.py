@@ -27,11 +27,14 @@ class TransportSerializer(serializers.ModelSerializer):
 
 
 class PassivesSerializer(serializers.ModelSerializer):
+    properties = PropertySerializer(many=True, read_only=True)
+    transports = TransportSerializer(many=True, read_only=True)
     class Meta:
         model = Passives
         fields = '__all__'
 
+
 class ExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expenses
-        fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
+        fields = ('id', 'property', 'transport', 'funds', 'created_at')

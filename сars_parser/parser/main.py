@@ -4,6 +4,8 @@ import random
 import requests
 from bs4 import BeautifulSoup
 import re
+from fake_useragent import UserAgent
+
 
 
 def get_average(mark, model):
@@ -29,6 +31,7 @@ sec-fetch-user: ?1
 upgrade-insecure-requests: 1
 user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 YaBrowser/23.5.4.674 Yowser/2.5 Safari/537.36
 '''
+#
     headers_split = headers.strip().split('\n')
     # print(headers_split)
     headers_dict = {}
@@ -37,6 +40,7 @@ user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
             # print(header)
             key, value = header.split(': ')
             headers_dict[key] = value
+    #headers_dict['user-agent']: UserAgent().chrome
     price_list = []
     print(f'Getting info for {mark} {model}')
     for page in range(1, pages + 1):

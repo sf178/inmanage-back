@@ -77,7 +77,7 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
                 maintenance_cost=serializer.instance.month_expense
             )
             loan.save()
-
+        serializer.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         # return self.create(request, *args, **kwargs)
@@ -90,9 +90,26 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
+        expenses_instances = []
+
+        if 'expenses' in request.data:
+            expenses_data = request.data.pop('expenses')
+            for expense in expenses_data:
+                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer.is_valid(raise_exception=True)
+                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instances.append(expenses_instance)
+
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+
+        if expenses_instances:
+            instance.expenses.add(*[expense.id for expense in expenses_instances])
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
         return Response(serializer.data)
 
 
@@ -261,7 +278,7 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
                 maintenance_cost=serializer.instance.month_expense
             )
             loan.save()
-
+        serializer.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         # return self.create(request, *args, **kwargs)
@@ -274,9 +291,26 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
+        expenses_instances = []
+
+        if 'expenses' in request.data:
+            expenses_data = request.data.pop('expenses')
+            for expense in expenses_data:
+                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer.is_valid(raise_exception=True)
+                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instances.append(expenses_instance)
+
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+
+        if expenses_instances:
+            instance.expenses.add(*[expense.id for expense in expenses_instances])
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
         return Response(serializer.data)
 
 
@@ -289,21 +323,38 @@ class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
         return self.destroy(request, *args, **kwargs)
 
 
-class PassivesCreateView(generics.CreateAPIView):
-    queryset = Passives.objects.all()
+class PassivesListView(generics.CreateAPIView):
     serializer_class = PassivesSerializer
+    permission_classes = [permissions.AllowAny]
 
-    def create(self, request, *args, **kwargs):
-        # Calculate the total funds from Expenses objects
-        total_funds = Expenses.objects.aggregate(total_funds=Sum('funds'))['total_funds']
+    # permission_classes = [permissions.IsAuthenticated]
+    def calculate_totals(self, user_id):
+        # Calculate the total expenses from Expenses objects related to the user
+        expenses_queryset = Expenses.objects.filter(user_id=user_id)
+        total_expenses = expenses_queryset.aggregate(total_expenses=Sum('funds'))['total_expenses'] or 0
 
-        # Create the Passives object with the calculated total funds
-        passives = Passives(total_funds=total_funds)
+        return total_expenses
+
+    def get(self, request, *args, **kwargs):
+        user_id = 1
+        passives, created = Passives.objects.get_or_create(user_id=user_id)
+
+        # Retrieve properties and transports related to the user
+        properties = Property.objects.filter(user_id=user_id)
+        transports = Transport.objects.filter(user_id=user_id)
+
+        # Calculate the total expenses from Expenses objects related to the user
+        total_expenses = self.calculate_totals(user_id)
+
+        # Update the Passives object with the calculated totals
+        passives.total_expenses = total_expenses
+        passives.properties.set(properties)
+        passives.transports.set(transports)
         passives.save()
 
         # Return the serialized Passives object
         serializer = self.get_serializer(passives)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # View mixin for listing all Expenses objects and creating new Expenses objects

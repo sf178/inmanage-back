@@ -3,12 +3,23 @@ from django.db import models
 
 
 class Car(models.Model):
-    mark = models.TextField(blank=True, null=True)
-    model = models.TextField(blank=True, null=True)
-    href = models.URLField(blank=True, null=True)
-    average_price = models.CharField(blank=True, null=True)
-    year = models.IntegerField(blank=True, null=True)
-    km_age = models.CharField(blank=True, null=True)
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=200)
+    cyrillic_name = models.CharField(max_length=200)
+    popular = models.BooleanField(default=False)
+    country = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+
+
+class Model(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=200)
+    cyrillic_name = models.CharField(max_length=200)
+    car_class = models.CharField(max_length=50)
+    year_from = models.IntegerField()
+    year_to = models.IntegerField()
+    car = models.ForeignKey(Car, related_name='models', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.mark} {self.model}'
+        return self.name

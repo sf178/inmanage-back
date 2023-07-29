@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import *
+from passives.serializers import LoansSerializer
 import json
 
 
@@ -9,6 +11,8 @@ def serialize_object_to_json(obj):
 
 
 class PropertySerializer(serializers.ModelSerializer):
+    loan_link = LoansSerializer(many=False, required=False)
+
     class Meta:
         model = Property
         fields = '__all__'

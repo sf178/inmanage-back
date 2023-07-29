@@ -44,11 +44,11 @@ class PropertyAssetAdmin(admin.ModelAdmin):
 
 class TransportAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'user_id', 'name', 'owner', 'owner_type', 'vin', 'use', 'bought_price', 'initial_payment', 'loan_term',
+        'id', 'user_id', 'mark', 'model', 'owner', 'owner_type', 'vin', 'use', 'bought_price', 'initial_payment', 'loan_term',
         'percentage', 'month_payment', 'month_income', 'month_expense', 'average_profit', 'revenue'
     )
-    list_filter = ('user_id', 'name', 'owner', 'owner_type', 'use')
-    search_fields = ('name', 'owner', 'vin')
+    list_filter = ('user_id', 'mark', 'model', 'owner', 'owner_type', 'use')
+    search_fields = ('mark', 'model', 'owner', 'vin')
 
 
 class BusinessAssetInline(admin.TabularInline):

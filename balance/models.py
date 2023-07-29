@@ -18,8 +18,8 @@ class Card(models.Model):
     remainder = models.FloatField(blank=True, null=True, default=None)
     limit = models.FloatField(blank=True, null=True, default=None)
     flag = models.BooleanField(blank=True, null=True, default=False)
-    incomes = models.ManyToManyField('Income', blank=True, null=True)
-    expenses = models.ManyToManyField('Expenses', blank=True, null=True)
+    incomes = models.ManyToManyField('Income', blank=True, related_name='+')
+    expenses = models.ManyToManyField('Expenses', blank=True, related_name='+')
     created_at = models.DateTimeField(auto_now_add=True)
     #image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
     history = HistoricalRecords()
@@ -35,7 +35,7 @@ class Card(models.Model):
 
 class Balance(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     total = models.FloatField(blank=True, null=True)
     total_in_currency = models.FloatField(blank=True, null=True)
     total_income = models.FloatField(blank=True, null=True)
@@ -56,6 +56,7 @@ class Balance(models.Model):
 
 class Income(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -63,6 +64,7 @@ class Income(models.Model):
 
 class Expenses(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
