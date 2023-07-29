@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="balance added">
+      <change beforePath="$PROJECT_DIR$/actives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actives/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/passives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/passives/passives_scripts/transport_mark_model/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/passives_scripts/transport_mark_model/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/passives/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/passives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/views.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2MbrQGqSRUUEzGPAojPKFVhLVTa" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/inmanage-site/test_backend&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;D:\\inmanage-site\\test_backend\\front\\inmanage-site\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\inmanage-site\test_backend\passives\passives_scripts" />
+      <recent name="D:\inmanage-site\test_backend\passives" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\inmanage-site\test_backend\сars_parser\parser" />
+      <recent name="D:\inmanage-site\test_backend\balance" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.test">
+    <configuration name="stocks_parse (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="test_backend" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/actives/actives_scripts/stocks" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/actives/actives_scripts/stocks/stocks_parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="stocks_parse (2)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="test_backend" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/actives/actives_scripts/market_prices" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/actives/actives_scripts/market_prices/stocks_parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="stocks_parse" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
+      <module name="test_backend" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/inmanage_app/actives/stocks" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/inmanage_app/actives/stocks/stocks_parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="true" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="test_backend" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/сars_parser/parser" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/сars_parser/parser/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="test_backend" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test_backend" type="Python.DjangoServer" factoryName="Django server">
+      <module name="test_backend" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.test" />
+        <item itemvalue="Python.test (1)" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="" />
+      <created>1678047113074</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1678047113074</updated>
+      <workItem from="1678047143616" duration="2853000" />
+      <workItem from="1678131885790" duration="28189000" />
+      <workItem from="1678443053859" duration="26740000" />
+      <workItem from="1678812298911" duration="4490000" />
+      <workItem from="1678993338342" duration="8441000" />
+      <workItem from="1679176202065" duration="11257000" />
+      <workItem from="1679510657794" duration="9000" />
+      <workItem from="1679510791126" duration="8000" />
+      <workItem from="1680108495603" duration="3846000" />
+      <workItem from="1680179731739" duration="2160000" />
+      <workItem from="1680466412136" duration="3722000" />
+      <workItem from="1680519904817" duration="481000" />
+      <workItem from="1680534978387" duration="11000" />
+      <workItem from="1680535692899" duration="1146000" />
+      <workItem from="1680623401924" duration="1486000" />
+      <workItem from="1680716801488" duration="586000" />
+      <workItem from="1682018098882" duration="308000" />
+      <workItem from="1682113835111" duration="2082000" />
+      <workItem from="1682784262027" duration="3309000" />
+      <workItem from="1682959590736" duration="9979000" />
+      <workItem from="1683283402191" duration="1569000" />
+      <workItem from="1684672722089" duration="137000" />
+      <workItem from="1684770765901" duration="870000" />
+      <workItem from="1684769048461" duration="19290000" />
+      <workItem from="1684827251373" duration="12238000" />
+      <workItem from="1684848275322" duration="385000" />
+      <workItem from="1684959477458" duration="44000" />
+      <workItem from="1685057714309" duration="4008000" />
+      <workItem from="1685062207039" duration="500000" />
+      <workItem from="1685097103899" duration="5337000" />
+      <workItem from="1685343270938" duration="2690000" />
+      <workItem from="1685547766272" duration="17345000" />
+      <workItem from="1685629590985" duration="497000" />
+      <workItem from="1685717728201" duration="1766000" />
+      <workItem from="1685789113378" duration="324000" />
+      <workItem from="1685868079103" duration="5692000" />
+      <workItem from="1685980601817" duration="2962000" />
+      <workItem from="1685984611454" duration="5317000" />
+      <workItem from="1686029400208" duration="7413000" />
+      <workItem from="1687730693509" duration="1611000" />
+      <workItem from="1687888164166" duration="7683000" />
+      <workItem from="1687972237498" duration="69000" />
+      <workItem from="1687990907252" duration="2867000" />
+      <workItem from="1688499391665" duration="5804000" />
+      <workItem from="1688580508021" duration="664000" />
+      <workItem from="1688610802380" duration="12385000" />
+      <workItem from="1688987288206" duration="183000" />
+      <workItem from="1689438644825" duration="7876000" />
+      <workItem from="1689934619012" duration="3708000" />
+      <workItem from="1689965071674" duration="5151000" />
+      <workItem from="1690237526126" duration="7378000" />
+      <workItem from="1690324490787" duration="2668000" />
+      <workItem from="1690557179541" duration="1649000" />
+      <workItem from="1690645293524" duration="2882000" />
+    </task>
+    <task id="LOCAL-00001" summary="balance added">
+      <created>1689964645556</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1689964645556</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="balance added" />
+    <option name="LAST_COMMIT_MESSAGE" value="balance added" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/todo/views.py</url>
+          <line>145</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/models_py$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1688629357043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/сars_parser/parser" />
+    <SUITE FILE_PATH="coverage/models_py$stocks_parse__2_.coverage" NAME="stocks_parse (2) Coverage Results" MODIFIED="1684832074616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/actives/actives_scripts/market_prices" />
+    <SUITE FILE_PATH="coverage/models_py$test.coverage" NAME="test Coverage Results" MODIFIED="1684838227265" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/models_py$stocks_parse__1_.coverage" NAME="stocks_parse (1) Coverage Results" MODIFIED="1682962669798" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/actives/actives_scripts/stocks" />
+    <SUITE FILE_PATH="coverage/models_py$stocks_parse.coverage" NAME="stocks_parse Coverage Results" MODIFIED="1680469476870" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/inmanage_app/actives/stocks" />
+    <SUITE FILE_PATH="coverage/test_backend$test.coverage" NAME="test Coverage Results" MODIFIED="1690325945773" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/models_py$collector.coverage" NAME="collector Coverage Results" MODIFIED="1680469873007" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/inmanage_app/actives/stocks" />
+  </component>
+</project>

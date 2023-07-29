@@ -229,8 +229,8 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        brand = serializer.validated_data['brand']
-        name = serializer.validated_data['name']
+        brand = request.data['brand']
+        name = request.data['name']
 
         mark, model = set_mark_model(brand, name)
         serializer.validated_data['mark'] = mark
@@ -573,36 +573,54 @@ class BondsDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
         return self.destroy_queryset(self.get_queryset())
 
 
-class ActiveList(generics.ListAPIView):
-    serializer_class = ActivesSerializer
+class Income(models.Model):
+    id = models.AutoField(primary_key=True)
+    property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True)
+    transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, null=True)
+    business = models.ForeignKey('actives.Business', on_delete=models.CASCADE, blank=True, null=True)
+    funds = models.FloatField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    # permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        user = CustomUser.objects.get(id=1)
-        try:
-            active = Actives.objects.get(user_id=user.id)
-            # if active exists, update it with new data
-            active.properties.set(Property.objects.filter(user_id=user.id))
-            active.transports.set(Transport.objects.filter(user_id=user.id))
-            active.businesses.set(Business.objects.filter(user_id=user.id))
-            active.stocks.set(Stocks.objects.filter(user_id=user.id))
-            active.obligation.set(Bonds.objects.filter(user_id=user.id))
-            active.save()
-        except Actives.DoesNotExist:
-            # if active does not exist, create a new one
-            active = Actives(
-                user_id=user.id,
-                properties=Property.objects.filter(user_id=user.id),
-                transports=Transport.objects.filter(user_id=user.id),
-                businesses=Business.objects.filter(user_id=user.id),
-                stocks=Stocks.objects.filter(user_id=user.id),
-                obligation=Bonds.objects.filter(user_id=user.id),
-            )
-            active.save()
-        return [active]
+class Expenses(models.Model):
+    id = models.AutoField(primary_key=True)
+    property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True)
+    transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, null=True)
+    business = models.ForeignKey('actives.Business', on_delete=models.CASCADE, blank=True, null=True)
+    funds = models.FloatField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True).data
-        return Response(serializer.data)
+
+# class ActiveList(generics.ListAPIView):
+#     serializer_class = ActivesSerializer
+#
+#     # permission_classes = [permissions.IsAuthenticated]
+#
+#     def get_queryset(self):
+#         user = CustomUser.objects.get(id=1)
+#         try:
+#             active = Actives.objects.get(user_id=user.id)
+#             # if active exists, update it with new data
+#             active.properties.set(Property.objects.filter(user_id=user.id))
+#             active.transports.set(Transport.objects.filter(user_id=user.id))
+#             active.businesses.set(Business.objects.filter(user_id=user.id))
+#             active.stocks.set(Stocks.objects.filter(user_id=user.id))
+#             active.obligation.set(Bonds.objects.filter(user_id=user.id))
+#             active.save()
+#         except Actives.DoesNotExist:
+#             # if active does not exist, create a new one
+#             active = Actives(
+#                 user_id=user.id,
+#                 properties=Property.objects.filter(user_id=user.id),
+#                 transports=Transport.objects.filter(user_id=user.id),
+#                 businesses=Business.objects.filter(user_id=user.id),
+#                 stocks=Stocks.objects.filter(user_id=user.id),
+#                 obligation=Bonds.objects.filter(user_id=user.id),
+#             )
+#             active.save()
+#         return [active]
+#
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+#         serializer = self.get_serializer(queryset, many=True).data
+#         return Response(serializer.data)

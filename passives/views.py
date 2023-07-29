@@ -3,6 +3,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models import Sum
 
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -223,13 +224,21 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        brand = serializer.validated_data['brand']
-        name = serializer.validated_data['name']
+        brand = request.data['brand']
+        name = request.data['name']
 
         mark, model = set_mark_model(brand, name)
-        serializer.validated_data['mark'] = mark
-        serializer.validated_data['model'] = model
+
+        # serializer.mark = mark
+        # serializer.model = model
+
+        serializer.validated_data['mark'] = brand
+        serializer.validated_data['model'] = name
         average_market, min_market, max_market = get_average(mark, model)
+        # serializer.average_market_price = average_market
+        # serializer.min_market_price = min_market
+        # serializer.max_market_price = max_market
+
         serializer.validated_data['average_market_price'] = average_market
         serializer.validated_data['min_market_price'] = min_market
         serializer.validated_data['max_market_price'] = max_market
@@ -277,3 +286,36 @@ class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class Income(models.Model):
+    id = models.AutoField(primary_key=True)
+    property = models.ForeignKey('passives.Property', on_delete=models.CASCADE, blank=True, null=True)
+    transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, null=True)
+    funds = models.FloatField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Expenses(models.Model):
+    id = models.AutoField(primary_key=True)
+    property = models.ForeignKey('passives.Property', on_delete=models.CASCADE, blank=True, null=True)
+    transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, null=True)
+    funds = models.FloatField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PassivesCreateView(generics.CreateAPIView):
+    queryset = Passives.objects.all()
+    serializer_class = PassivesSerializer
+
+    def create(self, request, *args, **kwargs):
+        # Calculate the total funds from Expenses objects
+        total_funds = Expenses.objects.aggregate(total_funds=Sum('funds'))['total_funds']
+
+        # Create the Passives object with the calculated total funds
+        passives = Passives(total_funds=total_funds)
+        passives.save()
+
+        # Return the serialized Passives object
+        serializer = self.get_serializer(passives)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

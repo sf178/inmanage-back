@@ -11,7 +11,7 @@ from django.utils.timezone import make_aware
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
 
-settings.TIME_ZONE
+#settings.TIME_ZONE
 
 
 class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
@@ -47,29 +47,19 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
+        desc_list_data = request.data.pop('items', [])
         task_serializer = self.get_serializer(data=request.data)
         task_serializer.is_valid(raise_exception=True)
         task = task_serializer.save()
-        project_id = request.data.get('project_id')
 
-        if project_id:
-            project = get_object_or_404(Project, id=project_id)
-            task.project = project
-            task.save()
-            project.tasks_list.add(task)
+        for item_data in desc_list_data:
+            item_data['task'] = task.id
 
-        items_data = request.data.get('items', [])
-        if isinstance(items_data, list):
-            item_serializer = TodoItemSerializer(data=items_data, many=True)
-            item_serializer.is_valid(raise_exception=True)
-            items = item_serializer.save(task=task)
+        item_serializer = TodoItemSerializer(data=desc_list_data, many=True)
+        item_serializer.is_valid(raise_exception=True)
+        items = item_serializer.save()
 
-            # Get the IDs of the created TodoItem objects
-            item_ids = [item.id for item in items]
-
-            # Update the desc_list field of the TodoTask object with the item IDs
-            task.desc_list.set(item_ids)
-
+        task.desc_list.set(items)
         return Response(task_serializer.data, status=status.HTTP_201_CREATED)
 
         # todo_task = task_serializer.save()
@@ -123,6 +113,10 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         request.data['done'] = not instance.done
+        if request.data['done'] == True and instance.desc_list != []:
+            for item in instance.desc_list.all():
+                item.done = True
+                item.save()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()

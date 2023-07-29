@@ -1,13 +1,32 @@
-from datetime import datetime
+import os
 
-timedelta = '10.05.2023,14.05.2023'
+def get_folder_size(path):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            total_size += os.path.getsize(filepath)
+    return total_size
 
-str = timedelta.split(',')
-l = []
-print(datetime.strptime(str[0], "%d.%m.%Y"))
-print(str[0])
-# for i in str:
-#     t = datetime.strptime(str[i], "%Y-%m-%d")
-#     l.append(t)
+def bytes_to_gb(size_in_bytes):
+    gb_size = size_in_bytes / (1024**3)
+    return gb_size
 
-print(str)
+def main():
+    base_path = r'C:/'
+    folders = os.listdir(base_path)
+
+    folder_sizes = {}
+    for folder in folders:
+        folder_path = os.path.join(base_path, folder)
+        if os.path.isdir(folder_path):
+            size = get_folder_size(folder_path)
+            folder_sizes[folder] = size
+
+    for folder, size in folder_sizes.items():
+        size_gb = bytes_to_gb(size)
+        if size_gb >= 0.3:
+            print(f"{folder}: {size_gb:.2f} GB")
+
+if __name__ == "__main__":
+    main()

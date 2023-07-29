@@ -30,7 +30,7 @@ urlpatterns = [
     path('bonds/', BondsListView.as_view(), name='bonds-list-create'),
     path('bonds/del/', BondsDeleteView.as_view(), name='bonds-list-delete'),
     path('bonds/up/<int:id>', BondsUpdateView.as_view(), name='bonds-list-update'),
-    path('actives_scripts/', ActiveList.as_view(), name='active-list'),
+    #path('actives_scripts/', ActiveList.as_view(), name='active-list'),
 
 
 ]
