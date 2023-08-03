@@ -32,7 +32,10 @@ class PropertySerializer(serializers.ModelSerializer):
         instance.equipment_price = validated_data.get('equipment_price', instance.equipment_price)
         instance.month_income = validated_data.get('month_income', instance.month_income)
         instance.month_expense = validated_data.get('month_expense', instance.month_expense)
-        instance.average_profit = instance.month_income - instance.month_expense - instance.month_payment
+        try:
+            instance.average_profit = instance.month_income - instance.month_expense - instance.month_payment
+        except:
+            instance.average_profit = 0
         instance.save()
         return instance
 

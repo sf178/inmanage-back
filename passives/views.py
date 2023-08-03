@@ -59,6 +59,7 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
         # Create the Property object
         self.perform_create(serializer)
@@ -241,25 +242,26 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
-        brand = request.data['brand']
-        name = request.data['name']
+        brand = request.data['mark']
+        name = request.data['model']
 
         mark, model = set_mark_model(brand, name)
 
-        # serializer.mark = mark
-        # serializer.model = model
+        serializer.mark = brand
+        serializer.model = name
 
         serializer.validated_data['mark'] = brand
         serializer.validated_data['model'] = name
-        average_market, min_market, max_market = get_average(mark, model)
+        # average_market, min_market, max_market = get_average(mark, model)
         # serializer.average_market_price = average_market
         # serializer.min_market_price = min_market
         # serializer.max_market_price = max_market
 
-        serializer.validated_data['average_market_price'] = average_market
-        serializer.validated_data['min_market_price'] = min_market
-        serializer.validated_data['max_market_price'] = max_market
+        # serializer.validated_data['average_market_price'] = average_market
+        # serializer.validated_data['min_market_price'] = min_market
+        # serializer.validated_data['max_market_price'] = max_market
 
         # Create the Property object
         self.perform_create(serializer)

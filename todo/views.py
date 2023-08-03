@@ -112,6 +112,7 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
     def update_done(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
+        instance._is_put_request = True
         request.data['done'] = not instance.done
         if request.data['done'] == True and instance.desc_list != []:
             for item in instance.desc_list.all():
