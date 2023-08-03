@@ -4,7 +4,7 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
 from .models import Card, Balance, Expenses, Income
 from actives.models import Actives
 from passives.models import Passives
-
+from rest_framework import status
 from rest_framework.response import Response
 from .serializers import *
 
@@ -74,7 +74,6 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
     serializer_class = BalanceSerializer
     permission_classes = [permissions.AllowAny]
     @staticmethod
-
     def calculate_totals(self, user):
         total_expenses = 0
         total_income = 0
@@ -84,22 +83,29 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         if active:
             total_expenses += (active.total_expenses or 0)
             total_income += (active.total_income or 0)
+            for prop in active.properties.all():
+                total += (prop.actual_price or 0)
+            for transport in active.transports.all():
+                total += (transport.actual_price or 0)
+            for business in active.businesses.all():
+                total += (business.revenue or 0)
 
         # From Passives
+
         passive = Passives.objects.filter(user=user).first()
         if passive:
             total_expenses += (passive.total_expenses or 0)
-
+            for prop in passive.properties.all():
+                total -= (prop.actual_price or 0)  # Subtracting since it's a passive
+            for transport in passive.transports.all():
+                total -= (transport.bought_price or 0)  # Subtracting since it's a passive
         # From Cards
         cards = Card.objects.filter(user=user)
         for card in cards:
             total_expenses += (card.expenses.aggregate(Sum('funds'))['funds__sum'] or 0)
             total_income += (card.incomes.aggregate(Sum('funds'))['funds__sum'] or 0)
             total += (card.remainder or 0)  # Add the remainder of each card to the total
-
-
         return total_income, total_expenses, total
-
 
     def get(self, request, *args, **kwargs):
         user = 1

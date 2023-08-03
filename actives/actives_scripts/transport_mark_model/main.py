@@ -5,7 +5,7 @@ def set_mark_model(brand, name):
     # df = pd.read_json('D:/inmanage-site/test_backend/cars_and_models.json')
     # filtered_df = df[df['name'] == brand]
     # print(filtered_df)
-    with open('D:/inmanage-site/test_backend/сars_parser/parser/cars_and_models.json') as file:
+    with open('/Users/dmmolod/Desktop/Projects/other/FinTracker/backend/сars_parser/parser/cars_and_models.json') as file:
         data = json.load(file)
 
     for car in data.values():
