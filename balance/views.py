@@ -35,14 +35,14 @@ class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for income in income_data:
                 income_serializer = IncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instance = income_serializer.save(user_id=1, card=instance)
                 income_instances.append(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
                 expenses_serializer = ExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instance = expenses_serializer.save(user_id=1, card=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -78,6 +78,8 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         total_expenses = 0
         total_income = 0
         total = 0
+        card_funds = 0
+        card_expenses = 0
         # From Actives
         active = Actives.objects.filter(user=user).first()
         if active:
@@ -105,17 +107,21 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
             total_expenses += (card.expenses.aggregate(Sum('funds'))['funds__sum'] or 0)
             total_income += (card.incomes.aggregate(Sum('funds'))['funds__sum'] or 0)
             total += (card.remainder or 0)  # Add the remainder of each card to the total
-        return total_income, total_expenses, total
+            card_funds += total
+            card_expenses += total_expenses
+        return total_income, total_expenses, total, card_funds, card_expenses
 
     def get(self, request, *args, **kwargs):
         user = 1
         balance = Balance.objects.get(user_id=user)  # or create a new one
 
-        total_income, total_expenses, total = self.calculate_totals(self, user=user)
+        total_income, total_expenses, total, card_funds, card_expenses = self.calculate_totals(self, user=user)
 
         balance.total_income = total_income
         balance.total_expenses = total_expenses
         balance.total = total
+        balance.card_funds = card_funds
+        balance.card_expenses = card_expenses
         balance.save()
 
         serializer = self.get_serializer(balance)

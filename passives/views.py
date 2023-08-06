@@ -342,8 +342,9 @@ class PassivesListView(generics.CreateAPIView):
         passives, created = Passives.objects.get_or_create(user_id=user_id)
 
         # Retrieve properties and transports related to the user
-        properties = Property.objects.filter(user_id=user_id)
-        transports = Transport.objects.filter(user_id=user_id)
+        properties = Property.objects.filter(user=user_id)
+        transports = Transport.objects.filter(user=user_id)
+        loans = Loans.objects.filter(user=user_id)
 
         # Calculate the total expenses from Expenses objects related to the user
         total_expenses = self.calculate_totals(user_id)
@@ -352,6 +353,7 @@ class PassivesListView(generics.CreateAPIView):
         passives.total_expenses = total_expenses
         passives.properties.set(properties)
         passives.transports.set(transports)
+        passives.loans.set(loans)
         passives.save()
 
         # Return the serialized Passives object

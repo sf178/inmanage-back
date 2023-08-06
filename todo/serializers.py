@@ -2,7 +2,21 @@ from rest_framework import serializers
 from .models import *
 
 
+class IncomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Income
+        fields = ('id', 'created_at')
+
+
+class ExpensesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Expenses
+        fields = ('id', 'created_at')
+
+
 class TodoItemSerializer(serializers.ModelSerializer):
+    income = IncomeSerializer(many=True)
+    expenses = ExpensesSerializer(many=True)
     class Meta:
         model = TodoItem
         fields = '__all__'
@@ -10,6 +24,8 @@ class TodoItemSerializer(serializers.ModelSerializer):
 
 class TodoTaskSerializer(serializers.ModelSerializer):
     desc_list = TodoItemSerializer(many=True, read_only=True)
+    income = IncomeSerializer(many=True)
+    expenses = ExpensesSerializer(many=True)
 
     class Meta:
         model = TodoTask
@@ -25,7 +41,11 @@ class TodoTaskSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     tasks_list = TodoTaskSerializer(many=True, read_only=True)
+    income = IncomeSerializer(many=True)
+    expenses = ExpensesSerializer(many=True)
 
     class Meta:
         model = Project
         fields = '__all__'
+
+

@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="balance added&#10;изменен парсинг авто&#10;переделаны многие поля в моделях&#10;добавлено приложение инвентаризации, но не доделано&#10;проведены изменения из списка forBackend.txt">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/actives_scripts/transport_mark_model/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/actives_scripts/transport_mark_model/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/views.py" afterDir="false" />
+    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="(Планировщик) В каждой модели задачи должно быть булевое поле отвечающее за “закрытие” расходов: “expenses_is_completed”: Bool. теперь оно есть.&#10;(Пассивы) При создании кредита в пассивах через [POST] /passives/loans/создается модель в базе данных, и теперь привязывается к общей модели пассивов [GET] /passives&#10;(Баланс) Новое поле для указания общего кол-ва средств для “Карты и наличные”: card_funds - Float">
       <change beforePath="$PROJECT_DIR$/passives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/signals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -271,7 +264,8 @@
       <workItem from="1690645293524" duration="5763000" />
       <workItem from="1690750835885" duration="4596000" />
       <workItem from="1690800124056" duration="23388000" />
-      <workItem from="1691099907528" duration="2931000" />
+      <workItem from="1691099907528" duration="5555000" />
+      <workItem from="1691318804855" duration="5139000" />
     </task>
     <task id="LOCAL-00001" summary="balance added">
       <created>1689964645556</created>
@@ -315,7 +309,35 @@
       <option name="project" value="LOCAL" />
       <updated>1690836140441</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Отключен парсинг авто&#10;Исправлено создание подзадач в Планировщике, вложить массив объектов 'items' при обновлении Задачи (PATCH-request к объекту по ИД)&#10;Теперь при обновлении статуса Задачи, Подзадачи (PUT-request) из &quot;Готово&quot; в &quot;Незавершено&quot;, в случае, если Проект в статусе &quot;Готово&quot;, меняется статус Проекта&#10;Исправлена сборка Баланса, теперь сумма на Балансе меняется и от Недвижимости, Транспорта и Бизнеса со всех возможных приложений">
+      <created>1691104489739</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1691104489739</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Отключен парсинг авто&#10;Исправлено создание подзадач в Планировщике, вложить массив объектов 'items' при обновлении Задачи (PATCH-request к объекту по ИД)&#10;Теперь при обновлении статуса Задачи, Подзадачи (PUT-request) из &quot;Готово&quot; в &quot;Незавершено&quot;, в случае, если Проект в статусе &quot;Готово&quot;, меняется статус Проекта&#10;Исправлена сборка Баланса, теперь сумма на Балансе меняется и от Недвижимости, Транспорта и Бизнеса со всех возможных приложений">
+      <created>1691105337965</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1691105337965</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Отключен парсинг авто&#10;Исправлено создание подзадач в Планировщике, вложить массив объектов 'items' при обновлении Задачи (PATCH-request к объекту по ИД)&#10;Теперь при обновлении статуса Задачи, Подзадачи (PUT-request) из &quot;Готово&quot; в &quot;Незавершено&quot;, в случае, если Проект в статусе &quot;Готово&quot;, меняется статус Проекта&#10;Исправлена сборка Баланса, теперь сумма на Балансе меняется и от Недвижимости, Транспорта и Бизнеса со всех возможных приложений">
+      <created>1691105377020</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1691105377020</updated>
+    </task>
+    <task id="LOCAL-00010" summary="(Планировщик) В каждой модели задачи должно быть булевое поле отвечающее за “закрытие” расходов: “expenses_is_completed”: Bool. теперь оно есть.&#10;(Пассивы) При создании кредита в пассивах через [POST] /passives/loans/создается модель в базе данных, и теперь привязывается к общей модели пассивов [GET] /passives&#10;(Баланс) Новое поле для указания общего кол-ва средств для “Карты и наличные”: card_funds - Float">
+      <created>1691330290714</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1691330290714</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -335,14 +357,16 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="balance added" />
     <MESSAGE value="balance added&#10;изменен парсинг авто&#10;переделаны многие поля в моделях&#10;добавлено приложение инвентаризации, но не доделано&#10;проведены изменения из списка forBackend.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="balance added&#10;изменен парсинг авто&#10;переделаны многие поля в моделях&#10;добавлено приложение инвентаризации, но не доделано&#10;проведены изменения из списка forBackend.txt" />
+    <MESSAGE value="Отключен парсинг авто&#10;Исправлено создание подзадач в Планировщике, вложить массив объектов 'items' при обновлении Задачи (PATCH-request к объекту по ИД)&#10;Теперь при обновлении статуса Задачи, Подзадачи (PUT-request) из &quot;Готово&quot; в &quot;Незавершено&quot;, в случае, если Проект в статусе &quot;Готово&quot;, меняется статус Проекта&#10;Исправлена сборка Баланса, теперь сумма на Балансе меняется и от Недвижимости, Транспорта и Бизнеса со всех возможных приложений" />
+    <MESSAGE value="(Планировщик) В каждой модели задачи должно быть булевое поле отвечающее за “закрытие” расходов: “expenses_is_completed”: Bool. теперь оно есть.&#10;(Пассивы) При создании кредита в пассивах через [POST] /passives/loans/создается модель в базе данных, и теперь привязывается к общей модели пассивов [GET] /passives&#10;(Баланс) Новое поле для указания общего кол-ва средств для “Карты и наличные”: card_funds - Float" />
+    <option name="LAST_COMMIT_MESSAGE" value="(Планировщик) В каждой модели задачи должно быть булевое поле отвечающее за “закрытие” расходов: “expenses_is_completed”: Bool. теперь оно есть.&#10;(Пассивы) При создании кредита в пассивах через [POST] /passives/loans/создается модель в базе данных, и теперь привязывается к общей модели пассивов [GET] /passives&#10;(Баланс) Новое поле для указания общего кол-ва средств для “Карты и наличные”: card_funds - Float" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/todo/views.py</url>
-          <line>146</line>
+          <line>190</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

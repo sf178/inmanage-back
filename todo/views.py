@@ -51,15 +51,18 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         task_serializer = self.get_serializer(data=request.data)
         task_serializer.is_valid(raise_exception=True)
         task = task_serializer.save()
-
+        if 'project' in request.data:
+            task.project = request.data['project']
         for item_data in desc_list_data:
             item_data['task'] = task.id
+            item_data['user'] = task.user_id
 
         item_serializer = TodoItemSerializer(data=desc_list_data, many=True)
         item_serializer.is_valid(raise_exception=True)
         items = item_serializer.save()
 
         task.desc_list.set(items)
+        task.save()
         return Response(task_serializer.data, status=status.HTTP_201_CREATED)
 
         # todo_task = task_serializer.save()
@@ -107,7 +110,48 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         return self.update_done(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        items = []
+        income_instances = []
+        expenses_instances = []
+        if 'items' in request.data:
+            items = request.data.pop('items')
+            for item in items:
+                items_serializer = TodoItemSerializer(data=item)
+                items_serializer.is_valid(raise_exception=True)
+                item_instance = items_serializer.save(user_id=1, task=instance)
+                items.append(item_instance)
+        if 'income' in request.data:
+            income_data = request.data.pop('income')
+            for income in income_data:
+                income_serializer = IncomeSerializer(data=income)
+                income_serializer.is_valid(raise_exception=True)
+                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instances.append(income_instance)
+        if 'expenses' in request.data:
+            expenses_data = request.data.pop('expenses')
+            for expense in expenses_data:
+                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer.is_valid(raise_exception=True)
+                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instances.append(expenses_instance)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if items:
+            instance.desc_list.add(*[item.id for item in items])
+
+        if income_instances:
+            instance.income.add(*[income.id for income in income_instances])
+        if expenses_instances:
+            instance.expenses.add(*[expense.id for expense in expenses_instances])
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
 
     def update_done(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -168,7 +212,37 @@ class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         return self.update_done(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        income_instances = []
+        expenses_instances = []
+        if 'income' in request.data:
+            income_data = request.data.pop('income')
+            for income in income_data:
+                income_serializer = IncomeSerializer(data=income)
+                income_serializer.is_valid(raise_exception=True)
+                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instances.append(income_instance)
+        if 'expenses' in request.data:
+            expenses_data = request.data.pop('expenses')
+            for expense in expenses_data:
+                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer.is_valid(raise_exception=True)
+                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instances.append(expenses_instance)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        if income_instances:
+            instance.income.add(*[income.id for income in income_instances])
+        if expenses_instances:
+            instance.expenses.add(*[expense.id for expense in expenses_instances])
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
+
 
     def update_done(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -277,7 +351,36 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
         return Response(project_data)
 
     def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        income_instances = []
+        expenses_instances = []
+        if 'income' in request.data:
+            income_data = request.data.pop('income')
+            for income in income_data:
+                income_serializer = IncomeSerializer(data=income)
+                income_serializer.is_valid(raise_exception=True)
+                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instances.append(income_instance)
+        if 'expenses' in request.data:
+            expenses_data = request.data.pop('expenses')
+            for expense in expenses_data:
+                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer.is_valid(raise_exception=True)
+                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instances.append(expenses_instance)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        if income_instances:
+            instance.income.add(*[income.id for income in income_instances])
+        if expenses_instances:
+            instance.expenses.add(*[expense.id for expense in expenses_instances])
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
 
     def put(self, request, *args, **kwargs):
         return self.update_done(request, *args, **kwargs)
@@ -286,6 +389,13 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         request.data['done'] = not instance.done
+        if request.data['done'] == True and instance.tasks_list != []:
+            for task in instance.tasks_list.all():
+                task.done = True
+                for item in task.desc_list:
+                    item.done = True
+                    item.save()
+                task.save()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
