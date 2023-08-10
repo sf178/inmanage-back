@@ -1,8 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from balance.models import Balance
-from actives.models import Actives
-from passives.models import Passives
+import balance.models as bal
+import actives.models as act
+import passives.models as pas
 
 from front.models import CustomUser
 
@@ -10,7 +10,10 @@ from front.models import CustomUser
 @receiver(post_save, sender=CustomUser)
 def create_balance(sender, instance, created, **kwargs):
     if created:
-        balance = Balance.objects.create(user=instance)
+        balance = bal.Balance.objects.create(user=instance)
+        card = bal.Card.objects.create(user=instance, name='Наличный счет', bank=False, loan=False)
+        balance.card_list.add(card)
+        balance.save()
         instance.balance = balance
         instance.save()
 
@@ -18,7 +21,14 @@ def create_balance(sender, instance, created, **kwargs):
 @receiver(post_save, sender=CustomUser)
 def create_actives(sender, instance, created, **kwargs):
     if created:
-        actives = Actives.objects.create(user=instance)
+        actives = act.Actives.objects.create(user=instance)
+        main_properties, _ = act.MainProperties.objects.get_or_create(user=instance)
+        main_transport, _ = act.MainTransport.objects.get_or_create(user=instance)
+        main_businesses, _ = act.MainBusinesses.objects.get_or_create(user=instance)
+        actives.properties = main_properties
+        actives.transports = main_transport
+        actives.businesses = main_businesses
+        actives.save(update_fields=['properties', 'transports', 'businesses'])
         instance.all_actives = actives
         instance.save()
 
@@ -26,6 +36,13 @@ def create_actives(sender, instance, created, **kwargs):
 @receiver(post_save, sender=CustomUser)
 def create_passives(sender, instance, created, **kwargs):
     if created:
-        passives = Passives.objects.create(user=instance)
+        passives = pas.Passives.objects.create(user=instance)
+        main_properties, _ = pas.MainProperties.objects.get_or_create(user=instance)
+        main_transport, _ = pas.MainTransport.objects.get_or_create(user=instance)
+        main_loans, _ = pas.MainLoans.objects.get_or_create(user=instance)
+        passives.properties = main_properties
+        passives.transports = main_transport
+        passives.loans = main_loans
+        passives.save(update_fields=['properties', 'transports', 'loans'])
         instance.all_passives = passives
         instance.save()

@@ -10,5 +10,6 @@ urlpatterns = [
     path('items/del/<int:pk>/', TodoItemDeleteView.as_view(), name='todo-item-delete'),
     path('projects/', ProjectListView.as_view(), name='project-list'),
     path('projects/<int:id>/', ProjectDetailView.as_view(), name='project-detail'),
-    path('projects/del/<int:pk>/', ProjectDeleteView.as_view(), name='project-delete')
+    path('projects/del/<int:pk>/', ProjectDeleteView.as_view(), name='project-delete'),
+    path('', PlannerListView.as_view(), name='planner-list')
 ]

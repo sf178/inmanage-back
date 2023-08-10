@@ -10,7 +10,7 @@ from simple_history.models import HistoricalRecords
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.TextField(blank=True, null=True)
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
     done = models.BooleanField(blank=True, null=True, default=False)
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
@@ -23,6 +23,8 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     income = models.ManyToManyField('todo.Income', blank=True, related_name='+')
     expenses = models.ManyToManyField('todo.Expenses', blank=True, related_name='+')
+    total_income = models.FloatField(blank=True, null=True)
+    total_expenses = models.FloatField(blank=True, null=True)
     expenses_is_completed = models.BooleanField(blank=True, null=True, default=False)
     history = HistoricalRecords()
 
@@ -33,14 +35,13 @@ class Project(models.Model):
 
 class TodoTask(models.Model):
     id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True)
     date_start = models.DateTimeField(blank=True, null=True)
     date_end = models.DateTimeField(blank=True, null=True)
     desc_list = models.ManyToManyField('TodoItem', related_name='items', blank=True)
-    expense = models.FloatField(blank=True, null=True)
     done = models.BooleanField(blank=True, null=True, default=False)
     income = models.ManyToManyField('todo.Income', blank=True, related_name='+')
     expenses = models.ManyToManyField('todo.Expenses', blank=True, related_name='+')
@@ -70,13 +71,6 @@ class TodoItem(models.Model):
         return self.id
 
 
-class Planner(models.Model):
-    id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True)
-    tasks = models.ManyToManyField(TodoTask)
-    projects = models.ManyToManyField(Project)
-
-
 class Income(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
@@ -96,4 +90,23 @@ class Expenses(models.Model):
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+class Planner(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True)
+    projects = models.ManyToManyField('todo.Project', blank=True, related_name='planners')
+    tasks = models.ManyToManyField('todo.TodoTask', blank=True, related_name='tasks')
+    total_income = models.FloatField(blank=True, null=True, default=0.0)
+    total_expenses = models.FloatField(blank=True, null=True, default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def update_totals(self):
+        # Обновляем общие доходы и расходы
+        self.total_income = sum(project.total_income for project in self.projects.all() if project.total_income)
+        self.total_expenses = sum(project.total_expenses for project in self.projects.all() if project.total_expenses)
+        self.save()
+
+    def __str__(self):
+        return f"Planner ID: {self.id} - Total Income: {self.total_income} - Total Expenses: {self.total_expenses}"
 

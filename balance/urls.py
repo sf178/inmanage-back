@@ -4,11 +4,11 @@ from .views import *
 
 urlpatterns = [
     path('cards/', CardListView.as_view(), name='cards-list'),
-    path('cards/<int:id>/', CardUpdateView.as_view(), name='cards-update'),
-    path('cards/<int:pk>/del/', CardDeleteView.as_view(), name='cards-delete'),
+    path('cards/up/<int:id>/', CardUpdateView.as_view(), name='cards-update'),
+    path('cards/del/<int:pk>/', CardDeleteView.as_view(), name='cards-delete'),
     path('', BalanceListView.as_view(), name='balance-list'),
-    path('<int:id>/', BalanceUpdateView.as_view(), name='balance-update'),
-    path('<int:pk>/del/', BalanceDeleteView.as_view(), name='balance-delete'),
+    # path('<int:id>/', BalanceUpdateView.as_view(), name='balance-update'),
+    # path('<int:pk>/del/', BalanceDeleteView.as_view(), name='balance-delete'),
     path('incomes/', IncomeListView.as_view(), name='income-list'),
     path('incomes/<int:pk>/', IncomeDetailView.as_view(), name='income-detail'),
 

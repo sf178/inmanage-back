@@ -111,42 +111,31 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        items = []
-        income_instances = []
-        expenses_instances = []
         if 'items' in request.data:
             items = request.data.pop('items')
             for item in items:
                 items_serializer = TodoItemSerializer(data=item)
                 items_serializer.is_valid(raise_exception=True)
                 item_instance = items_serializer.save(user_id=1, task=instance)
-                items.append(item_instance)
+                instance.desc_list.add(item_instance)
         if 'income' in request.data:
             income_data = request.data.pop('income')
             for income in income_data:
-                income_serializer = IncomeSerializer(data=income)
+                income_serializer = TodoIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, property=instance)
-                income_instances.append(income_instance)
+                income_instance = income_serializer.save(user_id=1, task=instance)
+                instance.income.add(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
-                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer = TodoExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
-                expenses_instances.append(expenses_instance)
+                expenses_instance = expenses_serializer.save(user_id=1, task=instance)
+                instance.expenses.add(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-
-        if items:
-            instance.desc_list.add(*[item.id for item in items])
-
-        if income_instances:
-            instance.income.add(*[income.id for income in income_instances])
-        if expenses_instances:
-            instance.expenses.add(*[expense.id for expense in expenses_instances])
 
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -218,16 +207,16 @@ class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         if 'income' in request.data:
             income_data = request.data.pop('income')
             for income in income_data:
-                income_serializer = IncomeSerializer(data=income)
+                income_serializer = TodoIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instance = income_serializer.save(user_id=1, item=instance)
                 income_instances.append(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
-                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer = TodoExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instance = expenses_serializer.save(user_id=1, project=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -346,7 +335,7 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
 
         serializer = self.get_serializer(project)
         project_data = serializer.data
-        project_data['tasks_list'] = tasks_data
+        #project_data['tasks_list'] = tasks_data
 
         return Response(project_data)
 
@@ -357,16 +346,16 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
         if 'income' in request.data:
             income_data = request.data.pop('income')
             for income in income_data:
-                income_serializer = IncomeSerializer(data=income)
+                income_serializer = TodoIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instance = income_serializer.save(user_id=1, project=instance)
                 income_instances.append(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
-                expenses_serializer = ExpensesSerializer(data=expense)
+                expenses_serializer = TodoExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instance = expenses_serializer.save(user_id=1, project=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -410,3 +399,23 @@ class ProjectDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class PlannerListView(generics.GenericAPIView, mixins.ListModelMixin):
+    queryset = Planner.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        user = 1
+        instance = Planner.objects.filter(user=user).first()
+        all_projects = Project.objects.filter(user=user)
+        all_tasks = TodoTask.objects.filter(user=user)
+
+        # Добавление проектов и задач в Planner
+        instance.projects.set(all_projects)
+        instance.tasks.set(all_tasks)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+

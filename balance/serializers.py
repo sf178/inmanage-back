@@ -9,7 +9,7 @@ class CardSerializer(serializers.ModelSerializer):
 
 
 class BalanceSerializer(serializers.ModelSerializer):
-    card_list = CardSerializer(many=True)
+    card_list = CardSerializer(many=True, read_only=True)
     class Meta:
         model = Balance
         fields = '__all__'
@@ -31,12 +31,18 @@ class BalanceSerializer(serializers.ModelSerializer):
 
         return instance
 
-class IncomeSerializer(serializers.ModelSerializer):
+
+class BalanceIncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Income
         fields = ('id', 'card', 'funds', 'created_at')
 
-class ExpensesSerializer(serializers.ModelSerializer):
+
+class BalanceExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expenses
         fields = ('id', 'card', 'funds', 'created_at')
+
+
+CardSerializer._declared_fields['income'] = BalanceIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
+CardSerializer._declared_fields['expenses'] = BalanceExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)

@@ -9,7 +9,6 @@ def serialize_object_to_json(obj):
     return json.dumps(obj, default=str)
 
 
-
 class PropertySerializer(serializers.ModelSerializer):
     loan_link = LoansSerializer(many=False, required=False)
 
@@ -40,55 +39,23 @@ class PropertySerializer(serializers.ModelSerializer):
         return instance
 
 
-class PropertyAssetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PropertyAsset
-        fields = '__all__'
-
-
 class TransportSerializer(serializers.ModelSerializer):
+    loan_link = LoansSerializer(many=False, required=False)
+
     class Meta:
         model = Transport
         fields = '__all__'
 
 
 class BusinessSerializer(serializers.ModelSerializer):
+    loan_link = LoansSerializer(many=False, required=False)
+
     class Meta:
         model = Business
         fields = '__all__'
 
 
-class BusinessAssetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BusinessAsset
-        fields = '__all__'
-
-
-class StockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stocks
-        fields = '__all__'
-
-
-class BondsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Bonds
-        fields = '__all__'
-
-
-class ActivesSerializer(serializers.ModelSerializer):
-    properties = PropertySerializer(many=True, read_only=True)
-    transports = TransportSerializer(many=True, read_only=True)
-    businesses = BusinessSerializer(many=True, read_only=True)
-    stocks = StockSerializer(many=True, read_only=True)
-    obligations = BondsSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Actives
-        fields = '__all__'
-
-
-class IncomeSerializer(serializers.ModelSerializer):
+class ActivesIncomeSerializer(serializers.ModelSerializer):
     property = PropertySerializer(required=False, allow_null=True)
     transport = TransportSerializer(required=False, allow_null=True)
     business = BusinessSerializer(required=False, allow_null=True)
@@ -97,33 +64,51 @@ class IncomeSerializer(serializers.ModelSerializer):
         model = Income
         fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
 
-class ExpensesSerializer(serializers.ModelSerializer):
-    property = PropertySerializer(required=False, allow_null=True)
-    transport = TransportSerializer(required=False, allow_null=True)
-    business = BusinessSerializer(required=False, allow_null=True)
 
+class ActivesExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expenses
         fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
 
-# class PassivesSerializer(serializers.ModelSerializer):
-#     properties = PropertySerializer(many=True, read_only=True)
-#     transports = TransportSerializer(many=True, read_only=True)
-#     # добавить loans - кредиты и займы
-#
-#
-#     class Meta:
-#         model = Passives
-#         fields = '__all__'
+
+class MainPropertySerializer(serializers.ModelSerializer):
+    properties = PropertySerializer(many=True, read_only=True, required=False, allow_null=True)
+
+    class Meta:
+        model = MainProperties
+        fields = '__all__'
 
 
-# class ProfileSerializer(serializers.ModelSerializer):
-#     cards = CardSerializer(many=True, read_only=True)
-#     actives = ActivesSerializer(many=True, read_only=True)
-#     passives = PassivesSerializer(many=True, read_only=True)
-#
-#
-#     class Meta:
-#         model = ObjectsProfile
-#         fields = '__all__'
+class MainBusinessesSerializer(serializers.ModelSerializer):
+    businesses = BusinessSerializer(many=True, read_only=True, required=False, allow_null=True)
+
+    class Meta:
+        model = MainBusinesses
+        fields = '__all__'
+
+
+class MainTransportSerializer(serializers.ModelSerializer):
+    transport = TransportSerializer(many=True, read_only=True, required=False, allow_null=True)
+
+    class Meta:
+        model = MainTransport
+        fields = '__all__'
+
+
+class ActivesSerializer(serializers.ModelSerializer):
+    properties = MainPropertySerializer(read_only=True, required=False, allow_null=True)
+    transports = MainTransportSerializer(read_only=True, required=False, allow_null=True)
+    businesses = MainBusinessesSerializer(read_only=True, required=False, allow_null=True)
+
+    class Meta:
+        model = Actives
+        fields = '__all__'
+
+
+PropertySerializer._declared_fields['incomes'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
+PropertySerializer._declared_fields['expenses'] = ActivesExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)
+TransportSerializer._declared_fields['incomes'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
+TransportSerializer._declared_fields['expenses'] = ActivesExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)
+BusinessSerializer._declared_fields['incomes'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
+BusinessSerializer._declared_fields['expenses'] = ActivesExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)
 
