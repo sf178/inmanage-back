@@ -104,7 +104,7 @@ def update_main_totals(instance, related_field):
         instance.total_funds = total_funds
         instance.save(update_fields=['total_funds'])
     instance.total_expenses = total_expenses
-    instance.save(update_fields=['total_expenses'])
+    instance.save() # update_fields=['total_expenses']
 
 
 @receiver(m2m_changed, sender=MainProperties.properties.through)

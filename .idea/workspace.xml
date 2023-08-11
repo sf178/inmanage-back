@@ -2,43 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="(Планировщик) В каждой модели задачи должно быть булевое поле отвечающее за “закрытие” расходов: “expenses_is_completed”: Bool. теперь оно есть.&#10;(Пассивы) При создании кредита в пассивах через [POST] /passives/loans/создается модель в базе данных, и теперь привязывается к общей модели пассивов [GET] /passives&#10;(Баланс) Новое поле для указания общего кол-ва средств для “Карты и наличные”: card_funds - Float">
-      <change afterPath="$PROJECT_DIR$/inventory/serializers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/passives/signals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_08_2023_0_43_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_08_2023_0_43__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/test_backend.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/test_backend.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/apps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actives/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/signals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/signals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/signals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/apps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/signals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/passives/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/signals.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -310,6 +277,7 @@
       <workItem from="1691377633535" duration="791000" />
       <workItem from="1691531080300" duration="1109000" />
       <workItem from="1691575643811" duration="40062000" />
+      <workItem from="1691771655073" duration="1700000" />
     </task>
     <task id="LOCAL-00001" summary="balance added">
       <created>1689964645556</created>

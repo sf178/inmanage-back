@@ -429,54 +429,32 @@ class ActiveList(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         user = 1
-        instance = Actives.objects.filter(user=user).first()
+        actives = Actives.objects.get(user=user)
+        total_funds = 0
+        total_income = 0
+        total_expenses = 0
+        if actives.properties:
+            total_funds += actives.properties.total_funds or 0
+            total_income += actives.properties.total_income or 0
+            total_expenses += actives.properties.total_expenses or 0
+        if actives.transports:
+            total_funds += actives.transports.total_funds or 0
+            total_income += actives.transports.total_income or 0
+            total_expenses += actives.transports.total_expenses or 0
+        if actives.businesses:
+            total_funds += actives.businesses.total_funds or 0
+            total_income += actives.businesses.total_income or 0
+            total_expenses += actives.businesses.total_expenses or 0
+
+        # Сохранение обновленного объекта Actives
+        actives.total_funds = total_funds
+        actives.total_income = total_income
+        actives.total_expenses = total_expenses
+        actives.save()  # update_fields=['total_funds', 'total_income', 'total_expenses']
+
+        instance = Actives.objects.get(user=user)
         serializer = self.get_serializer(instance)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
-    # def calculate_totals(self, properties, businesses, transports):
-    #     total_funds = 0
-    #     total_income = 0
-    #     total_expenses = 0
-    #
-    #     if properties:
-    #         total_funds += properties.total_funds or 0
-    #         total_income += properties.total_income or 0
-    #         total_expenses += properties.total_expenses or 0
-    #
-    #     if businesses:
-    #         total_funds += businesses.total_funds or 0
-    #         total_income += businesses.total_income or 0
-    #         total_expenses += businesses.total_expenses or 0
-    #
-    #     if transports:
-    #         total_funds += transports.total_funds or 0
-    #         total_income += transports.total_income or 0
-    #         total_expenses += transports.total_expenses or 0
-    #
-    #     return total_funds, total_income, total_expenses
-    #
-    # def get(self, request, *args, **kwargs):
-    #     user_id = 1
-    #     actives, created = Actives.objects.get_or_create(user_id=user_id)
-    #
-    #     # Retrieve properties, businesses, and transports related to the user if they exist
-    #     properties = MainProperties.objects.filter(user_id=user_id).first()
-    #     businesses = MainBusinesses.objects.filter(user_id=user_id).first()
-    #     transports = MainTransport.objects.filter(user_id=user_id).first()
-    #
-    #     # Calculate the total funds, income, and expenses
-    #     total_funds, total_income, total_expenses = self.calculate_totals(properties, businesses, transports)
-    #
-    #     # Update the Actives object with the calculated totals
-    #     actives.total_funds = total_funds
-    #     actives.total_income = total_income
-    #     actives.total_expenses = total_expenses
-    #     actives.properties = properties
-    #     actives.businesses = businesses
-    #     actives.transports = transports
-    #
-    #     actives.save()
-    #
-    #     # Return the serialized Actives object
-    #     serializer = self.get_serializer(actives)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
 

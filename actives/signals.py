@@ -118,14 +118,15 @@ def update_main_totals(instance, related_field):
     related_objects = getattr(instance, related_field).all()
 
     for obj in related_objects:
-        total_funds += getattr(obj, 'actual_price', 0.0) or getattr(obj, 'revenue', 0.0)
+        total_funds += getattr(obj, 'actual_price', 0.0) or getattr(obj, 'revenue', 0.0) or getattr(obj, 'bought_price', 0.0)
         total_income += getattr(obj, 'total_income', 0.0)
         total_expenses += getattr(obj, 'total_expense', 0.0)
 
     instance.total_funds = total_funds
     instance.total_income = total_income
     instance.total_expenses = total_expenses
-    instance.save(update_fields=['total_funds', 'total_income', 'total_expenses'])
+    instance.save() # update_fields=['total_funds', 'total_income', 'total_expenses']   -   в скобки
+
 
 
 @receiver(m2m_changed, sender=MainProperties.properties.through)
@@ -170,4 +171,7 @@ def update_actives_totals(sender, instance, created, **kwargs):
             total_expenses += actives.businesses.total_expenses or 0
 
         # Сохранение обновленного объекта Actives
-        actives.save(update_fields=['total_funds', 'total_income', 'total_expenses'])
+        actives.total_funds = total_funds
+        actives.total_income = total_income
+        actives.total_expenses = total_expenses
+        actives.save() # update_fields=['total_funds', 'total_income', 'total_expenses']
