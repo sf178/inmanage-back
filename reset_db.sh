@@ -18,7 +18,9 @@ echo "Миграции выполнены."
 
 # Создание суперпользователя
 echo "Создание суперпользователя..."
-echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'samara63')" | docker exec -i inmanage-back_web_1 python manage.py shell
+docker exec -i inmanage-back_web_1 python manage.py createsuperuser --username admin
+echo "Введите пароль для суперпользователя (samara63):"
+docker exec -it inmanage-back_web_1 python manage.py changepassword admin
 echo "Суперпользователь создан."
 
 echo "Процесс завершен."
