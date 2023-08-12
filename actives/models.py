@@ -219,6 +219,7 @@ class ActivesExpenses(models.Model):
     property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     business = models.ForeignKey('actives.Business', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    category = models.TextField(blank=True)
     funds = models.FloatField(blank=True, null=True, default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
 

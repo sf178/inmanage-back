@@ -69,5 +69,6 @@ class Expenses(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    category = models.TextField(blank=True)
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

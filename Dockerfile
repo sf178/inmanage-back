@@ -12,6 +12,7 @@ COPY . /app
 
 # Устанавливает зависимости проекта
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn
 
 # Запускает Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "yourproject.wsgi:application"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "test_backend.wsgi:application"]
