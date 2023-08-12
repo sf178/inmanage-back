@@ -29,8 +29,8 @@ class Property(models.Model):
 
     month_income = models.FloatField(blank=True, null=True, default=0.0)
     month_expense = models.FloatField(blank=True, null=True, default=0.0)
-    income = models.ManyToManyField('actives.Income', blank=True, related_name='+')
-    expenses = models.ManyToManyField('actives.Expenses', blank=True, related_name='+')
+    income = models.ManyToManyField('actives.ActivesIncome', blank=True, related_name='+')
+    expenses = models.ManyToManyField('actives.ActivesExpenses', blank=True, related_name='+')
     total_income = models.FloatField(blank=True, null=True, default=0.0)
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
 
@@ -76,8 +76,8 @@ class Transport(models.Model):
 
     month_income = models.FloatField(blank=True, null=True, default=0.0)
     month_expense = models.FloatField(blank=True, null=True, default=0.0)
-    income = models.ManyToManyField('actives.Income', blank=True, related_name='+')
-    expenses = models.ManyToManyField('actives.Expenses', blank=True, related_name='+')
+    income = models.ManyToManyField('actives.ActivesIncome', blank=True, related_name='+')
+    expenses = models.ManyToManyField('actives.ActivesExpenses', blank=True, related_name='+')
     total_income = models.FloatField(blank=True, null=True, default=0.0)
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
     average_profit = models.FloatField(blank=True, null=True, default=0.0)
@@ -116,8 +116,8 @@ class Business(models.Model):
     #investment_type = models.TextField()
     month_income = models.FloatField(blank=True, null=True, default=0.0)
     month_expense = models.FloatField(blank=True, null=True, default=0.0)
-    income = models.ManyToManyField('actives.Income', blank=True, related_name='+')
-    expenses = models.ManyToManyField('actives.Expenses', blank=True, related_name='+')
+    income = models.ManyToManyField('actives.ActivesIncome', blank=True, related_name='+')
+    expenses = models.ManyToManyField('actives.ActivesExpenses', blank=True, related_name='+')
     total_income = models.FloatField(blank=True, null=True, default=0.0)
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
     average_profit = models.FloatField(blank=True, null=True, default=0.0)
@@ -203,7 +203,7 @@ class Business(models.Model):
 
 
 
-class Income(models.Model):
+class ActivesIncome(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
@@ -213,7 +213,7 @@ class Income(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class Expenses(models.Model):
+class ActivesExpenses(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True, related_name='+')

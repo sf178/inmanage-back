@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Sum
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from django.contrib.contenttypes.models import ContentType
+import inventory.models as inv
 
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -116,6 +118,42 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
         return Response(serializer.data)
 
+    def update(self, request, *args, **kwargs):
+        property_instance = self.get_object()
+
+        # Если уже существует Inventory с launch_status равным False
+        if property_instance.equipment and not property_instance.equipment.launch_status:
+            old_inventory = property_instance.equipment
+
+            # Получение ContentType для модели Actives
+            actives_content_type = ContentType.objects.get_for_model(Passives)
+
+            # Создание нового объекта Inventory, наследующего поля старого
+            new_inventory = inv.Inventory.objects.create(
+                user=old_inventory.user,
+                content_type=actives_content_type,  # Здесь устанавливаем значение для category_object
+                object_id=property_instance.id,  # Здесь устанавливаем значение для object_id
+                launch_status=True
+            )
+
+            # Связывание старого объекта Inventory с новым через GenericRelation
+            new_inventory.previous_inventories.set([old_inventory])
+
+            # Обновление поля equipment в Property
+            property_instance.equipment = new_inventory
+            property_instance.save()
+
+            # Сериализация объекта Property
+            serializer = PropertySerializer(property_instance)
+            return Response(serializer.data)
+
+        if property_instance.equipment and property_instance.equipment.launch_status:
+            property_instance.equipment.launch_status = not property_instance.equipment.launch_status
+            property_instance.save(update_fields=['equipment'])
+            serializer = PropertySerializer(property_instance)
+            return Response(serializer.data)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     queryset = Property.objects.filter(user_id='1')

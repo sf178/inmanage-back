@@ -52,6 +52,8 @@ class Property(models.Model):
     month_payment = models.FloatField(blank=True, null=True, default=0.0)
     #### loans part
     equipment_price = models.FloatField(blank=True, null=True, default=0.0)
+    equipment = models.ForeignKey('inventory.Inventory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+
     # month_income = models.FloatField()
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
     expenses = models.ManyToManyField('passives.Expenses', blank=True, related_name='+')

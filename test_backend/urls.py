@@ -23,4 +23,5 @@ urlpatterns = [
     path('auth/', include('front.urls')),
     path('planner/', include('todo.urls')),
     path('balance/', include('balance.urls')),
+    path('inventory/', include('inventory.urls'))
 ]

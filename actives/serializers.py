@@ -1,7 +1,7 @@
 from rest_framework import serializers
-
 from .models import *
 from passives.serializers import LoansSerializer
+from inventory.serializers import InventorySerializer
 import json
 
 
@@ -11,7 +11,7 @@ def serialize_object_to_json(obj):
 
 class PropertySerializer(serializers.ModelSerializer):
     loan_link = LoansSerializer(many=False, required=False)
-
+    equipment = InventorySerializer(many=False, required=False)
     class Meta:
         model = Property
         fields = '__all__'
@@ -61,13 +61,13 @@ class ActivesIncomeSerializer(serializers.ModelSerializer):
     business = BusinessSerializer(required=False, allow_null=True)
 
     class Meta:
-        model = Income
+        model = ActivesIncome
         fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
 
 
 class ActivesExpensesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Expenses
+        model = ActivesExpenses
         fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
 
 
@@ -105,10 +105,10 @@ class ActivesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-PropertySerializer._declared_fields['incomes'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
+PropertySerializer._declared_fields['income'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
 PropertySerializer._declared_fields['expenses'] = ActivesExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)
-TransportSerializer._declared_fields['incomes'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
+TransportSerializer._declared_fields['income'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
 TransportSerializer._declared_fields['expenses'] = ActivesExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)
-BusinessSerializer._declared_fields['incomes'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
+BusinessSerializer._declared_fields['income'] = ActivesIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
 BusinessSerializer._declared_fields['expenses'] = ActivesExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)
 

@@ -3,6 +3,7 @@ from django.dispatch import receiver
 import balance.models as bal
 import actives.models as act
 import passives.models as pas
+import todo.models as todo
 
 from front.models import CustomUser
 
@@ -46,3 +47,13 @@ def create_passives(sender, instance, created, **kwargs):
         passives.save(update_fields=['properties', 'transports', 'loans'])
         instance.all_passives = passives
         instance.save()
+
+
+@receiver(post_save, sender=CustomUser)
+def create_planner(sender, instance, created, **kwargs):
+    if created:
+        planner = todo.Planner.objects.create(user=instance)
+        task = todo.TodoTask.objects.create(user=instance, title='Список дел')
+        planner.tasks.add(task)
+        planner.save()
+        

@@ -52,7 +52,10 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         task_serializer.is_valid(raise_exception=True)
         task = task_serializer.save()
         if 'project' in request.data:
-            task.project = request.data['project']
+            project_id = request.data['project']
+            project_instance = Project.objects.get(id=project_id)
+            task.project = project_instance
+            task.save()  # Сохраняем изменение связанного проекта
         for item_data in desc_list_data:
             item_data['task'] = task.id
             item_data['user'] = task.user_id
@@ -62,7 +65,6 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         items = item_serializer.save()
 
         task.desc_list.set(items)
-        task.save()
         return Response(task_serializer.data, status=status.HTTP_201_CREATED)
 
         # todo_task = task_serializer.save()
@@ -149,8 +151,10 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         request.data['done'] = not instance.done
         if request.data['done'] == True and instance.desc_list != []:
             for item in instance.desc_list.all():
-                item.done = True
-                item.save()
+                if item.done != request.data['done']:
+                    item.done = request.data['done']
+                    item.save()
+        request.data['expenses_is_completed'] = not instance.expenses_is_completed
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()

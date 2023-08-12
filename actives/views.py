@@ -5,10 +5,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from django.db.models import Sum
+from django.contrib.contenttypes.models import ContentType
 
 from django.shortcuts import get_object_or_404
 from .models import *
 import passives.models as pas
+import inventory.models as inv
 from .serializers import *
 from сars_parser.parser.main import get_average
 from .actives_scripts.transport_mark_model.main import set_mark_model
@@ -60,25 +62,27 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
         serializer.is_valid(raise_exception=True)
         serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
-        # Create the Property object
+        # Создание объекта Property
         self.perform_create(serializer)
 
-        # Check if the Property object has a non-empty loan field
-        # if serializer.instance.loan:
-        #     # Create the Loans object
-        #     loan = pas.Loans.objects.create(
-        #         user=serializer.instance.user,
-        #         name=serializer.instance.name,
-        #         remainder=serializer.instance.actual_price - serializer.instance.initial_payment,
-        #         sum=serializer.instance.bought_price,
-        #         loan_term=serializer.instance.loan_term,
-        #         percentage=serializer.instance.percentage,
-        #         month_payment=serializer.instance.month_payment,
-        #         maintenance_cost=serializer.instance.month_expense
-        #     )
-        #     loan.save()
-        #     serializer.instance.loan_link = loan
-        serializer.save()
+        # Получение ID только что созданного объекта Property
+        property_id = serializer.instance.id
+
+        actives_content_type = ContentType.objects.get_for_model(Actives)
+
+        # Создание нового объекта Inventory, используя ID объекта Property
+        new_inventory = inv.Inventory.objects.create(
+            user=serializer.validated_data['user'],
+            content_type=actives_content_type,  # Здесь устанавливаем значение для category_object
+            object_id=property_id,  # Здесь устанавливаем значение для object_id
+            launch_status=False
+        )
+
+        # Обновление поля equipment в объекте Property
+        property_instance = serializer.instance
+        property_instance.equipment = new_inventory
+        property_instance.save()
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         # return self.create(request, *args, **kwargs)
@@ -95,12 +99,12 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
         income_instances = []
         expenses_instances = []
 
-        if 'income' in request.data:
-            income_data = request.data.pop('income')
+        if 'incomes' in request.data:
+            income_data = request.data.pop('incomes')
             for income in income_data:
                 income_serializer = ActivesIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, property=instance)
+                income_instance = income_serializer.save(user=instance.user, property=instance)
                 income_instances.append(income_instance)
 
         if 'expenses' in request.data:
@@ -108,7 +112,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
             for expense in expenses_data:
                 expenses_serializer = ActivesExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, property=instance)
+                expenses_instance = expenses_serializer.save(user=instance.user, property=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -125,6 +129,44 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
         serializer = self.get_serializer(instance)
 
         return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        property_instance = self.get_object()
+        inventory = property_instance.equipment
+
+        # Если уже существует Inventory с launch_status равным False
+        if inventory and not inventory.launch_status:
+            old_inventory = inventory
+
+            # Получение ContentType для модели Actives
+            actives_content_type = ContentType.objects.get_for_model(Actives)
+
+            # Создание нового объекта Inventory, наследующего поля старого
+            new_inventory = inv.Inventory.objects.create(
+                user=old_inventory.user,
+                content_type=actives_content_type,  # Здесь устанавливаем значение для category_object
+                object_id=property_instance.id,  # Здесь устанавливаем значение для object_id
+                launch_status=True
+            )
+
+            # Связывание старого объекта Inventory с новым через GenericRelation
+            new_inventory.previous_inventories.set([old_inventory])
+
+            # Обновление поля equipment в Property
+            property_instance.equipment = new_inventory
+            property_instance.save()
+
+            # Сериализация объекта Property
+            serializer = PropertySerializer(property_instance)
+            return Response(serializer.data)
+
+        if property_instance.equipment and property_instance.equipment.launch_status:
+            property_instance.equipment.launch_status = not property_instance.equipment.launch_status
+            property_instance.save(update_fields=['equipment'])
+            serializer = PropertySerializer(property_instance)
+            return Response(serializer.data)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 
 
@@ -357,7 +399,42 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         # serializer.is_valid(raise_exception=True)
         # self.perform_update(serializer)
         # return Response(serializer.data)
+    def update(self, request, *args, **kwargs):
+        business_instance = self.get_object()
 
+        # Если уже существует Inventory с launch_status равным False
+        if business_instance.equipment and not business_instance.equipment.launch_status:
+            old_inventory = business_instance.equipment
+
+            # Получение ContentType для модели Actives
+            actives_content_type = ContentType.objects.get_for_model(Actives)
+
+            # Создание нового объекта Inventory, наследующего поля старого
+            new_inventory = inv.Inventory.objects.create(
+                user=old_inventory.user,
+                content_type=actives_content_type,  # Здесь устанавливаем значение для category_object
+                object_id=business_instance.id,  # Здесь устанавливаем значение для object_id
+                launch_status=True
+            )
+
+            # Связывание старого объекта Inventory с новым через GenericRelation
+            new_inventory.previous_inventories.set([old_inventory])
+
+            # Обновление поля equipment в Property
+            business_instance.equipment = new_inventory
+            business_instance.save()
+
+            # Сериализация объекта Property
+            serializer = PropertySerializer(business_instance)
+            return Response(serializer.data)
+
+        if business_instance.equipment and business_instance.equipment.launch_status:
+            business_instance.equipment.launch_status = not business_instance.equipment.launch_status
+            business_instance.save(update_fields=['equipment'])
+            serializer = PropertySerializer(business_instance)
+            return Response(serializer.data)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 class BusinessDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     queryset = Business.objects.all()
@@ -369,7 +446,7 @@ class BusinessDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 
 class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
-    queryset = Income.objects.all()
+    queryset = ActivesIncome.objects.all()
     serializer_class = ActivesIncomeSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -381,7 +458,7 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
 
 # View mixin for retrieving, updating, and deleting a specific Income object
 class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
-    queryset = Income.objects.all()
+    queryset = ActivesIncome.objects.all()
     serializer_class = ActivesIncomeSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -396,7 +473,7 @@ class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 # View mixin for listing all Expenses objects and creating new Expenses objects
 class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
-    queryset = Expenses.objects.all()
+    queryset = ActivesExpenses.objects.all()
     serializer_class = ActivesExpensesSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -408,7 +485,7 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
 
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
-    queryset = Expenses.objects.all()
+    queryset = ActivesExpenses.objects.all()
     serializer_class = ActivesExpensesSerializer
     permission_classes = [permissions.AllowAny]
 

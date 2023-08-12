@@ -11,11 +11,12 @@ from front.models import CustomUser
 
 class InventoryAsset(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     added = models.BooleanField(default=False, null=True, blank=True)
+    text = models.TextField(null=True, blank=True)
     price = models.FloatField(default=0.0, null=True, blank=True)
     flag = models.BooleanField(default=False, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"InventoryAsset {self.id} - {self.user.username}"
@@ -30,7 +31,7 @@ class Inventory(models.Model):
     launch_status = models.BooleanField(default=False, null=True, blank=True)
     total_cost = models.FloatField(default=0.0, null=True, blank=True)
     previous_inventories = GenericRelation('self', related_query_name='previous_inventory', blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Inventory {self.id} - {self.user.username}"

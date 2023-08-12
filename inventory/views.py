@@ -42,3 +42,28 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         self.perform_update(serializer)
 
         return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        inventory = self.get_object()
+        inventory.launch_status = False
+        inventory.save()
+        return Response(self.get_serializer(inventory).data)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
+class InventoryAssetUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
+    queryset = InventoryAsset.objects.all()
+    serializer_class = InventoryAssetSerializer
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
+class InventoryAssetDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = InventoryAsset.objects.all()
+    serializer_class = InventoryAssetSerializer
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)

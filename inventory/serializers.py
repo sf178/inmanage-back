@@ -10,6 +10,7 @@ class InventoryAssetSerializer(serializers.ModelSerializer):
 
 class InventorySerializer(serializers.ModelSerializer):
     assets = InventoryAssetSerializer(many=True, read_only=True)
+    previous_inventories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Inventory

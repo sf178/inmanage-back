@@ -60,6 +60,10 @@ class ProjectAdmin(admin.ModelAdmin):
     ordering = ('id',)
 
 
+class PlannerAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(TodoTask, TodoTaskAdmin)
 admin.site.register(TodoItem, TodoItemAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(Planner, PlannerAdmin)
