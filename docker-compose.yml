@@ -14,6 +14,7 @@ services:
     image: nginx:latest
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - ./nginx/proxy_params:/etc/nginx/proxy_params
     ports:
       - "80:80"
 
