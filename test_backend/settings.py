@@ -98,7 +98,7 @@ DATABASES = {
         'NAME': 'inmanage',
         'USER': 'postgres',
         'PASSWORD': 'samara63',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
