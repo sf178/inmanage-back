@@ -1,15 +1,14 @@
 from rest_framework import serializers
-from .models import ExpenseCategory, ExpenseSubcategory
-
+from .models import *
 
 class ExpenseSubcategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ExpenseSubcategory
+        model = ExpensePersonalSubcategory
         fields = ['name']
 
 class ExpenseCategorySerializer(serializers.ModelSerializer):
     subcategories = ExpenseSubcategorySerializer(many=True)
 
     class Meta:
-        model = ExpenseCategory
+        model = ExpensePersonalCategory
         fields = ['name', 'subcategories']

@@ -77,6 +77,7 @@ class Income(models.Model):
     task = models.ForeignKey('todo.TodoTask', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     item = models.ForeignKey('todo.TodoItem', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     project = models.ForeignKey('todo.Project', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -87,6 +88,7 @@ class Expenses(models.Model):
     task = models.ForeignKey('todo.TodoTask', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     item = models.ForeignKey('todo.TodoItem', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     project = models.ForeignKey('todo.Project', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     category = models.TextField(blank=True)
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

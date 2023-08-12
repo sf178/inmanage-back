@@ -1,10 +1,10 @@
 from rest_framework import mixins, generics
-from .models import ExpenseCategory
-from .serializers import ExpenseCategorySerializer
+from .models import *
+from .serializers import *
 
 
 class ExpenseCategoryListView(mixins.ListModelMixin, generics.GenericAPIView):
-    queryset = ExpenseCategory.objects.all()
+    queryset = ExpensePersonalCategory.objects.all()
     serializer_class = ExpenseCategorySerializer
 
     def get(self, request, *args, **kwargs):

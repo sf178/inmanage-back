@@ -54,6 +54,7 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         if 'project' in request.data:
             project_id = request.data['project']
             project_instance = Project.objects.get(id=project_id)
+            project_instance.tasks_list.add(task)
             task.project = project_instance
             task.save()  # Сохраняем изменение связанного проекта
         for item_data in desc_list_data:
