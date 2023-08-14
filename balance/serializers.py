@@ -35,13 +35,13 @@ class BalanceSerializer(serializers.ModelSerializer):
 class BalanceIncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Income
-        fields = ('id', 'card', 'funds', 'created_at')
+        fields = '__all__'
 
 
 class BalanceExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expenses
-        fields = ('id', 'card', 'funds', 'created_at')
+        fields = '__all__'
 
 
 CardSerializer._declared_fields['income'] = BalanceIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
