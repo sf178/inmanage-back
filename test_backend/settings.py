@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'todo.apps.TodoConfig',
     'balance.apps.BalanceConfig',
     'inventory.apps.InventoryConfig',
+    'category.apps.CategoryConfig',
     'corsheaders',
     'simple_history',
     'rest_framework',
@@ -98,7 +99,7 @@ DATABASES = {
         'NAME': 'inmanage',
         'USER': 'postgres',
         'PASSWORD': 'samara63',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }

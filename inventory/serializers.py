@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Inventory, InventoryAsset
+from .models import *
 from rest_framework_recursive.fields import RecursiveField
 
 
@@ -8,11 +8,18 @@ class InventoryAssetSerializer(serializers.ModelSerializer):
         model = InventoryAsset
         fields= '__all__'
 
+class InventoryExpensesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InventoryExpenses
+        fields= '__all__'
 
 class InventorySerializer(serializers.ModelSerializer):
     assets = InventoryAssetSerializer(many=True, read_only=True)
     previous_inventories = RecursiveField(many=True, read_only=True)
+    expenses = InventoryExpensesSerializer(many=True, read_only=True)
 
     class Meta:
         model = Inventory
         fields = '__all__'
+
+

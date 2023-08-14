@@ -80,10 +80,27 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
         serializer.is_valid(raise_exception=True)
         serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
-        # Create the Property object
+        # Создание объекта Property
         self.perform_create(serializer)
 
-        serializer.save()
+        # Получение ID только что созданного объекта Property
+        property_id = serializer.instance.id
+
+        passives_content_type = ContentType.objects.get_for_model(Passives)
+
+        # Создание нового объекта Inventory, используя ID объекта Property
+        new_inventory = inv.Inventory.objects.create(
+            user=serializer.validated_data['user'],
+            content_type=passives_content_type,  # Здесь устанавливаем значение для category_object
+            object_id=property_id,  # Здесь устанавливаем значение для object_id
+            launch_status=False
+        )
+
+        # Обновление поля equipment в объекте Property
+        property_instance = serializer.instance
+        property_instance.equipment = new_inventory
+        property_instance.save()
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         # return self.create(request, *args, **kwargs)

@@ -1,6 +1,7 @@
 from django.db import models
 from front.models import CustomUser
 from simple_history.models import HistoricalRecords
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
@@ -69,6 +70,9 @@ class Expenses(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    category = models.TextField(blank=True)
+    category = ArrayField(models.TextField(blank=True), blank=True, default=list)
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    title = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

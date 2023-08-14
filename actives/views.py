@@ -134,8 +134,12 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
         property_instance = self.get_object()
         inventory = property_instance.equipment
 
+        if inventory and inventory.launch_status:
+            property_instance.equipment.launch_status = not property_instance.equipment.launch_status
+            property_instance.equipment.save()
+            property_instance.save(update_fields=['equipment'])
         # Если уже существует Inventory с launch_status равным False
-        if inventory and not inventory.launch_status:
+        elif inventory and not inventory.launch_status:
             old_inventory = inventory
 
             # Получение ContentType для модели Actives
@@ -155,16 +159,17 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
             # Обновление поля equipment в Property
             property_instance.equipment = new_inventory
             property_instance.save()
+            # property_instance = self.get_object()
+            #
+            # # Сериализация объекта Property
+            # serializer = PropertySerializer(property_instance)
+            # return Response(serializer.data)
 
-            # Сериализация объекта Property
-            serializer = PropertySerializer(property_instance)
-            return Response(serializer.data)
 
-        if property_instance.equipment and property_instance.equipment.launch_status:
-            property_instance.equipment.launch_status = not property_instance.equipment.launch_status
-            property_instance.save(update_fields=['equipment'])
-            serializer = PropertySerializer(property_instance)
-            return Response(serializer.data)
+        property_instance = self.get_object()
+
+        serializer = PropertySerializer(property_instance)
+        return Response(serializer.data)
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
@@ -311,9 +316,31 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         #     return Response({'message': 'Object with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        # serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
-        # Create the Property object
+        # Создание объекта Business
         self.perform_create(serializer)
+
+        # Получение ID только что созданного объекта Business
+        business_id = serializer.instance.id
+
+        actives_content_type = ContentType.objects.get_for_model(Actives)
+
+        # Создание нового объекта Inventory, используя ID объекта Business
+        new_inventory = inv.Inventory.objects.create(
+            user=serializer.validated_data['user'],
+            content_type=actives_content_type,  # Здесь устанавливаем значение для category_object
+            object_id=business_id,  # Здесь устанавливаем значение для object_id
+            launch_status=False
+        )
+
+        # Обновление поля equipment в объекте Property
+        property_instance = serializer.instance
+        property_instance.equipment = new_inventory
+        property_instance.save()
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
         # Check if the Property object has a non-empty loan field
         # if serializer.instance.loan:
@@ -424,6 +451,8 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             business_instance.equipment = new_inventory
             business_instance.save()
 
+            business_instance = self.get_object()
+
             # Сериализация объекта Property
             serializer = PropertySerializer(business_instance)
             return Response(serializer.data)
@@ -431,6 +460,8 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         if business_instance.equipment and business_instance.equipment.launch_status:
             business_instance.equipment.launch_status = not business_instance.equipment.launch_status
             business_instance.save(update_fields=['equipment'])
+            business_instance = self.get_object()
+
             serializer = PropertySerializer(business_instance)
             return Response(serializer.data)
     def put(self, request, *args, **kwargs):

@@ -89,7 +89,9 @@ class Expenses(models.Model):
     item = models.ForeignKey('todo.TodoItem', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     project = models.ForeignKey('todo.Project', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    category = models.TextField(blank=True)
+    category = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     funds = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

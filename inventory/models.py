@@ -29,9 +29,22 @@ class Inventory(models.Model):
     category_object = GenericForeignKey('content_type', 'object_id')
     assets = models.ManyToManyField(InventoryAsset, related_name='assets', blank=True)
     launch_status = models.BooleanField(default=False, null=True, blank=True)
+    expenses = models.ManyToManyField('inventory.InventoryExpenses', blank=True, related_name='+')
     total_cost = models.FloatField(default=0.0, null=True, blank=True)
     previous_inventories = GenericRelation('self', related_query_name='previous_inventory', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Inventory {self.id} - {self.user.username}"
+
+
+class InventoryExpenses(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    category = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    funds = models.FloatField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)

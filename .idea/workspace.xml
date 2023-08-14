@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="Исправил косяки">
-      <change afterPath="$PROJECT_DIR$/inventory/urls.py" afterDir="false" />
+    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="мелкофикс">
+      <change afterPath="$PROJECT_DIR$/category/load.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/111.rar" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/actives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/category_script/categories.json" beforeDir="false" afterPath="$PROJECT_DIR$/category/categories.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/category_script/load_categories.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/category_script/load_categories.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inmng.dot" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/passives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/passives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_backend.rar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_backend/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +80,8 @@
       <recent name="D:\inmanage-site\test_backend\passives" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\inmanage-site\test_backend\category\management\commands" />
+      <recent name="D:\inmanage-site\test_backend\category" />
       <recent name="D:\inmanage-site\test_backend\сars_parser\parser" />
       <recent name="D:\inmanage-site\test_backend\balance" />
     </key>
@@ -287,7 +298,9 @@
       <workItem from="1691377633535" duration="791000" />
       <workItem from="1691531080300" duration="1109000" />
       <workItem from="1691575643811" duration="40062000" />
-      <workItem from="1691771655073" duration="11897000" />
+      <workItem from="1691771655073" duration="12283000" />
+      <workItem from="1691812665660" duration="10439000" />
+      <workItem from="1691977038474" duration="7941000" />
     </task>
     <task id="LOCAL-00001" summary="balance added">
       <created>1689964645556</created>
@@ -373,7 +386,49 @@
       <option name="project" value="LOCAL" />
       <updated>1691773659395</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Исправил косяки">
+      <created>1691810500750</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1691810500750</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Основная ветка, добавлен Docker, скрипт для очистки базы данных">
+      <created>1691815808650</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1691815808650</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Основная ветка, добавлен Docker, скрипт для очистки базы данных">
+      <created>1691815939968</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1691815939968</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Основная ветка, добавлен Docker, скрипт для очистки базы данных">
+      <created>1691816438084</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1691816438084</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Добавлены категории личных трат">
+      <created>1691819637807</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1691819637807</updated>
+    </task>
+    <task id="LOCAL-00018" summary="мелкофикс">
+      <created>1691826287151</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1691826287151</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -396,7 +451,10 @@
     <MESSAGE value="Отключен парсинг авто&#10;Исправлено создание подзадач в Планировщике, вложить массив объектов 'items' при обновлении Задачи (PATCH-request к объекту по ИД)&#10;Теперь при обновлении статуса Задачи, Подзадачи (PUT-request) из &quot;Готово&quot; в &quot;Незавершено&quot;, в случае, если Проект в статусе &quot;Готово&quot;, меняется статус Проекта&#10;Исправлена сборка Баланса, теперь сумма на Балансе меняется и от Недвижимости, Транспорта и Бизнеса со всех возможных приложений" />
     <MESSAGE value="(Планировщик) В каждой модели задачи должно быть булевое поле отвечающее за “закрытие” расходов: “expenses_is_completed”: Bool. теперь оно есть.&#10;(Пассивы) При создании кредита в пассивах через [POST] /passives/loans/создается модель в базе данных, и теперь привязывается к общей модели пассивов [GET] /passives&#10;(Баланс) Новое поле для указания общего кол-ва средств для “Карты и наличные”: card_funds - Float" />
     <MESSAGE value="Исправил косяки" />
-    <option name="LAST_COMMIT_MESSAGE" value="Исправил косяки" />
+    <MESSAGE value="Основная ветка, добавлен Docker, скрипт для очистки базы данных" />
+    <MESSAGE value="Добавлены категории личных трат" />
+    <MESSAGE value="мелкофикс" />
+    <option name="LAST_COMMIT_MESSAGE" value="мелкофикс" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/models_py$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1688629357043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/сars_parser/parser" />
