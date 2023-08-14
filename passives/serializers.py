@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from inventory import serializers as inv
 
 
 class LoansSerializer(serializers.ModelSerializer):
@@ -10,6 +11,7 @@ class LoansSerializer(serializers.ModelSerializer):
 
 class PropertySerializer(serializers.ModelSerializer):
     loan_link = LoansSerializer(many=False, required=False)
+    equipment = inv.InventorySerializer(many=False, required=False)
 
     class Meta:
         model = Property

@@ -1,30 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="мелкофикс">
-      <change afterPath="$PROJECT_DIR$/category/load.py" afterDir="false" />
+    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="Крупнофикс">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/111.rar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/category_script/categories.json" beforeDir="false" afterPath="$PROJECT_DIR$/category/categories.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/category_script/load_categories.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/category_script/load_categories.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/category/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inmng.dot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_backend.rar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_backend/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -300,7 +278,7 @@
       <workItem from="1691575643811" duration="40062000" />
       <workItem from="1691771655073" duration="12283000" />
       <workItem from="1691812665660" duration="10439000" />
-      <workItem from="1691977038474" duration="7941000" />
+      <workItem from="1691977038474" duration="8883000" />
     </task>
     <task id="LOCAL-00001" summary="balance added">
       <created>1689964645556</created>
@@ -428,7 +406,14 @@
       <option name="project" value="LOCAL" />
       <updated>1691826287151</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Крупнофикс">
+      <created>1691985731226</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1691985731226</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -454,7 +439,8 @@
     <MESSAGE value="Основная ветка, добавлен Docker, скрипт для очистки базы данных" />
     <MESSAGE value="Добавлены категории личных трат" />
     <MESSAGE value="мелкофикс" />
-    <option name="LAST_COMMIT_MESSAGE" value="мелкофикс" />
+    <MESSAGE value="Крупнофикс" />
+    <option name="LAST_COMMIT_MESSAGE" value="Крупнофикс" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/models_py$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1688629357043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/сars_parser/parser" />

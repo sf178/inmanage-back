@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
-from passives.serializers import LoansSerializer
-from inventory.serializers import InventorySerializer
+from passives import serializers as pas
+from inventory import serializers as inv
 import json
 
 
@@ -10,8 +10,8 @@ def serialize_object_to_json(obj):
 
 
 class PropertySerializer(serializers.ModelSerializer):
-    loan_link = LoansSerializer(many=False, required=False)
-    equipment = InventorySerializer(many=False, required=False)
+    loan_link = pas.LoansSerializer(many=False, required=False)
+    equipment = inv.InventorySerializer(many=False, required=False)
     class Meta:
         model = Property
         fields = '__all__'
@@ -40,7 +40,7 @@ class PropertySerializer(serializers.ModelSerializer):
 
 
 class TransportSerializer(serializers.ModelSerializer):
-    loan_link = LoansSerializer(many=False, required=False)
+    loan_link = pas.LoansSerializer(many=False, required=False)
 
     class Meta:
         model = Transport
@@ -48,7 +48,8 @@ class TransportSerializer(serializers.ModelSerializer):
 
 
 class BusinessSerializer(serializers.ModelSerializer):
-    loan_link = LoansSerializer(many=False, required=False)
+    loan_link = pas.LoansSerializer(many=False, required=False)
+    equipment = inv.InventorySerializer(many=False, required=False)
 
     class Meta:
         model = Business
