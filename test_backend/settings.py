@@ -96,10 +96,10 @@ WSGI_APPLICATION = 'test_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'inmanage-test',
+        'NAME': 'inmanage',
         'USER': 'postgres',
         'PASSWORD': 'samara63',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
