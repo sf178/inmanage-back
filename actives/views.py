@@ -138,36 +138,38 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
             property_instance.equipment.launch_status = not property_instance.equipment.launch_status
             property_instance.equipment.save()
             property_instance.save(update_fields=['equipment'])
+
         # Если уже существует Inventory с launch_status равным False
         elif inventory and not inventory.launch_status:
-            old_inventory = inventory
+            new_inventory = inventory
+            new_inventory.launch_status = True
+            new_inventory.save()
 
-            # Получение ContentType для модели Actives
-            actives_content_type = ContentType.objects.get_for_model(Actives)
-
-            # Создание нового объекта Inventory, наследующего поля старого
-            new_inventory = inv.Inventory.objects.create(
-                user=old_inventory.user,
-                content_type=actives_content_type,  # Здесь устанавливаем значение для category_object
-                object_id=property_instance.id,  # Здесь устанавливаем значение для object_id
-                launch_status=True
+            # Создание объекта PreviousInventory на основе текущего состояния inventory
+            previous_inv = inv.PreviousInventory.objects.create(
+                user=inventory.user,
+                content_type=inventory.content_type,
+                object_id=inventory.object_id,
+                launch_status=False,
+                total_cost=inventory.total_cost
             )
-
-            # Связывание старого объекта Inventory с новым через GenericRelation
-            new_inventory.previous_inventories.set([old_inventory])
+            # Копирование связанных assets и expenses
+            for asset in inventory.assets.all():
+                previous_inv.assets.add(asset)
+            for expense in inventory.expenses.all():
+                previous_inv.expenses.add(expense)
+            if new_inventory.previous_inventories.exists():
+                last_previous_inventory = new_inventory.previous_inventories.latest('created_at')
+                previous_inv.previous_inventory.set([last_previous_inventory])
+                previous_inv.save()
+            # Добавляем созданный объект PreviousInventory в поле previous_inventories текущего inventory
+            new_inventory.previous_inventories.add(previous_inv)
 
             # Обновление поля equipment в Property
             property_instance.equipment = new_inventory
             property_instance.save()
-            # property_instance = self.get_object()
-            #
-            # # Сериализация объекта Property
-            # serializer = PropertySerializer(property_instance)
-            # return Response(serializer.data)
-
 
         property_instance = self.get_object()
-
         serializer = PropertySerializer(property_instance)
         return Response(serializer.data)
     def put(self, request, *args, **kwargs):
@@ -429,23 +431,41 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     def update(self, request, *args, **kwargs):
         business_instance = self.get_object()
 
+        if business_instance.equipment and business_instance.equipment.launch_status:
+            business_instance.equipment.launch_status = not business_instance.equipment.launch_status
+            business_instance.save(update_fields=['equipment'])
+            business_instance = self.get_object()
+
+            serializer = PropertySerializer(business_instance)
+            return Response(serializer.data)
         # Если уже существует Inventory с launch_status равным False
         if business_instance.equipment and not business_instance.equipment.launch_status:
-            old_inventory = business_instance.equipment
+            new_inventory = business_instance.equipment
 
             # Получение ContentType для модели Actives
             actives_content_type = ContentType.objects.get_for_model(Actives)
 
             # Создание нового объекта Inventory, наследующего поля старого
-            new_inventory = inv.Inventory.objects.create(
-                user=old_inventory.user,
-                content_type=actives_content_type,  # Здесь устанавливаем значение для category_object
-                object_id=business_instance.id,  # Здесь устанавливаем значение для object_id
-                launch_status=True
+            # Создаем объект PreviousInventory на основе текущего состояния old_inventory
+            previous_inv = inv.PreviousInventory.objects.create(
+                user=new_inventory.user,
+                content_type=new_inventory.content_type,
+                object_id=new_inventory.object_id,
+                launch_status=new_inventory.launch_status,
+                total_cost=new_inventory.total_cost
             )
 
+            # Копируем связанные данные (assets и expenses)
+            for asset in new_inventory.assets.all():
+                previous_inv.assets.add(asset)
+            for expense in new_inventory.expenses.all():
+                previous_inv.expenses.add(expense)
+            if new_inventory.previous_inventories.exists():
+                last_previous_inventory = new_inventory.previous_inventories.latest('created_at')
+                previous_inv.previous_inventory.set([last_previous_inventory])
+                previous_inv.save()
             # Связывание старого объекта Inventory с новым через GenericRelation
-            new_inventory.previous_inventories.set([old_inventory])
+            new_inventory.previous_inventories.add(previous_inv)
 
             # Обновление поля equipment в Property
             business_instance.equipment = new_inventory
@@ -457,13 +477,6 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             serializer = PropertySerializer(business_instance)
             return Response(serializer.data)
 
-        if business_instance.equipment and business_instance.equipment.launch_status:
-            business_instance.equipment.launch_status = not business_instance.equipment.launch_status
-            business_instance.save(update_fields=['equipment'])
-            business_instance = self.get_object()
-
-            serializer = PropertySerializer(business_instance)
-            return Response(serializer.data)
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 

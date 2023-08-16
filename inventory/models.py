@@ -9,6 +9,20 @@ from django.db import models
 from front.models import CustomUser
 
 
+class PreviousInventory(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    category_object = GenericForeignKey('content_type', 'object_id')
+    assets = models.ManyToManyField('inventory.InventoryAsset', related_name='prev_assets', blank=True)
+    launch_status = models.BooleanField(default=False, null=True, blank=True)
+    expenses = models.ManyToManyField('inventory.InventoryExpenses', blank=True, related_name='+')
+    total_cost = models.FloatField(default=0.0, null=True, blank=True)
+    previous_inventory = GenericRelation('self', related_query_name='prev_inventory', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class InventoryAsset(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
@@ -31,7 +45,8 @@ class Inventory(models.Model):
     launch_status = models.BooleanField(default=False, null=True, blank=True)
     expenses = models.ManyToManyField('inventory.InventoryExpenses', blank=True, related_name='+')
     total_cost = models.FloatField(default=0.0, null=True, blank=True)
-    previous_inventories = GenericRelation('self', related_query_name='previous_inventory', blank=True)
+    previous_inventories = models.ManyToManyField('inventory.PreviousInventory', related_name='previous_inventory',
+                                                  blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -3,7 +3,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from .views import *
 
 urlpatterns = [
-    path('personal/', ExpenseCategoryListView.as_view(), name='personal-category-list'),
+    path('personal/', ExpensePersonalCategoryListView.as_view(), name='personal-category-list'),
+    path('general/', ExpenseGeneralCategoryListView.as_view(), name='general-category-list')
 
 
 ]
