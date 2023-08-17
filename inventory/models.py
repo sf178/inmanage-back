@@ -15,11 +15,11 @@ class PreviousInventory(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     category_object = GenericForeignKey('content_type', 'object_id')
-    assets = models.ManyToManyField('inventory.InventoryAsset', related_name='prev_assets', blank=True)
+    assets = models.ManyToManyField('inventory.InventoryAsset', related_name='+', blank=True)
     launch_status = models.BooleanField(default=False, null=True, blank=True)
     expenses = models.ManyToManyField('inventory.InventoryExpenses', blank=True, related_name='+')
     total_cost = models.FloatField(default=0.0, null=True, blank=True)
-    previous_inventory = GenericRelation('self', related_query_name='prev_inventory', blank=True)
+    previous_inventory = GenericRelation('self', related_query_name='+', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -41,11 +41,11 @@ class Inventory(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     category_object = GenericForeignKey('content_type', 'object_id')
-    assets = models.ManyToManyField(InventoryAsset, related_name='assets', blank=True)
+    assets = models.ManyToManyField(InventoryAsset, related_name='+', blank=True)
     launch_status = models.BooleanField(default=False, null=True, blank=True)
     expenses = models.ManyToManyField('inventory.InventoryExpenses', blank=True, related_name='+')
     total_cost = models.FloatField(default=0.0, null=True, blank=True)
-    previous_inventories = models.ManyToManyField('inventory.PreviousInventory', related_name='previous_inventory',
+    previous_inventories = models.ManyToManyField('inventory.PreviousInventory', related_name='+',
                                                   blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

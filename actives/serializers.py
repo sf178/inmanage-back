@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import *
 from passives import serializers as pas
 from inventory import serializers as inv
+from test_backend.custom_methods import CustomDateTimeField
 import json
 
 
@@ -9,9 +10,14 @@ def serialize_object_to_json(obj):
     return json.dumps(obj, default=str)
 
 
+
+
+
 class PropertySerializer(serializers.ModelSerializer):
     loan_link = pas.LoansSerializer(many=False, required=False)
     equipment = inv.InventorySerializer(many=False, required=False)
+    created_at = CustomDateTimeField(required=False)
+
     class Meta:
         model = Property
         fields = '__all__'
@@ -41,6 +47,7 @@ class PropertySerializer(serializers.ModelSerializer):
 
 class TransportSerializer(serializers.ModelSerializer):
     loan_link = pas.LoansSerializer(many=False, required=False)
+    created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = Transport
@@ -50,6 +57,7 @@ class TransportSerializer(serializers.ModelSerializer):
 class BusinessSerializer(serializers.ModelSerializer):
     loan_link = pas.LoansSerializer(many=False, required=False)
     equipment = inv.InventorySerializer(many=False, required=False)
+    created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = Business
@@ -60,20 +68,24 @@ class ActivesIncomeSerializer(serializers.ModelSerializer):
     property = PropertySerializer(required=False, allow_null=True)
     transport = TransportSerializer(required=False, allow_null=True)
     business = BusinessSerializer(required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = ActivesIncome
-        fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
+        fields = '__all__'
 
 
 class ActivesExpensesSerializer(serializers.ModelSerializer):
+    created_at = CustomDateTimeField(required=False)
+
     class Meta:
         model = ActivesExpenses
-        fields = ('id', 'property', 'transport', 'business', 'funds', 'created_at')
+        fields = '__all__'
 
 
 class MainPropertySerializer(serializers.ModelSerializer):
     properties = PropertySerializer(many=True, read_only=True, required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = MainProperties
@@ -82,6 +94,7 @@ class MainPropertySerializer(serializers.ModelSerializer):
 
 class MainBusinessesSerializer(serializers.ModelSerializer):
     businesses = BusinessSerializer(many=True, read_only=True, required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = MainBusinesses
@@ -90,6 +103,7 @@ class MainBusinessesSerializer(serializers.ModelSerializer):
 
 class MainTransportSerializer(serializers.ModelSerializer):
     transport = TransportSerializer(many=True, read_only=True, required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = MainTransport
@@ -100,6 +114,7 @@ class ActivesSerializer(serializers.ModelSerializer):
     properties = MainPropertySerializer(read_only=True, required=False, allow_null=True)
     transports = MainTransportSerializer(read_only=True, required=False, allow_null=True)
     businesses = MainBusinessesSerializer(read_only=True, required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = Actives

@@ -134,44 +134,53 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
         property_instance = self.get_object()
         inventory = property_instance.equipment
 
-        if inventory and inventory.launch_status:
-            property_instance.equipment.launch_status = not property_instance.equipment.launch_status
-            property_instance.equipment.save()
-            property_instance.save(update_fields=['equipment'])
+        if inventory:
+            if inventory.launch_status:
+                inventory.launch_status = not inventory.launch_status
+                inventory.save()
+                property_instance.save(update_fields=['equipment'])
+                serializer = PropertySerializer(property_instance)
+                return Response(serializer.data)
 
-        # Если уже существует Inventory с launch_status равным False
-        elif inventory and not inventory.launch_status:
-            new_inventory = inventory
-            new_inventory.launch_status = True
-            new_inventory.save()
+            # Если уже существует Inventory с launch_status равным False
+            elif not inventory.launch_status:
+                inventory.launch_status = True
+                # inventory.save()
 
-            # Создание объекта PreviousInventory на основе текущего состояния inventory
-            previous_inv = inv.PreviousInventory.objects.create(
-                user=inventory.user,
-                content_type=inventory.content_type,
-                object_id=inventory.object_id,
-                launch_status=False,
-                total_cost=inventory.total_cost
-            )
-            # Копирование связанных assets и expenses
-            for asset in inventory.assets.all():
-                previous_inv.assets.add(asset)
-            for expense in inventory.expenses.all():
-                previous_inv.expenses.add(expense)
-            if new_inventory.previous_inventories.exists():
-                last_previous_inventory = new_inventory.previous_inventories.latest('created_at')
-                previous_inv.previous_inventory.set([last_previous_inventory])
-                previous_inv.save()
-            # Добавляем созданный объект PreviousInventory в поле previous_inventories текущего inventory
-            new_inventory.previous_inventories.add(previous_inv)
+                # Создание объекта PreviousInventory на основе текущего состояния inventory
+                previous_inv = inv.PreviousInventory.objects.create(
+                    user=inventory.user,
+                    content_type=inventory.content_type,
+                    object_id=inventory.object_id,
+                    launch_status=False,
+                    total_cost=inventory.total_cost
+                )
+                # Копирование связанных assets и expenses
+                try:
+                    for asset in inventory.assets.all():
+                        previous_inv.assets.add(asset)
+                except:
+                    pass
+                try:
+                    for expense in inventory.expenses.all():
+                        previous_inv.expenses.add(expense)
+                except:
+                    pass
 
-            # Обновление поля equipment в Property
-            property_instance.equipment = new_inventory
-            property_instance.save()
+                # Связь с предыдущим инвентарем
+                if inventory.previous_inventories.exists():
+                    last_previous_inventory = inventory.previous_inventories.latest('created_at')
+                    previous_inv.previous_inventory.set([last_previous_inventory])
+                    previous_inv.save()
 
-        property_instance = self.get_object()
-        serializer = PropertySerializer(property_instance)
-        return Response(serializer.data)
+                # Добавляем созданный объект PreviousInventory в поле previous_inventories текущего inventory
+                inventory.previous_inventories.add(previous_inv)
+                inventory.save()  # Удостоверимся, что изменения сохранены
+
+                property_instance.save()
+
+            serializer = PropertySerializer(property_instance)
+            return Response(serializer.data)
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
@@ -430,52 +439,99 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         # return Response(serializer.data)
     def update(self, request, *args, **kwargs):
         business_instance = self.get_object()
+        inventory = business_instance.equipment
+        if inventory:
+            if inventory.launch_status:
+                inventory.launch_status = not inventory.launch_status
+                inventory.save()
+                business_instance.save(update_fields=['equipment'])
+                serializer = PropertySerializer(business_instance)
+                return Response(serializer.data)
 
-        if business_instance.equipment and business_instance.equipment.launch_status:
-            business_instance.equipment.launch_status = not business_instance.equipment.launch_status
-            business_instance.save(update_fields=['equipment'])
-            business_instance = self.get_object()
+            # Если уже существует Inventory с launch_status равным False
+            elif not inventory.launch_status:
+                inventory.launch_status = True
+                # inventory.save()
+
+                # Создание объекта PreviousInventory на основе текущего состояния inventory
+                previous_inv = inv.PreviousInventory.objects.create(
+                    user=inventory.user,
+                    content_type=inventory.content_type,
+                    object_id=inventory.object_id,
+                    launch_status=False,
+                    total_cost=inventory.total_cost
+                )
+                # Копирование связанных assets и expenses
+                try:
+                    for asset in inventory.assets.all():
+                        previous_inv.assets.add(asset)
+                except:
+                    pass
+                try:
+                    for expense in inventory.expenses.all():
+                        previous_inv.expenses.add(expense)
+                except:
+                    pass
+
+                # Связь с предыдущим инвентарем
+                if inventory.previous_inventories.exists():
+                    last_previous_inventory = inventory.previous_inventories.latest('created_at')
+                    previous_inv.previous_inventory.set([last_previous_inventory])
+                    previous_inv.save()
+
+                # Добавляем созданный объект PreviousInventory в поле previous_inventories текущего inventory
+                inventory.previous_inventories.add(previous_inv)
+                inventory.save()  # Удостоверимся, что изменения сохранены
+
+                business_instance.save()
 
             serializer = PropertySerializer(business_instance)
             return Response(serializer.data)
-        # Если уже существует Inventory с launch_status равным False
-        if business_instance.equipment and not business_instance.equipment.launch_status:
-            new_inventory = business_instance.equipment
-
-            # Получение ContentType для модели Actives
-            actives_content_type = ContentType.objects.get_for_model(Actives)
-
-            # Создание нового объекта Inventory, наследующего поля старого
-            # Создаем объект PreviousInventory на основе текущего состояния old_inventory
-            previous_inv = inv.PreviousInventory.objects.create(
-                user=new_inventory.user,
-                content_type=new_inventory.content_type,
-                object_id=new_inventory.object_id,
-                launch_status=new_inventory.launch_status,
-                total_cost=new_inventory.total_cost
-            )
-
-            # Копируем связанные данные (assets и expenses)
-            for asset in new_inventory.assets.all():
-                previous_inv.assets.add(asset)
-            for expense in new_inventory.expenses.all():
-                previous_inv.expenses.add(expense)
-            if new_inventory.previous_inventories.exists():
-                last_previous_inventory = new_inventory.previous_inventories.latest('created_at')
-                previous_inv.previous_inventory.set([last_previous_inventory])
-                previous_inv.save()
-            # Связывание старого объекта Inventory с новым через GenericRelation
-            new_inventory.previous_inventories.add(previous_inv)
-
-            # Обновление поля equipment в Property
-            business_instance.equipment = new_inventory
-            business_instance.save()
-
-            business_instance = self.get_object()
-
-            # Сериализация объекта Property
-            serializer = PropertySerializer(business_instance)
-            return Response(serializer.data)
+        # if business_instance.equipment and business_instance.equipment.launch_status:
+        #     business_instance.equipment.launch_status = not business_instance.equipment.launch_status
+        #     business_instance.save(update_fields=['equipment'])
+        #     business_instance = self.get_object()
+        #
+        #     serializer = PropertySerializer(business_instance)
+        #     return Response(serializer.data)
+        # # Если уже существует Inventory с launch_status равным False
+        # if business_instance.equipment and not business_instance.equipment.launch_status:
+        #     new_inventory = business_instance.equipment
+        #
+        #     # Получение ContentType для модели Actives
+        #     actives_content_type = ContentType.objects.get_for_model(Actives)
+        #
+        #     # Создание нового объекта Inventory, наследующего поля старого
+        #     # Создаем объект PreviousInventory на основе текущего состояния old_inventory
+        #     previous_inv = inv.PreviousInventory.objects.create(
+        #         user=new_inventory.user,
+        #         content_type=new_inventory.content_type,
+        #         object_id=new_inventory.object_id,
+        #         launch_status=new_inventory.launch_status,
+        #         total_cost=new_inventory.total_cost
+        #     )
+        #
+        #     # Копируем связанные данные (assets и expenses)
+        #     for asset in new_inventory.assets.all():
+        #         previous_inv.assets.add(asset)
+        #     for expense in new_inventory.expenses.all():
+        #         previous_inv.expenses.add(expense)
+        #     if new_inventory.previous_inventories.exists():
+        #         last_previous_inventory = new_inventory.previous_inventories.latest('created_at')
+        #         previous_inv.previous_inventory.set([last_previous_inventory])
+        #         previous_inv.save()
+        #     # Связывание старого объекта Inventory с новым через GenericRelation
+        #     new_inventory.previous_inventories.add(previous_inv)
+        #
+        #     # Обновление поля equipment в Property
+        #     business_instance.equipment = new_inventory
+        #     business_instance.save()
+        #
+        #     business_instance = self.get_object()
+        #
+        #     # Сериализация объекта Property
+        #     serializer = PropertySerializer(business_instance)
+        #     return Response(serializer.data)
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)

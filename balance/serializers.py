@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from .models import *
-
+from test_backend.custom_methods import CustomDateTimeField
 
 class CardSerializer(serializers.ModelSerializer):
+    created_at = CustomDateTimeField(required=False)
+
     class Meta:
         model = Card
         fields = '__all__'
@@ -10,6 +12,8 @@ class CardSerializer(serializers.ModelSerializer):
 
 class BalanceSerializer(serializers.ModelSerializer):
     card_list = CardSerializer(many=True, read_only=True)
+    created_at = CustomDateTimeField(required=False)
+
     class Meta:
         model = Balance
         fields = '__all__'
@@ -33,12 +37,16 @@ class BalanceSerializer(serializers.ModelSerializer):
 
 
 class BalanceIncomeSerializer(serializers.ModelSerializer):
+    created_at = CustomDateTimeField(required=False)
+
     class Meta:
         model = Income
         fields = '__all__'
 
 
 class BalanceExpensesSerializer(serializers.ModelSerializer):
+    created_at = CustomDateTimeField(required=False)
+
     class Meta:
         model = Expenses
         fields = '__all__'

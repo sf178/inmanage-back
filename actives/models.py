@@ -1,8 +1,28 @@
 from django.db import models
 from passives.models import Loans
 from simple_history.models import HistoricalRecords
+from datetime import datetime, timezone
 
 # Create your models here.
+
+
+class MillisecondDateTimeField(models.DateTimeField):
+
+    def pre_save(self, model_instance, add):
+        """
+        Возвращает поле для сохранения в базе данных.
+        Если поле имеет auto_now или auto_now_add установленное в True,
+        это будет также обновлено.
+        """
+        if self.auto_now or (self.auto_now_add and add):
+            current_time = datetime.now(timezone.utc)
+            formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+            value = datetime.strptime(formatted_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+            setattr(model_instance, self.attname, value)
+            return value
+        return super(MillisecondDateTimeField, self).pre_save(model_instance, add)
+
+
 class Property(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
