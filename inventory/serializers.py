@@ -3,6 +3,7 @@ from .models import *
 from rest_framework_recursive.fields import RecursiveField
 from test_backend.custom_methods import CustomDateTimeField
 
+
 class InventoryAssetSerializer(serializers.ModelSerializer):
     created_at = CustomDateTimeField(required=False)
     class Meta:

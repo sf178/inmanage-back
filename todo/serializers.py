@@ -33,6 +33,8 @@ class TodoTaskSerializer(serializers.ModelSerializer):
     desc_list = TodoItemSerializer(many=True, read_only=True)
     income = TodoIncomeSerializer(many=True, read_only=True)
     expenses = TodoExpensesSerializer(many=True, read_only=True)
+    date_start = CustomDateTimeField(required=False)
+    date_end = CustomDateTimeField(required=False)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
@@ -44,6 +46,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     tasks_list = TodoTaskSerializer(many=True, read_only=True)
     income = TodoIncomeSerializer(many=True, read_only=True)
     expenses = TodoExpensesSerializer(many=True, read_only=True)
+    date_start = CustomDateTimeField(required=False)
+    date_end = CustomDateTimeField(required=False)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:

@@ -50,5 +50,5 @@ def custom_exception_handler(exc, context):
 class CustomDateTimeField(serializers.DateTimeField):
     def to_representation(self, value):
         # Форматирование даты и времени до миллисекунд и убрать лишние 0
-        formatted_date_time = value.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        formatted_date_time = value.strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
         return formatted_date_time

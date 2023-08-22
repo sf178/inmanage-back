@@ -17,10 +17,10 @@ urlpatterns = [
     path('business/del/<int:pk>', BusinessDeleteView.as_view(), name='business-list-delete'),
     path('business/up/<int:id>', BusinessUpdateView.as_view(), name='business-list-update'),
     path('incomes/', IncomeListView.as_view(), name='income-list'),
-    path('incomes/<int:pk>/', IncomeDetailView.as_view(), name='income-detail'),
+    path('incomes/<int:pk>', IncomeDetailView.as_view(), name='income-detail'),
     # URL patterns for Expenses objects
     path('expenses/', ExpensesListView.as_view(), name='expenses-list'),
-    path('expenses/<int:pk>/', ExpensesDetailView.as_view(), name='expenses-detail'),
+    path('expenses/<int:pk>', ExpensesDetailView.as_view(), name='expenses-detail'),
     path('', ActiveList.as_view(), name='active-list'),
 
 

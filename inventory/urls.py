@@ -4,7 +4,7 @@ from .views import *
 
 urlpatterns = [
     path('', InventoryListView.as_view(), name='inv-list-get'),
-    path('inventory/<int:pk>/', InventoryDetailView.as_view(), name='inventory-detail'),
+    path('inventory/<int:pk>', InventoryDetailView.as_view(), name='inventory-detail'),
     path('up/<int:id>', InventoryUpdateView.as_view(), name='inv-list-update'),
     path('asset/up/<int:id>', InventoryAssetUpdateView.as_view(), name='inv-asset-list-update'),
     path('asset/del/<int:id>', InventoryAssetDeleteView.as_view(), name='inv-asset-del-update'),

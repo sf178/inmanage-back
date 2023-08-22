@@ -15,7 +15,7 @@ urlpatterns = [
     path('', PassivesListView.as_view(), name='passives-list'),
     # URL patterns for Expenses objects
     path('expenses/', ExpensesListView.as_view(), name='expenses-list'),
-    path('expenses/<int:pk>/', ExpensesDetailView.as_view(), name='expenses-detail'),
+    path('expenses/<int:pk>', ExpensesDetailView.as_view(), name='expenses-detail'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
