@@ -6,6 +6,7 @@ from passives import models as pas
 from .views import BalanceListView
 from django.db import transaction
 
+
 @receiver(post_save, sender=act.Actives)
 @receiver(post_save, sender=pas.Passives)
 @receiver(post_save, sender=Card)
@@ -49,6 +50,7 @@ def update_card_expenses(sender, instance, created, **kwargs):
             # Связываем объект Expenses с объектом Card
             card.expenses.add(expenses)
             card.save()
+
 
 # @receiver(post_save, sender=Card)
 def update_card_totals(sender, instance, **kwargs):
@@ -105,9 +107,12 @@ def decrease_card_remainder(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Expenses)
 @receiver(post_delete, sender=Income)
 def increase_card_remainder(sender, instance, **kwargs):
-    card = instance.card
-    if card:
-        if sender == Expenses:
-            increase_remainder(card, instance)
-        if sender == Income:
-            decrease_remainder(card, instance)
+    try:
+        card = instance.card
+        if card:
+            if sender == Expenses:
+                increase_remainder(card, instance)
+            if sender == Income:
+                decrease_remainder(card, instance)
+    except:
+        pass
