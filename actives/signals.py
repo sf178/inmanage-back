@@ -4,6 +4,7 @@ from .models import *
 from .serializers import *
 from passives.models import Loans
 from balance import models as bal
+from django.db import transaction
 
 
 @receiver(post_save, sender=Property)
@@ -59,65 +60,104 @@ def create_loan_transport(sender, instance, created, **kwargs):
         instance.save(update_fields=['loan_link'])
 
 
-# @receiver(post_save, sender=Property)
-def update_property_totals(sender, instance, created, **kwargs):
+@receiver(post_save, sender=Property)
+def update_main_properties(sender, instance, created, **kwargs):
     main_properties = MainProperties.objects.get(user=instance.user)
     actives = Actives.objects.get(user=instance.user)  # получаем объект actives для этого пользователя
 
     if created:
         main_properties.properties.add(instance)
+        main_properties.total_funds += instance.actual_price
+        main_properties.save(update_fields=['total_funds'])
+        actives.total_funds += instance.actual_price
+        actives.save()
 
+
+@transaction.atomic
+def update_property_totals(sender, instance, created, **kwargs):
+    main_properties = MainProperties.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)  # получаем объект actives для этого пользователя
+
+    # Эта проверка позволит избежать рекурсивного вызова функции обновления,
+    # когда сама функция вызывает метод save() объекта Property.
     if hasattr(instance, '_updating_totals'):
         return
 
     instance._updating_totals = True
-    # instance = Property.objects.get(id=instance.id)
-    instance.total_income = sum(income.funds for income in instance.income.all())
-    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+
+    old_income = instance.total_income or 0
+    old_expense = instance.total_expense or 0
+
+    # Проверяем, была ли изменена связь income или expenses.
+    if sender == Property.income.through:
+        instance.total_income = sum(income.funds for income in instance.income.all())
+        change_in_income = instance.total_income - old_income
+        main_properties.total_income += change_in_income
+        actives.total_income += change_in_income
+    elif sender == Property.expenses.through:
+        instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+        change_in_expense = instance.total_expense - old_expense
+        main_properties.total_expenses += change_in_expense
+        actives.total_expenses += change_in_expense
+
+    # сохраняем изменения
     instance.save(update_fields=['total_income', 'total_expense'])
-
-    main_properties.total_income += instance.total_income
-    main_properties.total_expenses += instance.total_expense
-    main_properties.total_funds += instance.actual_price
-    main_properties.save(update_fields=['total_income', 'total_expenses', 'total_funds'])
-
-    actives.total_income += instance.total_income
-    actives.total_expenses += instance.total_expense
-    actives.total_funds += instance.actual_price
+    main_properties.save(update_fields=['total_income', 'total_expenses'])
     actives.save()
 
     del instance._updating_totals
+
 
 @receiver(m2m_changed, sender=Property.income.through)
 @receiver(m2m_changed, sender=Property.expenses.through)
 def update_property_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
-        update_property_totals(sender=Property, instance=instance, created=False)
+        update_property_totals(sender=sender, instance=instance, created=False)
 
 
-# @receiver(post_save, sender=Transport)
+@receiver(post_save, sender=Transport)
+def update_main_transport(sender, instance, created, **kwargs):
+    main_transport = MainTransport.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)
+    if created:
+        main_transport.transport.add(instance)
+        main_transport.total_funds += instance.bought_price
+        main_transport.save(update_fields=['total_funds'])
+        actives.total_funds += instance.bought_price
+        actives.save()
+
+
+@transaction.atomic
 def update_transport_totals(sender, instance, created, **kwargs):
     main_transport = MainTransport.objects.get(user=instance.user)
     actives = Actives.objects.get(user=instance.user)
 
-    if created:
-        main_transport.transport.add(instance)
+    # if created:
+    #     main_transport.transport.add(instance)
 
     if hasattr(instance, '_updating_totals'):
         return
+
     instance._updating_totals = True
-    instance.total_income = sum(income.funds for income in instance.income.all())
-    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+
+    old_income = instance.total_income or 0
+    old_expense = instance.total_expense or 0
+
+    # Проверяем, была ли изменена связь income или expenses.
+    if sender == Transport.income.through:
+        instance.total_income = sum(income.funds for income in instance.income.all())
+        change_in_income = instance.total_income - old_income
+        main_transport.total_income += change_in_income
+        actives.total_income += change_in_income
+    elif sender == Transport.expenses.through:
+        instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+        change_in_expense = instance.total_expense - old_expense
+        main_transport.total_expenses += change_in_expense
+        actives.total_expenses += change_in_expense
+
+    # сохраняем изменения
     instance.save(update_fields=['total_income', 'total_expense'])
-
-    main_transport.total_income += instance.total_income
-    main_transport.total_expenses += instance.total_expense
-    main_transport.total_funds += instance.bought_price
-    main_transport.save(update_fields=['total_income', 'total_expenses', 'total_funds'])
-
-    actives.total_income += instance.total_income
-    actives.total_expenses += instance.total_expense
-    actives.total_funds += instance.bought_price
+    main_transport.save(update_fields=['total_income', 'total_expenses'])
     actives.save()
 
     del instance._updating_totals
@@ -127,32 +167,52 @@ def update_transport_totals(sender, instance, created, **kwargs):
 @receiver(m2m_changed, sender=Transport.expenses.through)
 def update_transport_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
-        update_transport_totals(sender=Transport, instance=instance, created=False)
+        update_transport_totals(sender=sender, instance=instance, created=False)
+
 
 # @receiver(post_save, sender=Business)
+@receiver(post_save, sender=Business)
+def update_main_businesses(sender, instance, created, **kwargs):
+    main_businesses = MainBusinesses.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)
+    if created:
+        main_businesses.businesses.add(instance)
+        main_businesses.total_funds += instance.revenue
+        main_businesses.save(update_fields=['total_funds'])
+        actives.total_funds += instance.revenue
+        actives.save()
+
+
 def update_business_totals(sender, instance, created, **kwargs):
     main_businesses = MainBusinesses.objects.get(user=instance.user)
     actives = Actives.objects.get(user=instance.user)
 
-    if created:
-        main_businesses.businesses.add(instance)
+    # if created:
+    #     main_businesses.businesses.add(instance)
 
     if hasattr(instance, '_updating_totals'):
         return
 
     instance._updating_totals = True
-    instance.total_income = sum(income.funds for income in instance.income.all())
-    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+
+    old_income = instance.total_income or 0
+    old_expense = instance.total_expense or 0
+
+    # Проверяем, была ли изменена связь income или expenses.
+    if sender == Business.income.through:
+        instance.total_income = sum(income.funds for income in instance.income.all())
+        change_in_income = instance.total_income - old_income
+        main_businesses.total_income += change_in_income
+        actives.total_income += change_in_income
+    elif sender == Business.expenses.through:
+        instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+        change_in_expense = instance.total_expense - old_expense
+        main_businesses.total_expenses += change_in_expense
+        actives.total_expenses += change_in_expense
+
+    # сохраняем изменения
     instance.save(update_fields=['total_income', 'total_expense'])
-
-    main_businesses.total_income += instance.total_income
-    main_businesses.total_expenses += instance.total_expense
-    main_businesses.total_funds += instance.revenue
-    main_businesses.save(update_fields=['total_income', 'total_expenses', 'total_funds'])
-
-    actives.total_income += instance.total_income
-    actives.total_expenses += instance.total_expense
-    actives.total_funds += instance.revenue
+    main_businesses.save(update_fields=['total_income', 'total_expenses'])
     actives.save()
 
     del instance._updating_totals

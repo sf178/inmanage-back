@@ -4,6 +4,7 @@ from .models import *
 from actives import models as act
 from passives import models as pas
 from .views import BalanceListView
+from django.db import transaction
 
 @receiver(post_save, sender=act.Actives)
 @receiver(post_save, sender=pas.Passives)
@@ -51,14 +52,25 @@ def update_card_expenses(sender, instance, created, **kwargs):
 
 # @receiver(post_save, sender=Card)
 def update_card_totals(sender, instance, **kwargs):
+    balance = Balance.objects.get(user=instance.user)
     if hasattr(instance, '_updating_totals'):
         # Возвращаемся назад, если объект уже обновляется в этом сигнале
         return
 
     instance._updating_totals = True
-    instance.total_income = sum(income.funds for income in instance.income.all())
-    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+    old_income = instance.total_income or 0
+    old_expense = instance.total_expense or 0
     instance.save(update_fields=['total_income', 'total_expense'])
+    if sender == Card.income.through:
+        instance.total_income = sum(income.funds for income in instance.income.all())
+        # change_in_income = instance.total_income - old_income
+        # balance.total_income += change_in_income
+    elif sender == Card.expenses.through:
+        instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+        # change_in_expense = instance.total_expense - old_expense
+        # balance.total_expenses += change_in_expense
+    instance.save(update_fields=['total_income', 'total_expense'])
+
     del instance._updating_totals
 
 
@@ -66,19 +78,36 @@ def update_card_totals(sender, instance, **kwargs):
 @receiver(m2m_changed, sender=Card.expenses.through)
 def update_property_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
-        update_card_totals(sender=Card, instance=instance, created=False)
+        update_card_totals(sender=sender, instance=instance, created=False)
+
+
+def decrease_remainder(card, instance):
+    card.remainder = card.remainder - instance.funds
+    card.save(update_fields=['remainder'])
+
+
+def increase_remainder(card, instance):
+    card.remainder = card.remainder + instance.funds
+    card.save(update_fields=['remainder'])
+
 
 @receiver(post_save, sender=Expenses)
+@receiver(post_save, sender=Income)
 def decrease_card_remainder(sender, instance, created, **kwargs):
     card = instance.card
     if card:
-        card.remainder = card.remainder - instance.funds
-        card.save(update_fields=['remainder'])
+        if sender == Expenses:
+            decrease_remainder(card, instance)
+        if sender == Income:
+            increase_remainder(card, instance)
 
 
 @receiver(post_delete, sender=Expenses)
+@receiver(post_delete, sender=Income)
 def increase_card_remainder(sender, instance, **kwargs):
     card = instance.card
     if card:
-        card.remainder = card.remainder + instance.funds
-        card.save(update_fields=['remainder'])
+        if sender == Expenses:
+            increase_remainder(card, instance)
+        if sender == Income:
+            decrease_remainder(card, instance)

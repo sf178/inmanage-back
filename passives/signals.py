@@ -2,6 +2,7 @@ from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from .models import *
 from .serializers import *
+from django.db import transaction
 
 
 @receiver(post_save, sender=Property)
@@ -41,64 +42,90 @@ def create_loan_transport(sender, instance, created, **kwargs):
         instance.loan_link = loan
         instance.save(update_fields=['loan_link'])
 
+@receiver(post_save, sender=Property)
+def update_main_properties(sender, instance, created, **kwargs):
+    main_properties = MainProperties.objects.get(user=instance.user)
+    passives = Passives.objects.get(user=instance.user)
+    if created:
+        main_properties.properties.add(instance)
+        main_properties.total_funds += instance.actual_price
+        main_properties.save(update_fields=['total_funds'])
+        passives.total_funds += instance.actual_price
+        passives.save()
 
+@transaction.atomic
 def update_property_totals(sender, instance, created, **kwargs):
     main_properties = MainProperties.objects.get(user=instance.user)
     passives = Passives.objects.get(user=instance.user)  # получаем объект passives для этого пользователя
 
-    if created:
-        main_properties.properties.add(instance)
+    # if created:
+    #     main_properties.properties.add(instance)
 
     if hasattr(instance, '_updating_totals'):
         return
 
     instance._updating_totals = True
-    # instance = Property.objects.get(id=instance.id)
-    # instance.total_income = sum(income.funds for income in instance.income.all())
-    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+    old_expense = instance.total_expense or 0
+
+    # Проверяем, была ли изменена связь income или expenses.
+
+    if sender == Property.expenses.through:
+        instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+        change_in_expense = instance.total_expense - old_expense
+        main_properties.total_expenses += change_in_expense
+        passives.total_expenses += change_in_expense
+
+    # сохраняем изменения
     instance.save(update_fields=['total_expense'])
-
-    # main_properties.total_income += instance.total_income
-    main_properties.total_expenses += instance.total_expense
-    main_properties.total_funds += instance.actual_price
-    main_properties.save(update_fields=['total_expenses', 'total_funds'])
-
-    # passives.total_income += instance.total_income
-    passives.total_expenses += instance.total_expense
-    passives.total_funds += instance.actual_price
+    main_properties.save(update_fields=['total_expenses'])
     passives.save()
 
     del instance._updating_totals
 
+
 @receiver(m2m_changed, sender=Property.expenses.through)
-def update_property_totals_on_income_change(sender, instance, action, **kwargs):
+def update_property_totals_on_expenses_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
-        update_property_totals(sender=Property, instance=instance, created=False)
+        update_property_totals(sender=sender, instance=instance, created=False)
 
 
-# @receiver(post_save, sender=Transport)
+@receiver(post_save, sender=Transport)
+def update_main_transport(sender, instance, created, **kwargs):
+    main_transport = MainTransport.objects.get(user=instance.user)
+    passives = Passives.objects.get(user=instance.user)
+    if created:
+        main_transport.transport.add(instance)
+        main_transport.total_funds += instance.bought_price
+        main_transport.save(update_fields=['total_funds'])
+        passives.total_funds += instance.bought_price
+        passives.save()
+
+
+@transaction.atomic
 def update_transport_totals(sender, instance, created, **kwargs):
     main_transport = MainTransport.objects.get(user=instance.user)
     passives = Passives.objects.get(user=instance.user)
 
-    if created:
-        main_transport.transport.add(instance)
+    # if created:
+    #     main_transport.transport.add(instance)
 
     if hasattr(instance, '_updating_totals'):
         return
     instance._updating_totals = True
-    # instance.total_income = sum(income.funds for income in instance.income.all())
-    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+
+    old_expense = instance.total_expense or 0
+
+    # Проверяем, была ли изменена связь income или expenses.
+
+    if sender == Transport.expenses.through:
+        instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+        change_in_expense = instance.total_expense - old_expense
+        main_transport.total_expenses += change_in_expense
+        passives.total_expenses += change_in_expense
+
+    # сохраняем изменения
     instance.save(update_fields=['total_expense'])
-
-    # main_transport.total_income += instance.total_income
-    main_transport.total_expenses += instance.total_expense
-    main_transport.total_funds += instance.bought_price
-    main_transport.save(update_fields=['total_expenses', 'total_funds'])
-
-    # passives.total_income += instance.total_income
-    passives.total_expenses += instance.total_expense
-    passives.total_funds += instance.bought_price
+    main_transport.save(update_fields=['total_expenses'])
     passives.save()
 
     del instance._updating_totals
@@ -110,35 +137,49 @@ def update_transport_totals_on_income_change(sender, instance, action, **kwargs)
         update_transport_totals(sender=Transport, instance=instance, created=False)
 
 
-# @receiver(post_save, sender=Loans)
+@receiver(post_save, sender=Loans)
+def update_main_loans(sender, instance, created, **kwargs):
+    main_loans = MainLoans.objects.get(user=instance.user)
+    passives = Passives.objects.get(user=instance.user)
+    if created:
+        main_loans.loans.add(instance)
+        main_loans.total_funds += instance.remainder
+        main_loans.save(update_fields=['total_funds'])
+        passives.total_funds += instance.remainder
+        passives.save()
+
+@transaction.atomic
 def update_loans_totals(sender, instance, created, **kwargs):
     main_loans = MainLoans.objects.get(user=instance.user)
     passives = Passives.objects.get(user=instance.user)
 
-    if created:
-        main_loans.loans.add(instance)
+    # if created:
+    #     main_loans.loans.add(instance)
     if hasattr(instance, '_updating_totals'):
         # Возвращаемся назад, если объект уже обновляется в этом сигнале
         return
     instance._updating_totals = True
 
-    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
-    instance.save(update_fields=['total_expense'])
-    main_loans.total_expenses += instance.total_expense
-    main_loans.total_funds += instance.bought_price
-    main_loans.save(update_fields=['total_expenses', 'total_funds'])
-
-    # passives.total_income += instance.total_income
-    passives.total_expenses += instance.total_expense
-    passives.total_funds += instance.bought_price
     passives.save()
+
+    old_expense = instance.total_expense or 0
+
+    # Проверяем, была ли изменена связь income или expenses.
+
+    if sender == Transport.expenses.through:
+        instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+        change_in_expense = instance.total_expense - old_expense
+        main_loans.total_expenses += change_in_expense
+        passives.total_expenses += change_in_expense
+
+
     del instance._updating_totals
 
 
 @receiver(m2m_changed, sender=Loans.expenses.through)
-def update_transport_totals_on_income_change(sender, instance, action, **kwargs):
+def update_loans_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
-        update_transport_totals(sender=Loans, instance=instance, created=False)
+        update_loans_totals(sender=Loans, instance=instance, created=False)
 #
 #
 #
