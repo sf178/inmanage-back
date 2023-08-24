@@ -22,7 +22,7 @@ class Card(models.Model):
     income = models.ManyToManyField('Income', blank=True, related_name='+')
     total_income = models.FloatField(blank=True, null=True, default=None)
     expenses = models.ManyToManyField('Expenses', blank=True, related_name='+')
-    total_expenses = models.FloatField(blank=True, null=True, default=None)
+    total_expense = models.FloatField(blank=True, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     #image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
     history = HistoricalRecords()

@@ -99,10 +99,11 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         # From Cards
         cards = Card.objects.filter(user=user)
         for card in cards:
-            card_expenses += (card.expenses.aggregate(Sum('funds'))['funds__sum'] or 0)
-            card_income += (card.income.aggregate(Sum('funds'))['funds__sum'] or 0)
+            card_expenses += (card.total_expense or 0)
+            card_income += (card.total_income or 0)
             card_funds += (card.remainder or 0)
 
+        total_income += card_income
         total_expenses += card_expenses
         total_funds += card_funds
 

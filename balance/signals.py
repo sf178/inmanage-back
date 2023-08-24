@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from .models import *
 from actives import models as act
@@ -49,6 +49,24 @@ def update_card_expenses(sender, instance, created, **kwargs):
             card.expenses.add(expenses)
             card.save()
 
+# @receiver(post_save, sender=Card)
+def update_card_totals(sender, instance, **kwargs):
+    if hasattr(instance, '_updating_totals'):
+        # Возвращаемся назад, если объект уже обновляется в этом сигнале
+        return
+
+    instance._updating_totals = True
+    instance.total_income = sum(income.funds for income in instance.income.all())
+    instance.total_expense = sum(expense.funds for expense in instance.expenses.all())
+    instance.save(update_fields=['total_income', 'total_expense'])
+    del instance._updating_totals
+
+
+@receiver(m2m_changed, sender=Card.income.through)
+@receiver(m2m_changed, sender=Card.expenses.through)
+def update_property_totals_on_income_change(sender, instance, action, **kwargs):
+    if action in ["post_add", "post_remove", "post_clear"]:
+        update_card_totals(sender=Card, instance=instance, created=False)
 
 @receiver(post_save, sender=Expenses)
 def decrease_card_remainder(sender, instance, created, **kwargs):
@@ -59,7 +77,7 @@ def decrease_card_remainder(sender, instance, created, **kwargs):
 
 
 @receiver(post_delete, sender=Expenses)
-def increase_card_remainder(sender, instance, created, **kwargs):
+def increase_card_remainder(sender, instance, **kwargs):
     card = instance.card
     if card:
         card.remainder = card.remainder + instance.funds

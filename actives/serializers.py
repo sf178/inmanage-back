@@ -22,27 +22,27 @@ class PropertySerializer(serializers.ModelSerializer):
         model = Property
         fields = '__all__'
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.address = validated_data.get('address', instance.address)
-        instance.owner = validated_data.get('owner', instance.owner)
-        instance.actual_price = validated_data.get('actual_price', instance.actual_price)
-        instance.bought_price = validated_data.get('bought_price', instance.bought_price)
-        instance.initial_payment = validated_data.get('initial_payment', instance.initial_payment)
-        instance.loan_term = validated_data.get('loan_term', instance.loan_term)
-        instance.rent_type = validated_data.get('rent_type', instance.rent_type)
-        instance.percentage = validated_data.get('percentage', instance.percentage)
-        instance.month_payment = validated_data.get('month_payment', instance.month_payment)
-        instance.revenue = validated_data.get('revenue', instance.revenue)
-        instance.equipment_price = validated_data.get('equipment_price', instance.equipment_price)
-        instance.month_income = validated_data.get('month_income', instance.month_income)
-        instance.month_expense = validated_data.get('month_expense', instance.month_expense)
-        try:
-            instance.average_profit = instance.month_income - instance.month_expense - instance.month_payment
-        except:
-            instance.average_profit = 0
-        instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     instance.name = validated_data.get('name', instance.name)
+    #     instance.address = validated_data.get('address', instance.address)
+    #     instance.owner = validated_data.get('owner', instance.owner)
+    #     instance.actual_price = validated_data.get('actual_price', instance.actual_price)
+    #     instance.bought_price = validated_data.get('bought_price', instance.bought_price)
+    #     instance.initial_payment = validated_data.get('initial_payment', instance.initial_payment)
+    #     instance.loan_term = validated_data.get('loan_term', instance.loan_term)
+    #     instance.rent_type = validated_data.get('rent_type', instance.rent_type)
+    #     instance.percentage = validated_data.get('percentage', instance.percentage)
+    #     instance.month_payment = validated_data.get('month_payment', instance.month_payment)
+    #     instance.revenue = validated_data.get('revenue', instance.revenue)
+    #     instance.equipment_price = validated_data.get('equipment_price', instance.equipment_price)
+    #     instance.month_income = validated_data.get('month_income', instance.month_income)
+    #     instance.month_expense = validated_data.get('month_expense', instance.month_expense)
+    #     try:
+    #         instance.average_profit = instance.month_income - instance.month_expense - instance.month_payment
+    #     except:
+    #         instance.average_profit = 0
+    #     instance.save()
+    #     return instance
 
 
 class TransportSerializer(serializers.ModelSerializer):
@@ -65,9 +65,9 @@ class BusinessSerializer(serializers.ModelSerializer):
 
 
 class ActivesIncomeSerializer(serializers.ModelSerializer):
-    property = PropertySerializer(required=False, allow_null=True)
-    transport = TransportSerializer(required=False, allow_null=True)
-    business = BusinessSerializer(required=False, allow_null=True)
+    # property = PropertySerializer(required=False, allow_null=True)
+    # transport = TransportSerializer(required=False, allow_null=True)
+    # business = BusinessSerializer(required=False, allow_null=True)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:

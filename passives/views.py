@@ -140,7 +140,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         inventory = property_instance.equipment
 
         if inventory:
-            if inventory.launch_status:
+            if not inventory.launch_status:
                 inventory.launch_status = not inventory.launch_status
                 inventory.save()
                 property_instance.save(update_fields=['equipment'])
@@ -148,8 +148,8 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                 return Response(serializer.data)
 
             # Если уже существует Inventory с launch_status равным False
-            elif not inventory.launch_status:
-                inventory.launch_status = True
+            elif inventory.launch_status:
+                inventory.launch_status = False
                 # inventory.save()
 
                 # Создание объекта PreviousInventory на основе текущего состояния inventory
@@ -163,7 +163,14 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                 # Копирование связанных assets и expenses
                 try:
                     for asset in inventory.assets.all():
-                        previous_inv.assets.add(asset)
+                        prev_asset = inv.PreviousInventoryAsset.objects.create(
+                            user=asset.user,
+                            text=asset.text,
+                            added=asset.added,
+                            price=asset.price,
+                            flag=asset.flag
+                        )
+                        previous_inv.assets.add(prev_asset)
                 except:
                     pass
                 try:

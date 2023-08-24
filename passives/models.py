@@ -197,6 +197,7 @@ class Expenses(models.Model):
     property = models.ForeignKey('passives.Property', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     loan = models.ForeignKey('passives.Loans', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     category = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)

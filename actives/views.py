@@ -158,7 +158,14 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
                 # Копирование связанных assets и expenses
                 try:
                     for asset in inventory.assets.all():
-                        previous_inv.assets.add(asset)
+                        prev_asset = inv.PreviousInventoryAsset.objects.create(
+                            user=asset.user,
+                            text=asset.text,
+                            added=asset.added,
+                            price=asset.price,
+                            flag=asset.flag
+                        )
+                        previous_inv.assets.add(prev_asset)
                 except:
                     pass
                 try:
@@ -440,7 +447,7 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     def update(self, request, *args, **kwargs):
         business_instance = self.get_object()
         inventory = business_instance.equipment
-        if inventory:
+        if not inventory:
             if inventory.launch_status:
                 inventory.launch_status = not inventory.launch_status
                 inventory.save()
@@ -449,8 +456,8 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                 return Response(serializer.data)
 
             # Если уже существует Inventory с launch_status равным False
-            elif not inventory.launch_status:
-                inventory.launch_status = True
+            elif inventory.launch_status:
+                inventory.launch_status = False
                 # inventory.save()
 
                 # Создание объекта PreviousInventory на основе текущего состояния inventory
@@ -464,7 +471,14 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                 # Копирование связанных assets и expenses
                 try:
                     for asset in inventory.assets.all():
-                        previous_inv.assets.add(asset)
+                        prev_asset = inv.PreviousInventoryAsset.objects.create(
+                            user=asset.user,
+                            text=asset.text,
+                            added=asset.added,
+                            price=asset.price,
+                            flag=asset.flag
+                        )
+                        previous_inv.assets.add(prev_asset)
                 except:
                     pass
                 try:
@@ -605,31 +619,31 @@ class ActiveList(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
-        user = 1
-        actives = Actives.objects.get(user=user)
-        total_funds = 0
-        total_income = 0
-        total_expenses = 0
-        if actives.properties:
-            total_funds += actives.properties.total_funds or 0
-            total_income += actives.properties.total_income or 0
-            total_expenses += actives.properties.total_expenses or 0
-        if actives.transports:
-            total_funds += actives.transports.total_funds or 0
-            total_income += actives.transports.total_income or 0
-            total_expenses += actives.transports.total_expenses or 0
-        if actives.businesses:
-            total_funds += actives.businesses.total_funds or 0
-            total_income += actives.businesses.total_income or 0
-            total_expenses += actives.businesses.total_expenses or 0
+        # user = 1
+        # actives = Actives.objects.get(user=user)
+        # total_funds = 0
+        # total_income = 0
+        # total_expenses = 0
+        # if actives.properties:
+        #     total_funds += actives.properties.total_funds or 0
+        #     total_income += actives.properties.total_income or 0
+        #     total_expenses += actives.properties.total_expenses or 0
+        # if actives.transports:
+        #     total_funds += actives.transports.total_funds or 0
+        #     total_income += actives.transports.total_income or 0
+        #     total_expenses += actives.transports.total_expenses or 0
+        # if actives.businesses:
+        #     total_funds += actives.businesses.total_funds or 0
+        #     total_income += actives.businesses.total_income or 0
+        #     total_expenses += actives.businesses.total_expenses or 0
+        #
+        # # Сохранение обновленного объекта Actives
+        # actives.total_funds = total_funds
+        # actives.total_income = total_income
+        # actives.total_expenses = total_expenses
+        # actives.save()  # update_fields=['total_funds', 'total_income', 'total_expenses']
 
-        # Сохранение обновленного объекта Actives
-        actives.total_funds = total_funds
-        actives.total_income = total_income
-        actives.total_expenses = total_expenses
-        actives.save()  # update_fields=['total_funds', 'total_income', 'total_expenses']
-
-        instance = Actives.objects.get(user=user)
+        instance = Actives.objects.filter(user=1).first()
         serializer = self.get_serializer(instance)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
