@@ -45,10 +45,15 @@ def create_loan_transport(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Property)
 def update_main_properties(sender, instance, created, **kwargs):
     main_properties = MainProperties.objects.get(user=instance.user)
+    main_loans = MainLoans.objects.get(user=instance.user)
+
     passives = Passives.objects.get(user=instance.user)
     if created:
         main_properties.properties.add(instance)
         main_properties.total_funds += instance.actual_price
+        if instance.loan:
+            main_loans.total_funds -= instance.loan_link.sum
+            main_loans.save(update_fields=['total_funds'])
         main_properties.save(update_fields=['total_funds'])
         passives.total_funds += instance.actual_price
         passives.save()
@@ -92,10 +97,15 @@ def update_property_totals_on_expenses_change(sender, instance, action, **kwargs
 @receiver(post_save, sender=Transport)
 def update_main_transport(sender, instance, created, **kwargs):
     main_transport = MainTransport.objects.get(user=instance.user)
+    main_loans = MainLoans.objects.get(user=instance.user)
+
     passives = Passives.objects.get(user=instance.user)
     if created:
         main_transport.transport.add(instance)
         main_transport.total_funds += instance.bought_price
+        if instance.loan:
+            main_loans.total_funds -= instance.loan_link.sum
+            main_loans.save(update_fields=['total_funds'])
         main_transport.save(update_fields=['total_funds'])
         passives.total_funds += instance.bought_price
         passives.save()
@@ -180,6 +190,49 @@ def update_loans_totals(sender, instance, created, **kwargs):
 def update_loans_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
         update_loans_totals(sender=Loans, instance=instance, created=False)
+
+
+@receiver(post_delete, sender=Property)
+def delete_property(sender, instance, **kwargs):
+    main_properties = MainProperties.objects.get(user=instance.user)
+    passives = Passives.objects.get(user=instance.user)
+
+    main_properties.properties.remove(instance)
+    main_properties.total_funds -= instance.actual_price
+    main_properties.total_expenses -= instance.total_expense
+    main_properties.save(update_fields=['total_funds', 'total_expenses'])
+
+    passives.total_funds -= instance.actual_price
+    passives.save()
+
+
+@receiver(post_delete, sender=Transport)
+def delete_transport(sender, instance, **kwargs):
+    main_transport = MainTransport.objects.get(user=instance.user)
+    passives = Passives.objects.get(user=instance.user)
+
+    main_transport.transport.remove(instance)
+    main_transport.total_funds -= instance.bought_price
+    main_transport.total_expenses -= instance.total_expense
+    main_transport.save(update_fields=['total_funds', 'total_expenses'])
+
+    passives.total_funds -= instance.bought_price
+    passives.save()
+
+
+@receiver(post_delete, sender=Loans)
+def delete_loans(sender, instance, **kwargs):
+    main_loans = MainLoans.objects.get(user=instance.user)
+    passives = Passives.objects.get(user=instance.user)
+
+    main_loans.loans.remove(instance)
+    main_loans.total_funds -= instance.remainder
+    main_loans.total_expenses -= instance.total_expense
+    main_loans.save(update_fields=['total_funds', 'total_expenses'])
+
+    passives.total_funds -= instance.remainder
+    passives.save()
+
 #
 #
 #

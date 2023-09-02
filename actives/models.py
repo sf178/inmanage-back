@@ -39,7 +39,7 @@ class Property(models.Model):
 
     #### loans part ####
     loan = models.BooleanField(blank=True, null=True) # loan indicator
-    loan_link = models.ForeignKey(Loans, on_delete=models.CASCADE, related_name='property_loan_link', null=True,
+    loan_link = models.ForeignKey(Loans, on_delete=models.SET_NULL, related_name='property_loan_link', null=True,
                                   blank=True)
     initial_payment = models.FloatField(blank=True, null=True, default=0.0)
     loan_term = models.BigIntegerField(blank=True, null=True)
@@ -86,7 +86,7 @@ class Transport(models.Model):
 
     #### loans part ####
     loan = models.BooleanField(blank=True, null=True)  # loan indicator
-    loan_link = models.ForeignKey('passives.Loans', on_delete=models.DO_NOTHING, blank=True, null=True, related_name='+')
+    loan_link = models.ForeignKey('passives.Loans', on_delete=models.SET_NULL, blank=True, null=True, related_name='+')
 
     initial_payment = models.FloatField(blank=True, null=True, default=0.0)
     loan_term = models.FloatField(blank=True, null=True, default=0.0)
@@ -149,7 +149,7 @@ class Business(models.Model):
     creditor = models.TextField(blank=True)
     #### loans part ####
     loan = models.BooleanField(blank=True, null=True)  # loan indicator
-    loan_link = models.ForeignKey('passives.Loans', on_delete=models.DO_NOTHING, blank=True, null=True, related_name='+')
+    loan_link = models.ForeignKey('passives.Loans', on_delete=models.SET_NULL, blank=True, null=True, related_name='+')
 
     initial_payment = models.FloatField(blank=True, null=True, default=0.0)
     loan_term = models.FloatField(blank=True, null=True, default=0.0)

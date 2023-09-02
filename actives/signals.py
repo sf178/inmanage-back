@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from .models import *
 from .serializers import *
-from passives.models import Loans
+from passives.models import Loans, MainLoans
 from balance import models as bal
 from django.db import transaction
 
@@ -25,6 +25,23 @@ def create_loan_property(sender, instance, created, **kwargs):
         instance.loan_link = loan
         instance.save(update_fields=['loan_link'])
 
+
+@receiver(post_delete, sender=Property)
+def delete_property(sender, instance, **kwargs):
+    main_properties = MainProperties.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)
+    main_properties.properties.remove(instance)
+
+    main_properties.total_funds -= instance.actual_price
+    main_properties.total_income -= instance.total_income
+    main_properties.total_expenses -= instance.total_expense
+
+    main_properties.save(update_fields=['total_funds', 'total_income', 'total_expenses'])
+
+    actives.total_funds -= instance.actual_price
+    actives.save()
+
+
 @receiver(post_save, sender=Business)
 def create_loan_business(sender, instance, created, **kwargs):
     if created and instance.loan:
@@ -40,6 +57,22 @@ def create_loan_business(sender, instance, created, **kwargs):
         loan.save()
         instance.loan_link = loan
         instance.save(update_fields=['loan_link'])
+
+
+@receiver(post_delete, sender=Business)
+def delete_business(sender, instance, **kwargs):
+    main_businesses = MainBusinesses.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)
+    main_businesses.businesses.remove(instance)
+
+    main_businesses.total_funds -= instance.revenue
+    main_businesses.total_income -= instance.total_income
+    main_businesses.total_expenses -= instance.total_expense
+    main_businesses.save(update_fields=['total_funds', 'total_income', 'total_expenses'])
+
+    actives.total_funds -= instance.revenue
+    actives.save()
+
 
 @receiver(post_save, sender=Transport)
 def create_loan_transport(sender, instance, created, **kwargs):
@@ -60,14 +93,32 @@ def create_loan_transport(sender, instance, created, **kwargs):
         instance.save(update_fields=['loan_link'])
 
 
+@receiver(post_delete, sender=Transport)
+def delete_transport(sender, instance, **kwargs):
+    main_transport = MainTransport.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)
+    main_transport.transport.remove(instance)
+    main_transport.total_funds -= instance.bought_price
+    main_transport.total_income -= instance.total_income
+    main_transport.total_expenses -= instance.total_expense
+    main_transport.save(update_fields=['total_funds', 'total_income', 'total_expenses'])
+
+    actives.total_funds -= instance.bought_price
+    actives.save()
+
+
 @receiver(post_save, sender=Property)
 def update_main_properties(sender, instance, created, **kwargs):
     main_properties = MainProperties.objects.get(user=instance.user)
+    main_loans = MainLoans.objects.get(user=instance.user)
     actives = Actives.objects.get(user=instance.user)  # получаем объект actives для этого пользователя
 
     if created:
         main_properties.properties.add(instance)
         main_properties.total_funds += instance.actual_price
+        if instance.loan:
+            main_loans.total_funds -= instance.loan_link.sum
+            main_loans.save(update_fields=['total_funds'])
         main_properties.save(update_fields=['total_funds'])
         actives.total_funds += instance.actual_price
         actives.save()
@@ -118,10 +169,15 @@ def update_property_totals_on_income_change(sender, instance, action, **kwargs):
 @receiver(post_save, sender=Transport)
 def update_main_transport(sender, instance, created, **kwargs):
     main_transport = MainTransport.objects.get(user=instance.user)
+    main_loans = MainLoans.objects.get(user=instance.user)
+
     actives = Actives.objects.get(user=instance.user)
     if created:
         main_transport.transport.add(instance)
         main_transport.total_funds += instance.bought_price
+        if instance.loan:
+            main_loans.total_funds -= instance.loan_link.sum
+            main_loans.save(update_fields=['total_funds'])
         main_transport.save(update_fields=['total_funds'])
         actives.total_funds += instance.bought_price
         actives.save()
@@ -174,10 +230,15 @@ def update_transport_totals_on_income_change(sender, instance, action, **kwargs)
 @receiver(post_save, sender=Business)
 def update_main_businesses(sender, instance, created, **kwargs):
     main_businesses = MainBusinesses.objects.get(user=instance.user)
+    main_loans = MainLoans.objects.get(user=instance.user)
+
     actives = Actives.objects.get(user=instance.user)
     if created:
         main_businesses.businesses.add(instance)
         main_businesses.total_funds += instance.revenue
+        if instance.loan:
+            main_loans.total_funds -= instance.loan_link.sum
+            main_loans.save(update_fields=['total_funds'])
         main_businesses.save(update_fields=['total_funds'])
         actives.total_funds += instance.revenue
         actives.save()

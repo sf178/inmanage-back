@@ -7,7 +7,7 @@ from simple_history.models import HistoricalRecords
 
 class Loans(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=255, blank=True)
     data = models.DateTimeField(blank=True, null=True)
     insurance = models.BooleanField(default=False, blank=True)
@@ -44,7 +44,7 @@ class Property(models.Model):
     actual_price = models.FloatField(blank=True, null=True, default=0.0)
     #### loans part ####
     loan = models.BooleanField(blank=True, null=True)  # loan indicator
-    loan_link = models.ForeignKey('passives.Loans', on_delete=models.DO_NOTHING, blank=True, null=True)
+    loan_link = models.ForeignKey('passives.Loans', on_delete=models.SET_NULL, blank=True, null=True)
 
     initial_payment = models.FloatField(blank=True, null=True, default=0.0)
     loan_term = models.FloatField(blank=True, null=True, default=0.0)
@@ -52,7 +52,7 @@ class Property(models.Model):
     month_payment = models.FloatField(blank=True, null=True, default=0.0)
     #### loans part
     equipment_price = models.FloatField(blank=True, null=True, default=0.0)
-    equipment = models.ForeignKey('inventory.Inventory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    equipment = models.ForeignKey('inventory.Inventory', on_delete=models.SET_NULL, blank=True, null=True, related_name='+')
 
     # month_income = models.FloatField()
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
@@ -107,7 +107,7 @@ class Transport(models.Model):
 
     #### loans part ####
     loan = models.BooleanField(blank=True, null=True)  # loan indicator
-    loan_link = models.ForeignKey('passives.Loans', on_delete=models.DO_NOTHING, blank=True, null=True)
+    loan_link = models.ForeignKey('passives.Loans', on_delete=models.SET_NULL, blank=True, null=True)
     initial_payment = models.FloatField(blank=True, null=True, default=0.0)
     loan_term = models.FloatField(blank=True, null=True, default=0.0)
     percentage = models.FloatField(blank=True, null=True, default=0.0)

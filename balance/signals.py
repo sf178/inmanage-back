@@ -25,6 +25,13 @@ def update_balance(sender, instance, **kwargs):
     balance.save()
 
 
+@receiver(post_delete, sender=act.Actives)
+@receiver(post_delete, sender=pas.Passives)
+@receiver(post_delete, sender=Card)
+def update_balance_on_delete(sender, instance, **kwargs):
+    update_balance(sender, instance, **kwargs)
+
+
 @receiver(post_save, sender=act.ActivesExpenses)
 @receiver(post_save, sender=pas.Expenses)
 def update_card_expenses(sender, instance, created, **kwargs):
@@ -112,7 +119,32 @@ def increase_card_remainder(sender, instance, **kwargs):
         if card:
             if sender == Expenses:
                 increase_remainder(card, instance)
+                update_balance(sender=sender, instance=card)
+
             if sender == Income:
                 decrease_remainder(card, instance)
+                update_balance(sender=sender, instance=card)
+
     except:
         pass
+
+
+@receiver(post_delete, sender=act.ActivesExpenses)
+@receiver(post_delete, sender=pas.Expenses)
+def update_card_expenses_on_delete(sender, instance, **kwargs):
+    card = instance.writeoff_account
+    if card:
+        # Assuming you have a mechanism to uniquely identify the corresponding Expenses object.
+        # Maybe by using the same title, description, user, etc.
+        expenses = Expenses.objects.filter(
+            user=instance.user,
+            card=card,
+            title=instance.title,
+            description=instance.description,
+            funds=instance.funds,
+        ).first()
+
+        if expenses:
+            card.expenses.remove(expenses)
+            expenses.delete()  # If you want to actually delete the Expenses object.
+            card.save()
