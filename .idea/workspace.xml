@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="Еще один фикс">
+    <list default="true" id="18667e4a-94d8-4006-bd8d-cfa236bfacd6" name="Changes" comment="Исправлено удаление активов/пассивов&#10;Больше не удаляются объекты при удалении кредитов, связанных с ними">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actives/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/actives/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/balance/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/passives/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/passives/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_backend/custom_methods.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/custom_methods.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/balance/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/categories.json" beforeDir="false" afterPath="$PROJECT_DIR$/category/categories.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/categories2.json" beforeDir="false" afterPath="$PROJECT_DIR$/category/categories2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/load_general.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/load_general.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/load_personal.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/load_personal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/category/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/category/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/front/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_backend/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/todo/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +47,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2MbrQGqSRUUEzGPAojPKFVhLVTa" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -50,6 +59,8 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;database.data.extractors.current.export.id&quot;: &quot;JSON-Groovy.json.groovy&quot;,
+    &quot;database.data.extractors.current.id&quot;: &quot;JSON-Groovy.json.groovy&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/inmanage-site/test_backend&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
@@ -74,8 +85,8 @@
       <recent name="D:\inmanage-site\test_backend\balance" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test">
-    <configuration name="stocks_parse (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.load_general">
+    <configuration name="key" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="test_backend" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -83,12 +94,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/actives/actives_scripts/stocks" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/actives/actives_scripts/stocks/stocks_parse.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/key.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -97,7 +108,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="stocks_parse (2)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="load_general" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="test_backend" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -105,12 +116,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/actives/actives_scripts/market_prices" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/category" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/actives/actives_scripts/market_prices/stocks_parse.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/category/load_general.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -119,7 +130,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="stocks_parse" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
+    <configuration name="load_personal" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="test_backend" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -127,15 +138,15 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/inmanage_app/actives/stocks" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/category" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/inmanage_app/actives/stocks/stocks_parse.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/category/load_personal.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
       <option name="INPUT_FILE" value="" />
@@ -210,6 +221,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.load_general" />
+        <item itemvalue="Python.load_personal" />
+        <item itemvalue="Python.key" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.test (1)" />
       </list>
@@ -294,7 +308,14 @@
       <workItem from="1692211412543" duration="8816000" />
       <workItem from="1692301861176" duration="6417000" />
       <workItem from="1692364835322" duration="2873000" />
-      <workItem from="1692725548328" duration="2023000" />
+      <workItem from="1692725548328" duration="4913000" />
+      <workItem from="1692835894123" duration="9182000" />
+      <workItem from="1692885832250" duration="9111000" />
+      <workItem from="1692971370222" duration="1055000" />
+      <workItem from="1693675713235" duration="5772000" />
+      <workItem from="1693768304158" duration="877000" />
+      <workItem from="1696339705009" duration="6590000" />
+      <workItem from="1696423142914" duration="13126000" />
     </task>
     <task id="LOCAL-00001" summary="balance added">
       <created>1689964645556</created>
@@ -450,7 +471,49 @@
       <option name="project" value="LOCAL" />
       <updated>1692307148217</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Приведены к общему стандарту URL&#10;Исправлено отображение времени&#10;Исправлено взаимодействие с инвентаризацией">
+      <created>1692729199814</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1692729199814</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Исправлен подсчет расходов/доходов">
+      <created>1692844096187</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1692844096187</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Исправлен подсчет расходов/доходов повторно">
+      <created>1692893426440</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1692893426440</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Удаление карт">
+      <created>1692912360537</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1692912360537</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Изменил урлы">
+      <created>1692971792752</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1692971792752</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Исправлено удаление активов/пассивов&#10;Больше не удаляются объекты при удалении кредитов, связанных с ними">
+      <created>1693688830945</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1693688830945</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -478,15 +541,24 @@
     <MESSAGE value="мелкофикс" />
     <MESSAGE value="Крупнофикс" />
     <MESSAGE value="Еще один фикс" />
-    <option name="LAST_COMMIT_MESSAGE" value="Еще один фикс" />
+    <MESSAGE value="Приведены к общему стандарту URL&#10;Исправлено отображение времени&#10;Исправлено взаимодействие с инвентаризацией" />
+    <MESSAGE value="Исправлен подсчет расходов/доходов" />
+    <MESSAGE value="Исправлен подсчет расходов/доходов повторно" />
+    <MESSAGE value="Удаление карт" />
+    <MESSAGE value="Изменил урлы" />
+    <MESSAGE value="Исправлено удаление активов/пассивов&#10;Больше не удаляются объекты при удалении кредитов, связанных с ними" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлено удаление активов/пассивов&#10;Больше не удаляются объекты при удалении кредитов, связанных с ними" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/models_py$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1688629357043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/сars_parser/parser" />
+    <SUITE FILE_PATH="coverage/test_backend$load_personal.coverage" NAME="load_personal Coverage Results" MODIFIED="1696450971063" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/category" />
     <SUITE FILE_PATH="coverage/models_py$stocks_parse__2_.coverage" NAME="stocks_parse (2) Coverage Results" MODIFIED="1684832074616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/actives/actives_scripts/market_prices" />
     <SUITE FILE_PATH="coverage/models_py$test.coverage" NAME="test Coverage Results" MODIFIED="1684838227265" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/test_backend$key.coverage" NAME="key Coverage Results" MODIFIED="1696448382009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/models_py$stocks_parse__1_.coverage" NAME="stocks_parse (1) Coverage Results" MODIFIED="1682962669798" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/actives/actives_scripts/stocks" />
     <SUITE FILE_PATH="coverage/models_py$stocks_parse.coverage" NAME="stocks_parse Coverage Results" MODIFIED="1680469476870" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/inmanage_app/actives/stocks" />
     <SUITE FILE_PATH="coverage/test_backend$test.coverage" NAME="test Coverage Results" MODIFIED="1690325945773" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/test_backend$load_general.coverage" NAME="load_general Coverage Results" MODIFIED="1696450977116" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/category" />
     <SUITE FILE_PATH="coverage/models_py$collector.coverage" NAME="collector Coverage Results" MODIFIED="1680469873007" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/inmanage_app/actives/stocks" />
   </component>
 </project>

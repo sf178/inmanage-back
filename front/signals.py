@@ -4,8 +4,14 @@ import balance.models as bal
 import actives.models as act
 import passives.models as pas
 import todo.models as todo
-
+from .models import UserProfile
 from front.models import CustomUser
+
+
+@receiver(post_save, sender=CustomUser)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
 
 
 @receiver(post_save, sender=CustomUser)

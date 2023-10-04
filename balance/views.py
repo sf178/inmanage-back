@@ -139,19 +139,24 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
         # extract card data from request
         card_data = request.data.pop('card', None)
+        favourite_cards_data = request.data.pop('favourite_cards', [])
 
         if card_data:
             card_serializer = CardSerializer(data=card_data)
             if card_serializer.is_valid():
                 card = card_serializer.save()  # save card instance
+                balance.card_list.add(card)
             else:
                 return Response(card_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            card = None
 
-        # update card_list if card is not None
-        if card is not None:
-            balance.card_list.add(card)
+        # handle favourite_cards data
+        for card_id in favourite_cards_data:
+            try:
+                card_to_add = Card.objects.get(pk=card_id)
+                balance.favourite_cards.add(card_to_add)
+            except Card.DoesNotExist:
+                return Response({"error": f"Card with id {card_id} does not exist."},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         instance = Balance.objects.filter(user_id=user).first()
         inst_serializer = self.get_serializer(instance)

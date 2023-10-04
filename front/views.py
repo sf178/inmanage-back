@@ -1,12 +1,17 @@
 import jwt
-from .models import Jwt, CustomUser, Favorite
+import os
+from rest_framework import status
+from cryptography.fernet import Fernet
+
+from .models import Jwt, CustomUser, Favorite, TemporaryCustomUser
 from datetime import datetime, timedelta
 from django.conf import settings
 import random
 import string
 from rest_framework.views import APIView
 from .serializers import (
-    LoginSerializer, RegisterSerializer, RefreshSerializer, UserProfileSerializer, UserProfile, FavoriteSerializer
+    LoginSerializer, RegisterSerializer, RefreshSerializer, UserProfileSerializer, UserProfile, FavoriteSerializer,
+    CustomUserSerializer
 )
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
@@ -16,6 +21,27 @@ from rest_framework.viewsets import ModelViewSet
 import re
 from django.db.models import Q, Count, Subquery, OuterRef
 from balance.models import Balance
+from rest_framework import mixins, generics
+from rest_framework.permissions import IsAuthenticated
+
+from .models import UserProfile
+from .serializers import UserProfileSerializer
+
+
+def get_cipher():
+    # return Fernet(settings.SECRET_CRYPTO_KEY)
+    return Fernet(b'GjOpX7KrBDLCkCo-B0IbeMPEAPKSujp-BZMA_-kf4PI=')
+
+def encrypt_password(password: str, salt: str) -> str:
+    cipher = get_cipher()
+    encrypted_password = cipher.encrypt((password + salt).encode())
+    return encrypted_password.decode()
+
+
+def decrypt_password(encrypted_password: str, salt: str) -> str:
+    cipher = get_cipher()
+    decrypted_password = cipher.decrypt(encrypted_password.encode())
+    return decrypted_password.replace(salt, '')
 
 
 def get_random(length):
@@ -58,12 +84,13 @@ class LoginView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        # Аутентификация с использованием номера телефона
         user = authenticate(
-            username=serializer.validated_data['username'],
+            phone_number=serializer.validated_data['phone_number'],
             password=serializer.validated_data['password'])
 
         if not user:
-            return Response({"error": "Invalid username or password"}, status="400")
+            return Response({"error": "Invalid phone number or password"}, status="400")
 
         Jwt.objects.filter(user_id=user.id).delete()
 
@@ -84,10 +111,70 @@ class RegisterView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        username = serializer.validated_data.pop("username")
+        phone_number = serializer.validated_data.pop("phone_number")
+        temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
-        CustomUser.objects.create_user(username=username, **serializer.validated_data)
-        return Response({"success": "User created."}, status=201)
+        # Шифрование пароля
+        # cipher = Fernet(os.environ.get('SECRET_CRYPTO_KEY'))
+        # cipher = Fernet(b'GjOpX7KrBDLCkCo-B0IbeMPEAPKSujp-BZMA_-kf4PI=')
+        # encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
+        # serializer.validated_data["password"] = encrypted_password
+
+        # Закомментированный код для отправки смс
+        # send_sms(phone_number, "Your verification code is: 1111")
+
+        # Создание объекта TemporaryCustomUser с temp_token
+        TemporaryCustomUser.objects.create(phone_number=phone_number, temp_token=temp_token,
+                                           **serializer.validated_data)
+
+        return Response({"temp_token": temp_token, "message": "Verification code sent."},
+                        status=status.HTTP_201_CREATED)
+
+
+class ConfirmRegistrationView(APIView):
+    def post(self, request):
+        temp_token = request.data.get("temp_token")
+        verification_code = request.data.get("code")
+
+        if not temp_token or not verification_code:
+            return Response({"error": "Missing required data."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Проверка кода (пока просто 1111)
+        if verification_code != "1111":
+            return Response({"error": "Incorrect verification code."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Получение объекта TemporaryCustomUser по temp_token
+        try:
+            temp_user = TemporaryCustomUser.objects.get(temp_token=temp_token)
+        except TemporaryCustomUser.DoesNotExist:
+            return Response({"error": "Invalid token or data expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Дешифровка пароля
+        # cipher = Fernet(os.environ.get('SECRET_CRYPTO_KEY'))
+        # cipher = Fernet(b'GjOpX7KrBDLCkCo-B0IbeMPEAPKSujp-BZMA_-kf4PI=')
+        # decrypted_password = cipher.decrypt(temp_user.password).decode()
+
+        # Создание объекта CustomUser на основе данных из TemporaryCustomUser
+        user_data = {
+            "phone_number": temp_user.phone_number,
+            "email": temp_user.email,
+            # "password": temp_user.password,
+            # "password": decrypted_password,
+            "is_staff": temp_user.is_staff,
+            "is_superuser": temp_user.is_superuser
+            # добавьте здесь любые другие поля, если они есть
+        }
+        user_serializer = CustomUserSerializer(data=user_data)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.validated_data["password"] = temp_user.password
+
+        # Создание объекта CustomUser
+        CustomUser.objects.create_user(**user_serializer.validated_data)
+
+        # Удаление временного объекта пользователя
+        temp_user.delete()
+
+        return Response({"success": "User created."}, status=status.HTTP_201_CREATED)
 
 
 class RefreshView(APIView):
@@ -181,6 +268,19 @@ class UserProfileView(ModelViewSet):
     def normalize_query(query_string, findterms=re.compile(r'"([^"]+)"|(\S+)').findall, normspace=re.compile(r'\s{2,}').sub):
         return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
 
+class UserProfilePartialUpdateView(mixins.RetrieveModelMixin,
+                                   mixins.UpdateModelMixin,
+                                   generics.GenericAPIView):
+
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.user_profile
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 class MeView(APIView):
     permission_classes = (IsAuthenticatedCustom, )

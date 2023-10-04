@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 from django.utils import timezone
 from django.contrib.postgres.fields import ArrayField
 from simple_history.models import HistoricalRecords
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 # from actives.models import Property as actProperty, Transport as actTransport, Business as actBusiness, Card as actCard
@@ -12,16 +13,16 @@ from simple_history.models import HistoricalRecords
 
 class CustomUserManager(BaseUserManager):
 
-    def create_user(self, username, password, **extra_fields):
-        if not username:
-            raise ValueError("Username field is required")
+    def create_user(self, phone_number, password, **extra_fields):
+        if not phone_number:
+            raise ValueError("Phone number field is required")
 
-        user = self.model(username=username, **extra_fields)
+        user = self.model(phone_number=phone_number, **extra_fields)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, username, password, **extra_fields):
+    def create_superuser(self, phone_number, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -32,12 +33,33 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(username, password, **extra_fields)
+        return self.create_user(phone_number, password, **extra_fields)
+
+
+class TemporaryCustomUser(models.Model):
+    id = models.AutoField(primary_key=True)
+    phone_number = PhoneNumberField(unique=True, blank=False, null=True)
+    password = models.TextField(blank=False, null=True)
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    # новое поле
+    temp_token = models.CharField(max_length=255, unique=True)
+
+    # определите любые дополнительные методы или свойства здесь, если они вам нужны
+
+    # обязательное поле для моделей AbstractBaseUser
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['phone_number']
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
-    username = models.CharField(unique=True, max_length=100)
+    phone_number = PhoneNumberField(unique=True, blank=False, null=True)
     email = models.EmailField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -63,13 +85,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # tasks = models.ManyToManyField(TodoTask, related_name='tasks', blank=True)
     # projects = models.ManyToManyField(Project, related_name='projects', blank=True)
 
-
-
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = "phone_number"
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.username
+        return self.phone_number
 
     class Meta:
         ordering = ("created_at",)
@@ -78,15 +98,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class UserProfile(models.Model):
     user = models.OneToOneField(
         CustomUser, related_name="user_profile", on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    caption = models.CharField(max_length=250)
-    about = models.TextField()
+    name = models.TextField(blank=False, null=True)
+    birthdate = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.user.username
+        return self.user.phone_number
 
     class Meta:
         ordering = ("created_at",)
@@ -98,7 +116,7 @@ class Favorite(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.user.phone_number}"
 
     class Meta:
         ordering = ("created_at",)

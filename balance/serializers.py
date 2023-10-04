@@ -9,9 +9,14 @@ class CardSerializer(serializers.ModelSerializer):
         model = Card
         fields = '__all__'
 
+class FavCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Card
+        fields = ('name', 'remainder')
 
 class BalanceSerializer(serializers.ModelSerializer):
     card_list = CardSerializer(many=True, read_only=True)
+    favourite_cards = FavCardSerializer(many=True, required=False)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
