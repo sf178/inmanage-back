@@ -11,28 +11,39 @@ from rest_framework.response import Response
 
 
 class CardListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
-    queryset = Card.objects.all()
     serializer_class = CardSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Card.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+
         return self.create(request, *args, **kwargs)
 
 class CardDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
-    queryset = Card.objects.all()
     serializer_class = CardSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Card.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
 class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    queryset = Card.objects.all()
     serializer_class = CardSerializer
     lookup_field = 'id'
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Card.objects.filter(user=self.request.user)
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -41,14 +52,14 @@ class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for income in income_data:
                 income_serializer = BalanceIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, card=instance)
+                income_instance = income_serializer.save(user_id=instance.user, card=instance)
                 instance.income.add(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
                 expenses_serializer = BalanceExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, card=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user, card=instance)
                 instance.expenses.add(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -62,18 +73,25 @@ class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 
 class CardDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = Card.objects.all()
     serializer_class = CardSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Card.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin):
-    queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Balance.objects.filter(user=self.request.user)
+
     @staticmethod
     def calculate_totals(user):
         total_expenses = 0
@@ -82,7 +100,6 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         card_funds = 0
         card_income = 0
         card_expenses = 0
-
         # From Actives
         active = Actives.objects.filter(user=user).first()
         if active:
@@ -110,7 +127,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         return total_income, total_expenses, total_funds, card_funds, card_income, card_expenses
 
     def get(self, request, *args, **kwargs):
-        user = 1
+        user = self.request.user
         balance = Balance.objects.filter(user_id=user).first()  # or create a new one
 
         total_income, total_expenses, total, card_funds, card_income, card_expenses = self.calculate_totals(user=user)
@@ -127,10 +144,12 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+
         return self.create(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        user = 1
+        user = self.request.user
         balance = Balance.objects.filter(user_id=user).first()
 
         serializer = self.get_serializer(balance, data=request.data, partial=True)
@@ -172,17 +191,24 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
 
 class BalanceDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Balance.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
-    queryset = Income.objects.all()
     serializer_class = BalanceIncomeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Income.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -192,8 +218,12 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
 
 # View mixin for retrieving, updating, and deleting a specific Income object
 class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
-    queryset = Income.objects.all()
     serializer_class = BalanceIncomeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Income.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -206,19 +236,29 @@ class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 # View mixin for listing all Expenses objects and creating new Expenses objects
 class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
-    queryset = Expenses.objects.all()
     serializer_class = BalanceExpensesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Expenses.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+
         return self.create(request, *args, **kwargs)
 
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
-    queryset = Expenses.objects.all()
     serializer_class = BalanceExpensesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Expenses.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)

@@ -20,7 +20,7 @@ from .actives_scripts.transport_mark_model.main import set_mark_model
 
             to change auth permissions you should change all rows:
                                 
-                                permission_classes = [permissions.AllowAny]
+                                permission_classes = [permissions.IsAuthenticated]
                                 
                                         to
                                         
@@ -47,18 +47,23 @@ from .actives_scripts.transport_mark_model.main import set_mark_model
 
 class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.UpdateModelMixin,
                        mixins.CreateModelMixin):
-    queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     # permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'  # field to lookup object by
+
+    def get_queryset(self):
+        return Property.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+
         serializer = self.get_serializer(data=request.data)
+
         serializer.is_valid(raise_exception=True)
         serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
@@ -89,10 +94,12 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
 
 
 class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.CreateModelMixin):
-    queryset = Property.objects.all()
     serializer_class = PropertySerializer
     lookup_field = 'id'
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Property.objects.filter(user=self.request.user)
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -194,24 +201,29 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
 
 
 class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = Property.objects.filter(user_id='1')
     serializer_class = PropertySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Property.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
-    queryset = Transport.objects.all()
     serializer_class = TransportSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'
+
+    def get_queryset(self):
+        return Transport.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         #serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
@@ -258,9 +270,9 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
 
 
 class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    queryset = Transport.objects.all()
     serializer_class = TransportSerializer
     lookup_field = 'id'
+    permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -272,7 +284,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for income in income_data:
                 income_serializer = ActivesIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, transport=instance)
+                income_instance = income_serializer.save(user_id=instance.user, transport=instance)
                 income_instances.append(income_instance)
 
         if 'expenses' in request.data:
@@ -280,7 +292,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = ActivesExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, transport=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user, transport=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -311,24 +323,29 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 
 class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = Transport.objects.all()
     serializer_class = TransportSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Transport.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
-    queryset = Business.objects.all()
     serializer_class = BusinessSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'
+
+    def get_queryset(self):
+        return Business.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
         # name = request.data.get('name')
         # if Business.objects.filter(name=name).exists():
         #     return Response({'message': 'Object with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -375,16 +392,19 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         #     )
         #     loan.save()
         #     serializer.instance.loan_link = loan
-        serializer.save()
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        # serializer.save()
+        # headers = self.get_success_headers(serializer.data)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         # return self.create(request, *args, **kwargs)
 
 
 class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    queryset = Business.objects.all()
     serializer_class = BusinessSerializer
+    permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'
+
+    def get_queryset(self):
+        return Business.objects.filter(user=self.request.user)
 
     def put(self, request, *args, **kwargs):
         return self.update_done(request, *args, **kwargs)
@@ -408,7 +428,7 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for income in income_data:
                 income_serializer = ActivesIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, business=instance)
+                income_instance = income_serializer.save(user_id=instance.user, business=instance)
                 income_instances.append(income_instance)
 
         if 'expenses' in request.data:
@@ -416,7 +436,7 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = ActivesExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, business=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user, business=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -547,34 +567,42 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         #     serializer = PropertySerializer(business_instance)
         #     return Response(serializer.data)
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+    # def put(self, request, *args, **kwargs):
+    #     return self.update(request, *args, **kwargs)
 
 class BusinessDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = Business.objects.all()
     serializer_class = BusinessSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Business.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
-    queryset = ActivesIncome.objects.all()
     serializer_class = ActivesIncomeSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return ActivesIncome.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+
         return self.create(request, *args, **kwargs)
 
 # View mixin for retrieving, updating, and deleting a specific Income object
 class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
-    queryset = ActivesIncome.objects.all()
     serializer_class = ActivesIncomeSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return ActivesIncome.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -587,21 +615,27 @@ class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 # View mixin for listing all Expenses objects and creating new Expenses objects
 class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
-    queryset = ActivesExpenses.objects.all()
     serializer_class = ActivesExpensesSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return ActivesExpenses.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+
         return self.create(request, *args, **kwargs)
 
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
-    queryset = ActivesExpenses.objects.all()
     serializer_class = ActivesExpensesSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return ActivesExpenses.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -614,12 +648,14 @@ class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 
 class ActiveList(generics.ListAPIView):
-    queryset = Actives.objects.all()
     serializer_class = ActivesSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Actives.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        # user = 1
+        # user = request.data.pop('user', None)
         # actives = Actives.objects.get(user=user)
         # total_funds = 0
         # total_income = 0
@@ -643,9 +679,8 @@ class ActiveList(generics.ListAPIView):
         # actives.total_expenses = total_expenses
         # actives.save()  # update_fields=['total_funds', 'total_income', 'total_expenses']
 
-        instance = Actives.objects.filter(user=1).first()
+        instance = self.get_queryset().first()  # Note: This only returns the first active for the user
         serializer = self.get_serializer(instance)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

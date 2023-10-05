@@ -8,16 +8,19 @@ from rest_framework.response import Response
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.utils.timezone import make_aware
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 
 #settings.TIME_ZONE
 
 
 class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
-    queryset = TodoTask.objects.all()
     serializer_class = TodoTaskSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return TodoTask.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         t_delta = self.request.query_params.get('timedelta')
@@ -47,6 +50,8 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+
         desc_list_data = request.data.pop('items', [])
         task_serializer = self.get_serializer(data=request.data)
         task_serializer.is_valid(raise_exception=True)
@@ -76,10 +81,12 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
 
 class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                          mixins.DestroyModelMixin):
-    queryset = TodoTask.objects.all()
     serializer_class = TodoTaskSerializer
     lookup_field = 'id'
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return TodoTask.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         t_delta = self.request.query_params.get('timedelta')
@@ -119,21 +126,21 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
             for item in items:
                 items_serializer = TodoItemSerializer(data=item)
                 items_serializer.is_valid(raise_exception=True)
-                item_instance = items_serializer.save(user_id=1, task=instance)
+                item_instance = items_serializer.save(user_id=instance.user, task=instance)
                 instance.desc_list.add(item_instance)
         if 'income' in request.data:
             income_data = request.data.pop('income')
             for income in income_data:
                 income_serializer = TodoIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, task=instance)
+                income_instance = income_serializer.save(user_id=instance.user, task=instance)
                 instance.income.add(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
                 expenses_serializer = TodoExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, task=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user, task=instance)
                 instance.expenses.add(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -163,19 +170,23 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
 
 
 class TodoTaskDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = TodoTask.objects.all()
     serializer_class = TodoTaskSerializer
     lookup_field = 'pk'
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return TodoTask.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class TodoItemListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
-    queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return TodoItem.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -186,10 +197,12 @@ class TodoItemListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
 
 class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                          mixins.DestroyModelMixin):
-    queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
     lookup_field = 'id'
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return TodoItem.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         # task = self.get_object()
@@ -214,14 +227,14 @@ class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
             for income in income_data:
                 income_serializer = TodoIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, item=instance)
+                income_instance = income_serializer.save(user_id=instance.user, item=instance)
                 income_instances.append(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
                 expenses_serializer = TodoExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, project=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user, project=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -249,19 +262,23 @@ class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
 
 
 class TodoItemDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
     lookup_field = 'pk'
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return TodoItem.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class ProjectListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Project.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         t_delta = self.request.query_params.get('timedelta')
@@ -302,10 +319,12 @@ class ProjectListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
 class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                         mixins.DestroyModelMixin):
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     lookup_field = 'id'
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Project.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         t_delta = self.request.query_params.get('timedelta')
@@ -353,14 +372,14 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
             for income in income_data:
                 income_serializer = TodoIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=1, project=instance)
+                income_instance = income_serializer.save(user_id=instance.user, project=instance)
                 income_instances.append(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
                 expenses_serializer = TodoExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, project=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user, project=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -397,23 +416,27 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
 
 
 class ProjectDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     lookup_field = 'pk'
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Project.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class PlannerListView(generics.GenericAPIView, mixins.ListModelMixin):
-    queryset = Planner.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Planner.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        user = 1
-        instance = Planner.objects.filter(user=user).first()
+        user = request.data.pop('user', None)
+        instance = self.get_queryset().first()
         all_projects = Project.objects.filter(user=user)
         all_tasks = TodoTask.objects.filter(user=user)
 

@@ -6,28 +6,41 @@ from .serializers import *
 
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 
 class InventoryListView(generics.GenericAPIView, mixins.ListModelMixin):
-    queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Inventory.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
 
 class InventoryDetailView(mixins.RetrieveModelMixin, generics.GenericAPIView):
-    queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Inventory.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
 
 class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
-    queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return Inventory.objects.filter(user=self.request.user)
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -61,7 +74,7 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = InventoryExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=1, inventory=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user, inventory=instance)
                 expenses_instances.append(expenses_instance)
 
                 asset = InventoryAsset.objects.create(user=instance.user, text=expenses_instance.title, price=expenses_instance.funds)
@@ -91,17 +104,25 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 
 class InventoryAssetUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
-    queryset = InventoryAsset.objects.all()
     serializer_class = InventoryAssetSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return InventoryAsset.objects.filter(user=self.request.user)
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
 
 class InventoryAssetDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = InventoryAsset.objects.all()
     serializer_class = InventoryAssetSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Фильтрация объектов по текущему пользователю
+        return InventoryAsset.objects.filter(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
