@@ -40,7 +40,7 @@ class TemporaryCustomUser(models.Model):
     id = models.AutoField(primary_key=True)
     phone_number = PhoneNumberField(unique=False, blank=False, null=True)
     password = models.TextField(blank=False, null=True)
-    email = models.EmailField(unique=False, null=True)
+    email = models.EmailField(unique=False, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_staff = models.BooleanField(default=False)
@@ -60,7 +60,7 @@ class TemporaryCustomUser(models.Model):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     phone_number = PhoneNumberField(unique=True, blank=False, null=True)
-    email = models.EmailField(unique=False, null=True)
+    email = models.EmailField(unique=False, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_staff = models.BooleanField(default=False)

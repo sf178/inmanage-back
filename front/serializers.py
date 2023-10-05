@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile, CustomUser, Favorite
+from .models import UserProfile, CustomUser, Favorite, TemporaryCustomUser
 from phonenumber_field.serializerfields import PhoneNumberField
 
 
@@ -9,7 +9,7 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(required=False)
     phone_number = PhoneNumberField()
     password = serializers.CharField()
 
@@ -20,11 +20,19 @@ class RefreshSerializer(serializers.Serializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     phone_number = PhoneNumberField()
+    email = serializers.EmailField(required=False)
 
     class Meta:
         model = CustomUser
         exclude = ("password",)
 
+class TemporaryCustomUserSerializer(serializers.ModelSerializer):
+    phone_number = PhoneNumberField()
+    email = serializers.EmailField(required=False)
+
+    class Meta:
+        model = TemporaryCustomUser
+        exclude = ("password",)
 
 class UserProfileSerializer(serializers.ModelSerializer):
 
