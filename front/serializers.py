@@ -9,7 +9,7 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=False)
+    #email = serializers.EmailField(required=False)
     phone_number = PhoneNumberField()
     password = serializers.CharField()
 
@@ -20,7 +20,7 @@ class RefreshSerializer(serializers.Serializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     phone_number = PhoneNumberField()
-    email = serializers.EmailField(required=False)
+    #email = serializers.EmailField(required=False)
 
     class Meta:
         model = CustomUser
@@ -28,7 +28,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 class TemporaryCustomUserSerializer(serializers.ModelSerializer):
     phone_number = PhoneNumberField()
-    email = serializers.EmailField(required=False)
+    #email = serializers.EmailField(required=False)
 
     class Meta:
         model = TemporaryCustomUser

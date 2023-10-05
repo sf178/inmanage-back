@@ -158,13 +158,15 @@ class ConfirmRegistrationView(APIView):
         # Создание объекта CustomUser на основе данных из TemporaryCustomUser
         user_data = {
             "phone_number": temp_user.phone_number,
-            "email": temp_user.email,
+            #"email": temp_user.email,
             # "password": temp_user.password,
             # "password": decrypted_password,
             "is_staff": temp_user.is_staff,
             "is_superuser": temp_user.is_superuser
             # добавьте здесь любые другие поля, если они есть
         }
+        #if user_data["email"] is None:
+        #    user_data["email"] = ""
         user_serializer = CustomUserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.validated_data["password"] = temp_user.password
