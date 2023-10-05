@@ -49,6 +49,7 @@ class CardDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ge
 class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = CardSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
