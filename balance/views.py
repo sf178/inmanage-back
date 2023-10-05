@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions, mixins
 from django.db.models import Sum, Q
+from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from .models import *
 from .serializers import *
@@ -23,9 +24,16 @@ class CardListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Create
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
 
-        return self.create(request, *args, **kwargs)
+        return self.perform_create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
+
 
 class CardDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = CardSerializer
@@ -145,9 +153,8 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
 
-        return self.create(request, *args, **kwargs)
+        return self.perform_create(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         user = self.request.user
@@ -183,6 +190,12 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
         return Response(inst_serializer.data)
 
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
 # class BalanceUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 #     queryset = Balance.objects.all()
 #     serializer_class = BalanceSerializer
@@ -215,7 +228,15 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        return self.perform_create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
+
 
 # View mixin for retrieving, updating, and deleting a specific Income object
 class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
@@ -248,9 +269,15 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
+        return self.perform_create(request, *args, **kwargs)
 
-        return self.create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
+
 
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):

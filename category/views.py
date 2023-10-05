@@ -1,4 +1,6 @@
 from rest_framework import mixins, generics
+from rest_framework.exceptions import ValidationError
+
 from .models import *
 from .serializers import *
 from rest_framework import generics, permissions, mixins
@@ -16,7 +18,11 @@ class ExpensePersonalCategoryListView(mixins.ListModelMixin, mixins.CreateModelM
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        return self.perform_create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
 
 
 class ExpensePersonalCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
@@ -41,7 +47,11 @@ class ExpenseGeneralCategoryListView(mixins.ListModelMixin, mixins.CreateModelMi
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        return self.perform_create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
 
 
 class ExpenseGeneralCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):

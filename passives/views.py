@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, mixins
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
@@ -27,9 +28,14 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
-        return self.create(request, *args, **kwargs)
+        return self.perform_create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
 
 class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = LoansSerializer
@@ -87,8 +93,6 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
-
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
@@ -103,7 +107,7 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
 
         # Создание нового объекта Inventory, используя ID объекта Property
         new_inventory = inv.Inventory.objects.create(
-            user=serializer.validated_data['user'],
+            user=serializer.instance.user,
             content_type=passives_content_type,  # Здесь устанавливаем значение для category_object
             object_id=property_id,  # Здесь устанавливаем значение для object_id
             launch_status=False
@@ -118,6 +122,12 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         # return self.create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
 
 class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = PropertySerializer
@@ -234,8 +244,6 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
-
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         #serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
@@ -266,6 +274,12 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         # return self.create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
 
 class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = TransportSerializer
@@ -371,10 +385,15 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
 
-        return self.create(request, *args, **kwargs)
+        return self.perform_create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        if 'user' in serializer.validated_data:
+            raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user)
 
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
