@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from django.db.models import Sum
 from django.contrib.contenttypes.models import ContentType
+from test_backend.custom_methods import IsAuthenticatedCustom
 
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -20,11 +21,11 @@ from .actives_scripts.transport_mark_model.main import set_mark_model
 
             to change auth permissions you should change all rows:
                                 
-                                permission_classes = [permissions.IsAuthenticated]
+                                permission_classes = [IsAuthenticatedCustom]
                                 
                                         to
                                         
-                                permission_classes = [permissions.IsAuthenticated]        
+                                permission_classes = [IsAuthenticatedCustom]        
 
             to enable check for user's id from request with object's id you should uncomment all sections:
             
@@ -48,9 +49,9 @@ from .actives_scripts.transport_mark_model.main import set_mark_model
 class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.UpdateModelMixin,
                        mixins.CreateModelMixin):
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
-    # permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [IsAuthenticatedCustom]
     lookup_field = 'id'  # field to lookup object by
 
     def get_queryset(self):
@@ -96,7 +97,7 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
 class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.CreateModelMixin):
     serializer_class = PropertySerializer
     lookup_field = 'id'
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Property.objects.filter(user=self.request.user)
@@ -202,7 +203,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
 
 class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Property.objects.filter(user=self.request.user)
@@ -213,7 +214,7 @@ class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = TransportSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
     lookup_field = 'id'
 
     def get_queryset(self):
@@ -272,7 +273,7 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
 class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = TransportSerializer
     lookup_field = 'id'
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -324,7 +325,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = TransportSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
@@ -335,7 +336,7 @@ class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = BusinessSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
     lookup_field = 'id'
 
     def get_queryset(self):
@@ -400,7 +401,7 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
 
 class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = BusinessSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
     lookup_field = 'id'
 
     def get_queryset(self):
@@ -572,7 +573,7 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 class BusinessDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = BusinessSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Business.objects.filter(user=self.request.user)
@@ -583,7 +584,7 @@ class BusinessDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
     serializer_class = ActivesIncomeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ActivesIncome.objects.filter(user=self.request.user)
@@ -599,7 +600,7 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
 # View mixin for retrieving, updating, and deleting a specific Income object
 class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = ActivesIncomeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ActivesIncome.objects.filter(user=self.request.user)
@@ -616,7 +617,7 @@ class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 # View mixin for listing all Expenses objects and creating new Expenses objects
 class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
     serializer_class = ActivesExpensesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ActivesExpenses.objects.filter(user=self.request.user)
@@ -632,7 +633,7 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = ActivesExpensesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ActivesExpenses.objects.filter(user=self.request.user)
@@ -649,7 +650,7 @@ class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 class ActiveList(generics.ListAPIView):
     serializer_class = ActivesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Actives.objects.filter(user=self.request.user)

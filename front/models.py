@@ -38,7 +38,7 @@ class CustomUserManager(BaseUserManager):
 
 class TemporaryCustomUser(models.Model):
     id = models.AutoField(primary_key=True)
-    phone_number = PhoneNumberField(unique=True, blank=False, null=True)
+    phone_number = PhoneNumberField(unique=False, blank=False, null=True)
     password = models.TextField(blank=False, null=True)
     email = models.EmailField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -53,8 +53,8 @@ class TemporaryCustomUser(models.Model):
     # определите любые дополнительные методы или свойства здесь, если они вам нужны
 
     # обязательное поле для моделей AbstractBaseUser
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['phone_number']
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = ['password']
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):

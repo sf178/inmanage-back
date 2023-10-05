@@ -1,6 +1,7 @@
 from rest_framework import generics, mixins, status
 from rest_framework.decorators import action
 from django.db.models import Q
+from test_backend.custom_methods import IsAuthenticatedCustom
 
 from .models import *
 from .serializers import *
@@ -8,7 +9,6 @@ from rest_framework.response import Response
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.utils.timezone import make_aware
-from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 
 #settings.TIME_ZONE
@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404
 
 class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = TodoTaskSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -83,7 +83,7 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
                          mixins.DestroyModelMixin):
     serializer_class = TodoTaskSerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return TodoTask.objects.filter(user=self.request.user)
@@ -172,7 +172,7 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
 class TodoTaskDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = TodoTaskSerializer
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return TodoTask.objects.filter(user=self.request.user)
@@ -183,7 +183,7 @@ class TodoTaskDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class TodoItemListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = TodoItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return TodoItem.objects.filter(user=self.request.user)
@@ -199,7 +199,7 @@ class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
                          mixins.DestroyModelMixin):
     serializer_class = TodoItemSerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return TodoItem.objects.filter(user=self.request.user)
@@ -264,7 +264,7 @@ class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
 class TodoItemDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = TodoItemSerializer
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return TodoItem.objects.filter(user=self.request.user)
@@ -275,7 +275,7 @@ class TodoItemDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class ProjectListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Project.objects.filter(user=self.request.user)
@@ -321,7 +321,7 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
                         mixins.DestroyModelMixin):
     serializer_class = ProjectSerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Project.objects.filter(user=self.request.user)
@@ -418,7 +418,7 @@ class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixi
 class ProjectDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = ProjectSerializer
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Project.objects.filter(user=self.request.user)
@@ -429,7 +429,7 @@ class ProjectDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class PlannerListView(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Planner.objects.filter(user=self.request.user)

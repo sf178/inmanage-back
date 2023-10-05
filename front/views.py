@@ -1,4 +1,4 @@
-import jwt
+import jwt as jwtlib
 import os
 from rest_framework import status
 from cryptography.fernet import Fernet
@@ -49,7 +49,7 @@ def get_random(length):
 
 
 def get_access_token(payload):
-    return jwt.encode(
+    return jwtlib.encode(
         {"exp": datetime.now() + timedelta(minutes=5), **payload},
         settings.SECRET_KEY,
         algorithm="HS256"
@@ -57,7 +57,7 @@ def get_access_token(payload):
 
 
 def get_refresh_token():
-    return jwt.encode(
+    return jwtlib.encode(
         {"exp": datetime.now() + timedelta(days=365), "data": get_random(10)},
         settings.SECRET_KEY,
         algorithm="HS256"
@@ -69,7 +69,7 @@ def decodeJWT(bearer):
         return None
 
     token = bearer[7:]
-    decoded = jwt.decode(token, algorithms=['HS256'], key=settings.SECRET_KEY)
+    decoded = jwtlib.decode(token, algorithms=['HS256'], key=settings.SECRET_KEY)
     if decoded:
         try:
             return CustomUser.objects.get(id=decoded["user_id"])
@@ -274,7 +274,7 @@ class UserProfilePartialUpdateView(mixins.RetrieveModelMixin,
 
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_object(self):
         return self.request.user.user_profile

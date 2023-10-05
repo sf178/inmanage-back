@@ -6,6 +6,8 @@ from .models import CustomUser, Jwt
 
 
 class Authentication(BaseAuthentication):
+    def authenticate_header(self, request):
+        return 'Bearer'
 
     def authenticate(self, request):
         data = self.validate_request(request.headers)

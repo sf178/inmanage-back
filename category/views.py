@@ -2,11 +2,12 @@ from rest_framework import mixins, generics
 from .models import *
 from .serializers import *
 from rest_framework import generics, permissions, mixins
+from test_backend.custom_methods import IsAuthenticatedCustom
 
 
 class ExpensePersonalCategoryListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     serializer_class = ExpensePersonalCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ExpensePersonalCategory.objects.filter(user=self.request.user)
@@ -20,7 +21,7 @@ class ExpensePersonalCategoryListView(mixins.ListModelMixin, mixins.CreateModelM
 
 class ExpensePersonalCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = ExpensePersonalCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ExpensePersonalCategory.objects.filter(user=self.request.user)
@@ -31,7 +32,7 @@ class ExpensePersonalCategoryDeleteView(mixins.DestroyModelMixin, generics.Gener
 
 class ExpenseGeneralCategoryListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     serializer_class = ExpenseGeneralCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ExpenseGeneralCategory.objects.filter(user=self.request.user)
@@ -45,7 +46,7 @@ class ExpenseGeneralCategoryListView(mixins.ListModelMixin, mixins.CreateModelMi
 
 class ExpenseGeneralCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = ExpenseGeneralCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return ExpenseGeneralCategory.objects.filter(user=self.request.user)

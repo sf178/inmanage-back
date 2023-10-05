@@ -1,5 +1,6 @@
 from rest_framework import generics, mixins
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from test_backend.custom_methods import IsAuthenticatedCustom
 
 from .models import *
 from .serializers import *
@@ -11,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 
 class InventoryListView(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = InventorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -23,7 +24,7 @@ class InventoryListView(generics.GenericAPIView, mixins.ListModelMixin):
 
 class InventoryDetailView(mixins.RetrieveModelMixin, generics.GenericAPIView):
     serializer_class = InventorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -36,7 +37,7 @@ class InventoryDetailView(mixins.RetrieveModelMixin, generics.GenericAPIView):
 class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = InventorySerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -106,7 +107,7 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 class InventoryAssetUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
     serializer_class = InventoryAssetSerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -118,7 +119,7 @@ class InventoryAssetUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView)
 
 class InventoryAssetDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = InventoryAssetSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю

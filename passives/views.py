@@ -7,6 +7,7 @@ from django.db.models import Sum
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from django.contrib.contenttypes.models import ContentType
 import inventory.models as inv
+from test_backend.custom_methods import IsAuthenticatedCustom
 
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -17,7 +18,7 @@ from .passives_scripts.transport_mark_model.main import set_mark_model
 
 class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = LoansSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Loans.objects.filter(user=self.request.user)
@@ -33,7 +34,7 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
 class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = LoansSerializer
     lookup_field = 'id'
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Loans.objects.filter(user=self.request.user)
@@ -65,7 +66,7 @@ class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 class LoansDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = LoansSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Loans.objects.filter(user=self.request.user)
@@ -77,7 +78,7 @@ class LoansDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.UpdateModelMixin,
                        mixins.CreateModelMixin):
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Property.objects.filter(user=self.request.user)
@@ -213,7 +214,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Property.objects.filter(user=self.request.user)
@@ -224,7 +225,7 @@ class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = TransportSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
@@ -269,7 +270,7 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
 class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = TransportSerializer
     lookup_field = 'id'
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
@@ -301,7 +302,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = TransportSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
@@ -312,7 +313,7 @@ class TransportDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class PassivesListView(generics.ListAPIView):
     serializer_class = PassivesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Passives.objects.filter(user=self.request.user)
@@ -325,7 +326,7 @@ class PassivesListView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
         # return self.list(request, *args, **kwargs)
-    # permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [IsAuthenticatedCustom]
     # def calculate_totals(self, user_id):
     #     # Retrieve related MainProperties, MainTransport, and MainLoans if they exist
     #     properties = MainProperties.objects.filter(user_id=user_id).first()
@@ -361,7 +362,7 @@ class PassivesListView(generics.ListAPIView):
 # View mixin for listing all Expenses objects and creating new Expenses objects
 class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
     serializer_class = PassiveExpensesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Expenses.objects.filter(user=self.request.user)
@@ -378,7 +379,7 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = PassiveExpensesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         return Expenses.objects.filter(user=self.request.user)

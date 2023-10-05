@@ -3,6 +3,7 @@ from django.db.models import Sum, Q
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from .models import *
 from .serializers import *
+from test_backend.custom_methods import IsAuthenticatedCustom
 
 from actives.models import Actives
 from passives.models import Passives
@@ -12,7 +13,7 @@ from rest_framework.response import Response
 
 class CardListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = CardSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -28,7 +29,7 @@ class CardListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Create
 
 class CardDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = CardSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -74,7 +75,7 @@ class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 class CardDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = CardSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -86,7 +87,7 @@ class CardDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin):
     serializer_class = BalanceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -192,7 +193,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
 class BalanceDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = BalanceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -204,7 +205,7 @@ class BalanceDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
     serializer_class = BalanceIncomeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -219,7 +220,7 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
 # View mixin for retrieving, updating, and deleting a specific Income object
 class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = BalanceIncomeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -237,7 +238,7 @@ class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 # View mixin for listing all Expenses objects and creating new Expenses objects
 class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
     serializer_class = BalanceExpensesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
@@ -254,7 +255,7 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = BalanceExpensesSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         # Фильтрация объектов по текущему пользователю
