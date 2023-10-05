@@ -75,7 +75,7 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = InventoryExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user, inventory=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user.id, inventory=instance)
                 expenses_instances.append(expenses_instance)
 
                 asset = InventoryAsset.objects.create(user=instance.user, text=expenses_instance.title, price=expenses_instance.funds)

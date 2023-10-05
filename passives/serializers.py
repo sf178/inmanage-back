@@ -13,6 +13,8 @@ class LoansSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
     loan_link = LoansSerializer(many=False, required=False)
     equipment = inv.InventorySerializer(many=False, required=False)
     created_at = CustomDateTimeField(required=False)

@@ -54,7 +54,7 @@ class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = PassiveExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user, loan=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user.id, loan=instance)
                 instance.expenses.add(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -144,7 +144,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = PassiveExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user, property=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user.id, property=instance)
                 instance.expenses.add(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -298,7 +298,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = PassiveExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user, transport=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user.id, transport=instance)
                 instance.expenses.add(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
