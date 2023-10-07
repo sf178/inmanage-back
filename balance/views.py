@@ -172,7 +172,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         if card_data:
             card_serializer = CardSerializer(data=card_data)
             if card_serializer.is_valid():
-                card = card_serializer.save()  # save card instance
+                card = card_serializer.save(user=user)  # save card instance
                 balance.card_list.add(card)
             else:
                 return Response(card_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
