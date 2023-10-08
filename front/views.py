@@ -102,9 +102,9 @@ class RegisterView(APIView):
         temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
         # Шифрование пароля
-        cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
+        # cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
 
-        return Response(cipher)
+        return Response(self.env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
 
         # encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
