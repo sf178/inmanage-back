@@ -143,13 +143,13 @@ class ConfirmRegistrationView(APIView):
 
         # Дешифровка пароля
 
-        cipher = Fernet(self.env('SECRET_CRYPTO_KEY').encode())
+        # cipher = Fernet(self.env('SECRET_CRYPTO_KEY').encode())
 
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
-        try:
-            decrypted_password = cipher.decrypt(temp_user.password.tobytes()).decode()
-        except InvalidToken:
-            return Response({"error": "Failed to decrypt password."}, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     decrypted_password = cipher.decrypt(temp_user.password.tobytes()).decode()
+        # except InvalidToken:
+        #     return Response({"error": "Failed to decrypt password."}, status=status.HTTP_400_BAD_REQUEST)
         # Создание объекта CustomUser на основе данных из TemporaryCustomUser
         user_data = {
             "phone_number": temp_user.phone_number,
