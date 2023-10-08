@@ -154,7 +154,7 @@ class ConfirmRegistrationView(APIView):
         user_data = {
             "phone_number": temp_user.phone_number,
             #"email": temp_user.email,
-            "password": temp_user.password,
+            # "password": temp_user.password,
             # "password": decrypted_password,
             "is_staff": temp_user.is_staff,
             "is_superuser": temp_user.is_superuser
@@ -167,7 +167,7 @@ class ConfirmRegistrationView(APIView):
         # user_serializer.validated_data["password"] = decrypted_password
 
         # Создание объекта CustomUser
-        created_user = CustomUser.objects.create_user(**user_serializer.validated_data)
+        created_user = CustomUser.objects.create_user(**user_serializer.validated_data, password=temp_user.password)
         profile = UserProfile.objects.get(user=created_user)
         profile.name = temp_user.name
         profile.birthdate = temp_user.birthdate
