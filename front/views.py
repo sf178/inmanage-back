@@ -1,7 +1,7 @@
 import jwt as jwtlib
 import os
 from rest_framework import status
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 from .models import Jwt, CustomUser, Favorite, TemporaryCustomUser
 from datetime import datetime, timedelta
@@ -117,9 +117,9 @@ class RegisterView(APIView):
 
         # Шифрование пароля
         # cipher = Fernet(os.environ.get('SECRET_CRYPTO_KEY'))
-        # cipher = Fernet(b'GjOpX7KrBDLCkCo-B0IbeMPEAPKSujp-BZMA_-kf4PI=')
-        # encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
-        # serializer.validated_data["password"] = encrypted_password
+        cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
+        encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
+        serializer.validated_data["password"] = encrypted_password
 
         # Закомментированный код для отправки смс
         # send_sms(phone_number, "Your verification code is: 1111")
@@ -152,9 +152,11 @@ class ConfirmRegistrationView(APIView):
 
         # Дешифровка пароля
         # cipher = Fernet(os.environ.get('SECRET_CRYPTO_KEY'))
-        # cipher = Fernet(b'GjOpX7KrBDLCkCo-B0IbeMPEAPKSujp-BZMA_-kf4PI=')
-        # decrypted_password = cipher.decrypt(temp_user.password).decode()
-
+        cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
+        try:
+            decrypted_password = cipher.decrypt(temp_user.password.tobytes()).decode()
+        except InvalidToken:
+            return Response({"error": "Failed to decrypt password."}, status=status.HTTP_400_BAD_REQUEST)
         # Создание объекта CustomUser на основе данных из TemporaryCustomUser
         user_data = {
             "phone_number": temp_user.phone_number,
@@ -169,11 +171,14 @@ class ConfirmRegistrationView(APIView):
         #    user_data["email"] = ""
         user_serializer = CustomUserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
-        user_serializer.validated_data["password"] = temp_user.password
+        user_serializer.validated_data["password"] = decrypted_password
 
         # Создание объекта CustomUser
-        CustomUser.objects.create_user(**user_serializer.validated_data)
-
+        created_user = CustomUser.objects.create_user(**user_serializer.validated_data)
+        profile = UserProfile.objects.get(user=created_user)
+        profile.name = temp_user.name
+        profile.birthdate = temp_user.birthdate
+        profile.save()
         # Удаление временного объекта пользователя
         temp_user.delete()
 

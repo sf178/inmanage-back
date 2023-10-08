@@ -5,6 +5,7 @@ from .models import *
 from .serializers import *
 from rest_framework import generics, permissions, mixins
 from test_backend.custom_methods import IsAuthenticatedCustom
+from django.db.models import Q
 
 
 class ExpensePersonalCategoryListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
@@ -12,7 +13,7 @@ class ExpensePersonalCategoryListView(mixins.ListModelMixin, mixins.CreateModelM
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return ExpensePersonalCategory.objects.filter(user=self.request.user)
+        return ExpensePersonalCategory.objects.filter(Q(user=self.request.user) | Q(is_default=True))
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -41,7 +42,7 @@ class ExpenseGeneralCategoryListView(mixins.ListModelMixin, mixins.CreateModelMi
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return ExpenseGeneralCategory.objects.filter(user=self.request.user)
+        return ExpenseGeneralCategory.objects.filter(Q(user=self.request.user) | Q(is_default=True))
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

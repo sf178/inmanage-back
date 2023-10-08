@@ -12,7 +12,8 @@ class RegisterSerializer(serializers.Serializer):
     #email = serializers.EmailField(required=False)
     phone_number = PhoneNumberField()
     password = serializers.CharField()
-
+    name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    birthdate = serializers.DateField(required=False, allow_null=True)
 
 class RefreshSerializer(serializers.Serializer):
     refresh = serializers.CharField()

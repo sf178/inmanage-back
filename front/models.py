@@ -38,8 +38,10 @@ class CustomUserManager(BaseUserManager):
 
 class TemporaryCustomUser(models.Model):
     id = models.AutoField(primary_key=True)
+    name = models.TextField(blank=True, null=True)
+    birthdate = models.DateField(null=True, blank=True)
     phone_number = PhoneNumberField(unique=False, blank=False, null=True)
-    password = models.TextField(blank=False, null=True)
+    password = models.BinaryField(blank=False, null=True)
     #email = models.EmailField(unique=False, blank=True, null=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
