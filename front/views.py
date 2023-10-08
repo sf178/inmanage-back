@@ -2,6 +2,7 @@ import jwt as jwtlib
 import os
 from rest_framework import status
 from cryptography.fernet import Fernet, InvalidToken
+import environ
 
 from .models import Jwt, CustomUser, Favorite, TemporaryCustomUser
 from datetime import datetime, timedelta
@@ -27,22 +28,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import UserProfile
 from .serializers import UserProfileSerializer
 
-
-def get_cipher():
-    # return Fernet(settings.SECRET_CRYPTO_KEY)
-    return Fernet(b'GjOpX7KrBDLCkCo-B0IbeMPEAPKSujp-BZMA_-kf4PI=')
-
-def encrypt_password(password: str, salt: str) -> str:
-    cipher = get_cipher()
-    encrypted_password = cipher.encrypt((password + salt).encode())
-    return encrypted_password.decode()
-
-
-def decrypt_password(encrypted_password: str, salt: str) -> str:
-    cipher = get_cipher()
-    decrypted_password = cipher.decrypt(encrypted_password.encode())
-    return decrypted_password.replace(salt, '')
-
+env = environ.Env()
 
 def get_random(length):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -116,7 +102,7 @@ class RegisterView(APIView):
         temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
         # Шифрование пароля
-        cipher = Fernet(os.environ.get('SECRET_CRYPTO_KEY'))
+        cipher = Fernet(env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
         encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
         serializer.validated_data["password"] = encrypted_password
@@ -151,7 +137,7 @@ class ConfirmRegistrationView(APIView):
             return Response({"error": "Invalid token or data expired."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Дешифровка пароля
-        cipher = Fernet(os.environ.get('SECRET_CRYPTO_KEY'))
+        cipher = Fernet(env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
         try:
             decrypted_password = cipher.decrypt(temp_user.password.tobytes()).decode()
