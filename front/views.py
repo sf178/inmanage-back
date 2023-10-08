@@ -28,7 +28,6 @@ from rest_framework.permissions import IsAuthenticated
 from .models import UserProfile
 from .serializers import UserProfileSerializer
 
-env = environ.Env()
 
 def get_random(length):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -93,6 +92,7 @@ class LoginView(APIView):
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
+    env = environ.Env()
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -102,7 +102,7 @@ class RegisterView(APIView):
         temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
         # Шифрование пароля
-        cipher = Fernet(env('SECRET_CRYPTO_KEY'))
+        cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
         encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
         serializer.validated_data["password"] = encrypted_password
@@ -119,6 +119,8 @@ class RegisterView(APIView):
 
 
 class ConfirmRegistrationView(APIView):
+    env = environ.Env()
+
     def post(self, request):
         temp_token = request.data.get("temp_token")
         verification_code = request.data.get("code")
@@ -137,7 +139,7 @@ class ConfirmRegistrationView(APIView):
             return Response({"error": "Invalid token or data expired."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Дешифровка пароля
-        cipher = Fernet(env('SECRET_CRYPTO_KEY'))
+        cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
         try:
             decrypted_password = cipher.decrypt(temp_user.password.tobytes()).decode()
