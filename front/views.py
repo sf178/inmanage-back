@@ -102,13 +102,13 @@ class RegisterView(APIView):
         temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
         # Шифрование пароля
-        cipher = Fernet(self.env('SECRET_CRYPTO_KEY').encode())
+        # cipher = Fernet(self.env('SECRET_CRYPTO_KEY').encode())
 
         # return Response(self.env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
 
-        encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
-        serializer.validated_data["password"] = encrypted_password
+        # encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
+        # serializer.validated_data["password"] = encrypted_password
 
         # Закомментированный код для отправки смс
         # send_sms(phone_number, "Your verification code is: 1111")
@@ -154,7 +154,7 @@ class ConfirmRegistrationView(APIView):
         user_data = {
             "phone_number": temp_user.phone_number,
             #"email": temp_user.email,
-            # "password": temp_user.password,
+            "password": temp_user.password,
             # "password": decrypted_password,
             "is_staff": temp_user.is_staff,
             "is_superuser": temp_user.is_superuser
@@ -164,7 +164,7 @@ class ConfirmRegistrationView(APIView):
         #    user_data["email"] = ""
         user_serializer = CustomUserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
-        user_serializer.validated_data["password"] = decrypted_password
+        # user_serializer.validated_data["password"] = decrypted_password
 
         # Создание объекта CustomUser
         created_user = CustomUser.objects.create_user(**user_serializer.validated_data)
