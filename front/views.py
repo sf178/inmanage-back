@@ -102,23 +102,23 @@ class RegisterView(APIView):
         temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
         # Шифрование пароля
-        try:
-            cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
-        except:
-            Response(self.env('SECRET_CRYPTO_KEY'))
+        cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
+
+        return Response(cipher)
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
-        encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
-        serializer.validated_data["password"] = encrypted_password
 
-        # Закомментированный код для отправки смс
-        # send_sms(phone_number, "Your verification code is: 1111")
-
-        # Создание объекта TemporaryCustomUser с temp_token
-        TemporaryCustomUser.objects.create(phone_number=phone_number, temp_token=temp_token,
-                                           **serializer.validated_data)
-
-        return Response({"temp_token": temp_token, "message": "Verification code sent."},
-                        status=status.HTTP_201_CREATED)
+        # encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
+        # serializer.validated_data["password"] = encrypted_password
+        #
+        # # Закомментированный код для отправки смс
+        # # send_sms(phone_number, "Your verification code is: 1111")
+        #
+        # # Создание объекта TemporaryCustomUser с temp_token
+        # TemporaryCustomUser.objects.create(phone_number=phone_number, temp_token=temp_token,
+        #                                    **serializer.validated_data)
+        #
+        # return Response({"temp_token": temp_token, "message": "Verification code sent."},
+        #                 status=status.HTTP_201_CREATED)
 
 
 class ConfirmRegistrationView(APIView):
