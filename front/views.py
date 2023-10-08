@@ -102,7 +102,7 @@ class RegisterView(APIView):
         temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
         # Шифрование пароля
-        cipher = Fernet(bytes(self.env('SECRET_CRYPTO_KEY')))
+        cipher = Fernet(self.env('SECRET_CRYPTO_KEY').encode())
 
         # return Response(self.env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
@@ -143,7 +143,7 @@ class ConfirmRegistrationView(APIView):
 
         # Дешифровка пароля
 
-        cipher = Fernet(bytes(self.env('SECRET_CRYPTO_KEY')))
+        cipher = Fernet(self.env('SECRET_CRYPTO_KEY').encode())
 
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
         try:
