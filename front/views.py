@@ -102,7 +102,10 @@ class RegisterView(APIView):
         temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
 
         # Шифрование пароля
-        cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
+        try:
+            cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
+        except:
+            Response(self.env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
         encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
         serializer.validated_data["password"] = encrypted_password
@@ -139,7 +142,10 @@ class ConfirmRegistrationView(APIView):
             return Response({"error": "Invalid token or data expired."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Дешифровка пароля
-        cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
+        try:
+            cipher = Fernet(self.env('SECRET_CRYPTO_KEY'))
+        except:
+            Response(self.env('SECRET_CRYPTO_KEY'))
         # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
         try:
             decrypted_password = cipher.decrypt(temp_user.password.tobytes()).decode()
