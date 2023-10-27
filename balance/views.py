@@ -138,7 +138,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
-        balance = Balance.objects.filter(user_id=user).first()  # or create a new one
+        balance = Balance.objects.filter(user=user).first()  # or create a new one
 
         total_income, total_expenses, total, card_funds, card_income, card_expenses = self.calculate_totals(user=user)
 
@@ -159,7 +159,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
     def patch(self, request, *args, **kwargs):
         user = self.request.user
-        balance = Balance.objects.filter(user_id=user).first()
+        balance = Balance.objects.filter(user=user).first()
 
         serializer = self.get_serializer(balance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -167,7 +167,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
         # extract card data from request
         card_data = request.data.pop('card', None)
-        favourite_cards_data = request.data.pop('favourite_cards', [])
+        favourite_cards_data = request.data.pop('favourite_cards', None)
 
         if card_data:
             card_serializer = CardSerializer(data=card_data)
@@ -178,20 +178,21 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
                 return Response(card_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # handle favourite_cards data
-        for card_id in favourite_cards_data:
-            try:
-                card_to_add = Card.objects.get(pk=card_id)
-                balance.favourite_cards.add(card_to_add)
-            except Card.DoesNotExist:
-                return Response({"error": f"Card with id {card_id} does not exist."},
-                                status=status.HTTP_400_BAD_REQUEST)
+        if favourite_cards_data:
+            for card_id in favourite_cards_data:
+                try:
+                    card_to_add = Card.objects.get(id=card_id)
+                    balance.favourite_cards.add(card_to_add)
+                except Card.DoesNotExist:
+                    return Response({"error": f"Card with id {card_id} does not exist."},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
-        instance = Balance.objects.filter(user_id=user).first()
+        instance = Balance.objects.filter(user=user).first()
         inst_serializer = self.get_serializer(instance)
 
         return Response(inst_serializer.data)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer, *args, **kwargs):
         # Проверка на наличие 'user' в data перед сохранением
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         if 'user' in serializer.validated_data:
@@ -231,7 +232,7 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         return self.perform_create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer, *args, **kwargs):
         # Проверка на наличие 'user' в data перед сохранением
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         if 'user' in serializer.validated_data:
@@ -272,7 +273,7 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
     def post(self, request, *args, **kwargs):
         return self.perform_create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer, *args, **kwargs):
         # Проверка на наличие 'user' в data перед сохранением
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         if 'user' in serializer.validated_data:

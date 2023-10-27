@@ -21,7 +21,7 @@ class ExpensePersonalCategoryListView(mixins.ListModelMixin, mixins.CreateModelM
     def post(self, request, *args, **kwargs):
         return self.perform_create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer, *args, **kwargs):
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
 
@@ -50,7 +50,7 @@ class ExpenseGeneralCategoryListView(mixins.ListModelMixin, mixins.CreateModelMi
     def post(self, request, *args, **kwargs):
         return self.perform_create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer, *args, **kwargs):
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
 

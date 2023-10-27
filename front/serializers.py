@@ -22,7 +22,8 @@ class RefreshSerializer(serializers.Serializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     phone_number = PhoneNumberField()
     #email = serializers.EmailField(required=False)
-
+    name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    birthdate = serializers.DateField(required=False, allow_null=True)
     class Meta:
         model = CustomUser
         exclude = ("password",)

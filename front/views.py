@@ -99,23 +99,21 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
 
         phone_number = serializer.validated_data.pop("phone_number")
-        temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
+        # verification_code = str(random.randint(1000, 9999))
+        # send_sms(phone_number, f"Your verification code is: {verification_code}")
 
-        # Шифрование пароля
-        # cipher = Fernet(self.env('SECRET_CRYPTO_KEY').encode())
-
-        # return Response(self.env('SECRET_CRYPTO_KEY'))
-        # cipher = Fernet(b'gBLgsatgAHXe1i0Ckx5ylXpWWORpRtX3-MOM6VV3J5w=')
-
-        # encrypted_password = cipher.encrypt(serializer.validated_data["password"].encode())
-        # serializer.validated_data["password"] = encrypted_password
-
+        # temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
+        temp_token = str(random.randint(1000, 9999))
+        temp_user, created = TemporaryCustomUser.objects.get_or_create(phone_number=phone_number)
+        if not created:
+            # Если запись уже существует, обновляем temp_token
+            temp_user.temp_token = temp_token
+            temp_user.save()
         # Закомментированный код для отправки смс
         # send_sms(phone_number, "Your verification code is: 1111")
 
         # Создание объекта TemporaryCustomUser с temp_token
-        TemporaryCustomUser.objects.create(phone_number=phone_number, temp_token=temp_token,
-                                           **serializer.validated_data)
+
 
         return Response({"temp_token": temp_token, "message": "Verification code sent."},
                         status=status.HTTP_201_CREATED)
@@ -151,26 +149,16 @@ class ConfirmRegistrationView(APIView):
         # except InvalidToken:
         #     return Response({"error": "Failed to decrypt password."}, status=status.HTTP_400_BAD_REQUEST)
         # Создание объекта CustomUser на основе данных из TemporaryCustomUser
-        user_data = {
-            "phone_number": temp_user.phone_number,
-            #"email": temp_user.email,
-            # "password": temp_user.password,
-            # "password": decrypted_password,
-            "is_staff": temp_user.is_staff,
-            "is_superuser": temp_user.is_superuser
-            # добавьте здесь любые другие поля, если они есть
-        }
-        #if user_data["email"] is None:
-        #    user_data["email"] = ""
+        user_data = request.data.copy()
+        user_data["phone_number"] = temp_user.phone_number
+
         user_serializer = CustomUserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
-        # user_serializer.validated_data["password"] = decrypted_password
 
-        # Создание объекта CustomUser
-        created_user = CustomUser.objects.create_user(**user_serializer.validated_data, password=temp_user.password)
+        created_user = CustomUser.objects.create_user(**user_serializer.validated_data)
         profile = UserProfile.objects.get(user=created_user)
-        profile.name = temp_user.name
-        profile.birthdate = temp_user.birthdate
+        profile.name = user_data["name"]
+        profile.birthdate = user_data["birthdate"]
         profile.save()
         # Удаление временного объекта пользователя
         temp_user.delete()
