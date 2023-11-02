@@ -106,13 +106,14 @@ class RegisterView(APIView):
         # verification_code = str(random.randint(1000, 9999))
         # send_sms(phone_number, f"Your verification code is: {verification_code}")
 
-        temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
-        # temp_token = str(random.randint(1000, 9999))
-        temp_user, created = TemporaryCustomUser.objects.get_or_create(phone_number=phone_number)
-        if not created:
+        # temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
+        temp_token = str(random.randint(1000, 9999))
+        temp_user = TemporaryCustomUser.objects.filter(phone_number=phone_number)
+        if not temp_user or temp_user is None or temp_user == []:
+            temp_user = TemporaryCustomUser.objects.create(phone_number=phone_number, temp_token=temp_token)
             # Если запись уже существует, обновляем temp_token
-            temp_user.temp_token = temp_token
-            temp_user.save()
+        temp_user.temp_token = temp_token
+        temp_user.save()
         # Закомментированный код для отправки смс
         # send_sms(phone_number, "Your verification code is: 1111")
 
@@ -159,7 +160,7 @@ class ConfirmRegistrationView(APIView):
         user_serializer = CustomUserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
 
-        created_user = CustomUser.objects.create_user(**user_serializer.validated_data)
+        created_user = CustomUser.objects.create_user(phone_number=user_data['phone_number'], password=user_data["password"])
         profile = UserProfile.objects.get(user=created_user)
         profile.name = user_data["name"]
         profile.birthdate = user_data["birthdate"]

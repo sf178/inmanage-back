@@ -22,7 +22,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
     phone_number = PhoneNumberField()
     #email = serializers.EmailField(required=False)
     name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
-    birthdate = serializers.DateField(required=False, allow_null=True)
     class Meta:
         model = CustomUser
         exclude = ("password",)
@@ -36,6 +35,7 @@ class TemporaryCustomUserSerializer(serializers.ModelSerializer):
         exclude = ("password",)
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    birthdate = serializers.DateField(required=False, allow_null=True, input_formats=['%d.%m.%Y'])
 
     class Meta:
         model = UserProfile
