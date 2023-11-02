@@ -8,6 +8,8 @@ urlpatterns = [
 
     path('general/', ExpenseGeneralCategoryListView.as_view(), name='general-category-list'),
     path('general/delete/<int:pk>/', ExpenseGeneralCategoryDeleteView.as_view(), name='general-category-delete'),
+    path('general/subcategories/delete/<int:pk>/', ExpenseGeneralSubcategoryDeleteView.as_view(),
+         name='delete-general-subcategory'),
 
 ]
 

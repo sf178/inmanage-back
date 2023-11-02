@@ -16,3 +16,8 @@ class ExpenseGeneralCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ExpenseGeneralCategory
         fields = ['id', 'name']
+
+class ExpenseGeneralSubcategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpenseSubCategory
+        fields = ('id', 'name', 'general_category')

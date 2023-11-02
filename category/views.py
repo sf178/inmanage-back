@@ -93,3 +93,14 @@ class ExpenseGeneralCategoryDeleteView(mixins.DestroyModelMixin, generics.Generi
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class ExpenseGeneralSubcategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = ExpenseGeneralSubcategorySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return ExpenseSubCategory.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
