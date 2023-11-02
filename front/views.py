@@ -106,8 +106,8 @@ class RegisterView(APIView):
         # verification_code = str(random.randint(1000, 9999))
         # send_sms(phone_number, f"Your verification code is: {verification_code}")
 
-        # temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
-        temp_token = str(random.randint(1000, 9999))
+        temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
+        # temp_token = str(random.randint(1000, 9999))
         temp_user, created = TemporaryCustomUser.objects.get_or_create(phone_number=phone_number)
         if not created:
             # Если запись уже существует, обновляем temp_token
