@@ -53,7 +53,7 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
 
     def post(self, request, *args, **kwargs):
 
-        desc_list_data = request.data.pop('items', [])
+        desc_list_data = request.data.pop('desc_list', [])
         task_serializer = self.get_serializer(data=request.data)
         task_serializer.is_valid(raise_exception=True)
         task = task_serializer.save(user=self.request.user)
@@ -122,8 +122,8 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        if 'items' in request.data:
-            items = request.data.pop('items')
+        if 'desc_list' in request.data:
+            items = request.data.pop('desc_list')
             for item in items:
                 items_serializer = TodoItemSerializer(data=item)
                 items_serializer.is_valid(raise_exception=True)
@@ -453,5 +453,50 @@ class PlannerListView(generics.GenericAPIView, mixins.ListModelMixin):
         instance.tasks.set(all_tasks)
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CombinedListView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_todo_tasks(self):
+        return TodoTask.objects.filter(user=self.request.user)
+
+    def get_projects(self):
+        return Project.objects.filter(user=self.request.user)
+
+    def parse_dates(self, t_delta):
+        if len(t_delta) < 11:
+            due_date = datetime.strptime(t_delta, '%d.%m.%Y')
+            due_date = make_aware(due_date)
+            start_of_day = due_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_day = start_of_day + timedelta(days=1)
+            return start_of_day, end_of_day
+        else:
+            date_range = t_delta.split(',')
+            start_date = datetime.strptime(date_range[0], '%d.%m.%Y')
+            end_date = datetime.strptime(date_range[1], '%d.%m.%Y')
+            start_date = make_aware(start_date)
+            end_date = make_aware(end_date)
+            return start_date, end_date
+
+    def get(self, request, *args, **kwargs):
+        t_delta = self.request.query_params.get('timedelta')
+
+        if t_delta:
+            start_date, end_date = self.parse_dates(t_delta)
+
+            tasks = self.get_todo_tasks().filter(date_end__range=[start_date, end_date])
+            projects = self.get_projects().filter(date_end__range=[start_date, end_date])
+        else:
+            tasks = self.get_todo_tasks()
+            projects = self.get_projects()
+
+        task_serializer = TodoTaskSerializer(tasks, many=True)
+        project_serializer = ProjectSerializer(projects, many=True)
+
+        return Response({
+            'tasks': task_serializer.data,
+            'projects': project_serializer.data
+        })
 
 

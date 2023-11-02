@@ -24,5 +24,6 @@ urlpatterns = [
     path('planner/', include('todo.urls')),
     path('balance/', include('balance.urls')),
     path('inventory/', include('inventory.urls')),
-    path('categories/', include('category.urls'))
+    path('categories/', include('category.urls')),
+    path('receipts/', include('receipt_scanner.urls'))
 ]

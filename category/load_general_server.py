@@ -2,6 +2,7 @@ import json
 import psycopg2
 from psycopg2.extras import execute_values
 
+
 def insert_general_category(name, subcategories):
     cursor.execute("INSERT INTO category_expensegeneralcategory (name) VALUES (%s) RETURNING id;", (name,))
     general_category_id = cursor.fetchone()[0]
@@ -17,13 +18,14 @@ def insert_general_category(name, subcategories):
 conn = psycopg2.connect(
     dbname="inmanage",
     user="postgres",
-    password="samara63"
+    password="samara63",
+    host="inmanage-back_db_1"
 )
 
 cursor = conn.cursor()
 
-# Загрузка и обработка JSON файла
-with open('D:\inmanage-site\/test_backend\category\categories2.json', 'r', encoding='utf-8') as file:
+# Загрузка и обработка второго JSON файла (предположим, что он называется 'categories2.json')
+with open('./category/categories2.json', 'r', encoding='utf-8') as file:
     data = json.load(file)
 
 for general_category_name, subcategories in data.items():

@@ -2,10 +2,22 @@ from django.db import models
 from front.models import CustomUser
 from datetime import datetime
 from simple_history.models import HistoricalRecords
+import re
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
 
+def validate_color_hex(value):
+    """
+    Проверка, что значение соответствует HEX-формату для цветов.
+    """
+    if not re.match(r'^#[0-9A-Fa-f]{6}$', value):
+        raise ValidationError(
+            _('%(value)s is not a valid HEX color.'),
+            params={'value': value},
+        )
 
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
@@ -36,6 +48,7 @@ class Project(models.Model):
 class TodoTask(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    color = models.CharField(max_length=7, blank=True, null=True, validators=[validate_color_hex])
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True)
     title = models.TextField(blank=True, null=True)

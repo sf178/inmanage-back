@@ -17,3 +17,12 @@ class ExpenseGeneralCategory(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     def __str__(self):
         return self.name
+
+
+class ExpenseSubCategory(models.Model):
+    id = models.AutoField(primary_key=True)
+    general_category = models.ForeignKey(ExpenseGeneralCategory, related_name="subcategories", on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
