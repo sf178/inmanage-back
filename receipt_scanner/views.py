@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views import View
 import asyncio
 from .models import Receipt, ReceiptItem  # Импорт ваших моделей
-from scanner import run as check_receipt
+from .scanner import run as check_receipt
 from rest_framework import generics
 from rest_framework.response import Response
 from .models import Receipt, ReceiptItem

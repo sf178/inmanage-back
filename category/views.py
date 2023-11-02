@@ -37,22 +37,32 @@ class ExpensePersonalCategoryDeleteView(mixins.DestroyModelMixin, generics.Gener
         return self.destroy(request, *args, **kwargs)
 
 
-class ExpenseGeneralCategoryListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class ExpenseGeneralCategoryListView(mixins.ListModelMixin,
+                                     mixins.CreateModelMixin,
+                                     mixins.UpdateModelMixin,
+                                     generics.GenericAPIView):
     serializer_class = ExpenseGeneralCategorySerializer
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return ExpenseGeneralCategory.objects.filter(Q(user=self.request.user) | Q(is_default=True))
+        return ExpenseGeneralCategory.objects.all()
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.perform_create(request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
-    def perform_create(self, serializer, *args, **kwargs):
-        if 'user' in serializer.validated_data:
-            raise ValidationError("You cannot set the user manually.")
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if 'subcategories' in serializer.validated_data:
+            for subcat_name in serializer.validated_data.pop('subcategories'):
+                # добавьте код для создания/обновления подкатегории
+                ExpenseSubCategory.objects.update_or_create(name=subcat_name, general_category=instance)
+        serializer.save()
 
 
 class ExpenseGeneralCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
