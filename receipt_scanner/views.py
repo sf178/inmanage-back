@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
 import asyncio
+from asgiref.sync import async_to_sync
 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
@@ -29,7 +30,7 @@ class ReceiptView(APIView):
         asyncio.set_event_loop(loop)
         try:
             # Запуск вашего скрипта с данными из запроса
-            response_data = loop.run_until_complete(self.get_receipt_info(receipt_info))
+            response_data = async_to_sync(self.get_receipt_info)(receipt_info)
         finally:
             loop.close()
         # Создание и сохранение экземпляра Receipt
