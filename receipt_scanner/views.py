@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
 import asyncio
+
+from django.views.decorators.csrf import csrf_exempt
+
 from .models import Receipt, ReceiptItem  # Импорт ваших моделей
 from .scanner import run as check_receipt
 from rest_framework import generics
@@ -12,6 +15,7 @@ from django.shortcuts import get_object_or_404
 from test_backend.custom_methods import IsAuthenticatedCustom
 
 
+@csrf_exempt
 class ReceiptView(View):
     permission_classes = [IsAuthenticatedCustom]
 
