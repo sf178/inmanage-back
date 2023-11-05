@@ -24,14 +24,13 @@ class ReceiptAPI(APIView):
         s = request_data.get('s')
         t = request_data.get('t')
         date_time_str = datetime.strptime(t, "%d.%m.%Y %H:%M")
-        date_time = timezone.make_aware(date_time_str)
         data = {
             'fn': fn,
             'fd': fd,
             'fp': fp,
             'n': n,
             's': s.replace('.', ''),  # Удаление точки из суммы
-            't': date_time,  # Преобразование в нужный формат
+            't': date_time_str,  # Преобразование в нужный формат
             'token': env('receipt_tkn')  # Предполагая, что у вас есть токен
         }
         response = requests.post(url, data=data)
