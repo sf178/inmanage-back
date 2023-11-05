@@ -1,3 +1,4 @@
+from _decimal import Decimal
 from datetime import datetime, timezone
 import os
 import environ
@@ -44,41 +45,44 @@ class ReceiptAPI(APIView):
         items = receipt_info.get('items', [])
 
         # Создание объекта Receipt
-        receipt_data = {
-            'date_time': receipt_info.get('dateTime'),
-            'total_amount': float(receipt_info.get('totalSum', 0)) / 100,
-            'user': receipt_info.get('user'),
-            'retail_place_address': receipt_info.get('retailPlaceAddress'),
-            'shift_number': receipt_info.get('shiftNumber'),
-            'taxation_type': receipt_info.get('appliedTaxationType'),
-            'electronic_amount': float(receipt_info.get('ecashTotalSum', 0)) / 100,
-            'fiscal_sign': receipt_info.get('fiscalSign'),
-            'request_number': receipt_info.get('requestNumber'),
-            'fiscal_document_number': receipt_info.get('fiscalDocumentNumber'),
-            'fiscal_document_format_version': receipt_info.get('fiscalDocumentFormatVer'),
-        }
+        receipt_info = response_data['data']['json']
 
-        receipt_serializer = ReceiptSerializer(data=receipt_data)
-        if receipt_serializer.is_valid():
-            receipt = receipt_serializer.save()
-        else:
-            return Response(receipt_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Создание объекта Receipt
+        receipt = Receipt.objects.create(
+            user=receipt_info['user'],
+            user_inn=receipt_info['userInn'].strip(),
+            date_time=datetime.strptime(receipt_info['dateTime'], "%Y-%m-%dT%H:%M:%S").replace(
+                tzinfo=timezone.utc),
+            total_sum=Decimal(receipt_info['totalSum']) / 100,
+            credit_sum=Decimal(receipt_info['creditSum']) / 100,
+            cash_total_sum=Decimal(receipt_info['cashTotalSum']) / 100,
+            ecash_total_sum=Decimal(receipt_info['ecashTotalSum']) / 100,
+            retail_place=receipt_info['retailPlace'],
+            retail_place_address=receipt_info['retailPlaceAddress'],
+            shift_number=receipt_info['shiftNumber'],
+            operation_type=receipt_info['operationType'],
+            request_number=receipt_info['requestNumber'],
+            fiscal_drive_number=receipt_info['fiscalDriveNumber'],
+            fiscal_sign=receipt_info['fiscalSign'],
+            fiscal_document_number=receipt_info['fiscalDocumentNumber'],
+            fiscal_document_format_version=receipt_info['fiscalDocumentFormatVer'],
+            kkt_registration_id=receipt_info['kktRegId'].strip(),
+            applied_taxation_type=receipt_info['appliedTaxationType'],
+            nds_18=Decimal(receipt_info['nds18']) / 100,
+        )
 
         # Создание объектов ReceiptItem
-        for i, item in enumerate(items):
-            item_data = {
-                'receipt': receipt.id,
-                'item_number': i + 1,
-                'name': item.get('name'),
-                'price': float(item.get('price', 0)) / 100,
-                'quantity': item.get('quantity')
-            }
-            item_serializer = ReceiptItemSerializer(data=item_data)
-            if item_serializer.is_valid():
-                item_serializer.save()
-            else:
-                return Response(item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        for item_info in receipt_info['items']:
+            ReceiptItem.objects.create(
+                receipt=receipt,
+                name=item_info['name'],
+                price=Decimal(item_info['price']) / 100,
+                quantity=Decimal(item_info['quantity']),
+                sum=Decimal(item_info['sum']) / 100,
+                nds=item_info['nds'],
+                payment_type=item_info['paymentType'],
+                product_type=item_info['productType'],
+            )
         # Возвращение созданного объекта Receipt в формате JSON
         receipt_serializer = ReceiptSerializer(receipt)
         return Response(receipt_serializer.data, status=status.HTTP_201_CREATED)

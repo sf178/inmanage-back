@@ -10,7 +10,7 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ReceiptItemSerializer(many=True, required=False)
+    items = ReceiptItemSerializer(many=True, read_only=True, required=False)
 
     class Meta:
         model = Receipt
