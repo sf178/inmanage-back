@@ -1,87 +1,63 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.views import View
-import asyncio
-from asgiref.sync import async_to_sync
-
-from django.views.decorators.csrf import csrf_exempt
+import requests
 from rest_framework.views import APIView
-
-from .models import Receipt, ReceiptItem  # Импорт ваших моделей
-from .scanner import main
-from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework import status
 from .models import Receipt, ReceiptItem
 from .serializers import ReceiptSerializer, ReceiptItemSerializer
-from django.shortcuts import get_object_or_404
-from test_backend.custom_methods import IsAuthenticatedCustom
 
 
-class ReceiptView(APIView):
-    permission_classes = [IsAuthenticatedCustom]
-
-    async def get_receipt_info(self, receipt_info):
-        # Замените вызов check_receipt на main из scanner.py
-        return await main(receipt_info)
+class ReceiptAPI(APIView):
 
     def post(self, request, *args, **kwargs):
-        receipt_info = request.data  # Изменено для DRF
+        url = 'https://proverkacheka.com/api/v1/check/get'
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        data = request.data
+
+        response = requests.post(url, data=data)
         try:
-            # Запуск вашего скрипта с данными из запроса
-            response_data = async_to_sync(self.get_receipt_info)(receipt_info)
-        finally:
-            loop.close()
-        # Создание и сохранение экземпляра Receipt
-        receipt = Receipt(
-            date_time=response_data['date_time'],
-            total_amount=response_data['total_amount'],
-            user=response_data['user'],
-            retail_place_address=response_data['retail_place_address'],
-            shift_number=response_data['shift_number'],
-            taxation_type=response_data['taxation_type'],
-            electronic_amount=response_data['electronic_amount'],
-            fiscal_sign=response_data['fiscal_sign'],
-            request_number=response_data['request_number'],
-            fiscal_document_number=response_data['fiscal_document_number'],
-            fiscal_document_format_version=response_data['fiscal_document_format_version'],
-        )
-        receipt.save()
+            response_data = response.json()
+        except ValueError:
+            return Response({"error": "Failed to decode JSON response"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Создание и сохранение экземпляров ReceiptItem
-        for item_data in response_data['items']:
-            item = ReceiptItem(
-                receipt=receipt,
-                item_number=item_data['item_number'],
-                name=item_data['name'],
-                price=item_data['price'],
-                quantity=item_data['quantity']
-            )
-            item.save()
+        # Извлечение данных из ответа
+        receipt_info = response_data.get('data', {}).get('json', {})
+        items = receipt_info.get('items', [])
 
-        return Response(response_data, status=status.HTTP_200_OK)  # Изменено для DRF
+        # Создание объекта Receipt
+        receipt_data = {
+            'date_time': receipt_info.get('dateTime'),
+            'total_amount': float(receipt_info.get('totalSum', 0)) / 100,
+            'user': receipt_info.get('user'),
+            'retail_place_address': receipt_info.get('retailPlaceAddress'),
+            'shift_number': receipt_info.get('shiftNumber'),
+            'taxation_type': receipt_info.get('appliedTaxationType'),
+            'electronic_amount': float(receipt_info.get('ecashTotalSum', 0)) / 100,
+            'fiscal_sign': receipt_info.get('fiscalSign'),
+            'request_number': receipt_info.get('requestNumber'),
+            'fiscal_document_number': receipt_info.get('fiscalDocumentNumber'),
+            'fiscal_document_format_version': receipt_info.get('fiscalDocumentFormatVer'),
+        }
+        receipt_serializer = ReceiptSerializer(data=receipt_data)
+        if receipt_serializer.is_valid():
+            receipt = receipt_serializer.save()
+        else:
+            return Response(receipt_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        # Создание объектов ReceiptItem
+        for i, item in enumerate(items):
+            item_data = {
+                'receipt': receipt.id,
+                'item_number': i + 1,
+                'name': item.get('name'),
+                'price': float(item.get('price', 0)) / 100,
+                'quantity': item.get('quantity')
+            }
+            item_serializer = ReceiptItemSerializer(data=item_data)
+            if item_serializer.is_valid():
+                item_serializer.save()
+            else:
+                return Response(item_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ListUserReceiptsView(generics.ListAPIView):
-    serializer_class = ReceiptSerializer
-    permission_classes = [IsAuthenticatedCustom]
-
-    def get_queryset(self):
-        user = self.request.user  # Получение текущего пользователя
-        return Receipt.objects.filter(user=user)  # Фильтрация чеков по пользователю
-
-
-class DeleteReceiptView(generics.DestroyAPIView):
-    serializer_class = ReceiptSerializer
-    permission_classes = [IsAuthenticatedCustom]
-
-    def get_object(self):
-        receipt_id = self.kwargs['pk']  # Получение ID чека из URL
-        return get_object_or_404(Receipt, id=receipt_id)  # Получение объекта чека или возвращение 404, если он не найден
-
-    def delete(self, request, *args, **kwargs):
-        receipt = self.get_object()
-        receipt.delete()
-        return Response(status=204)  # Возвращение статуса 204 (No Content) при успешном удалении
+        # Возвращение созданного объекта Receipt в формате JSON
+        receipt_serializer = ReceiptSerializer(receipt)
+        return Response(receipt_serializer.data, status=status.HTTP_201_CREATED)

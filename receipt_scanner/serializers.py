@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import Receipt, ReceiptItem
 
+
 class ReceiptItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReceiptItem
@@ -9,7 +10,7 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ReceiptItemSerializer(many=True, read_only=True)
+    items = ReceiptItemSerializer(many=True)
 
     class Meta:
         model = Receipt
