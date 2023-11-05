@@ -22,8 +22,8 @@ async def main(receipt_info):
     display = Display(visible=0, size=(1920, 1080))
     display.start()
     try:
-        browser = await launch(headless=False)
-        browser = await launch(headless=False)  # Запуск браузера
+        # browser = await launch(headless=False)
+        browser = await launch(headless=False, handleSIGINT=False, handleSIGTERM=False, handleSIGHUP=False)
         page = await browser.newPage()  # Открытие новой вкладки
         await page.goto('https://proverkacheka.ru/requisites-form')  # Переход на веб-страницу
 
