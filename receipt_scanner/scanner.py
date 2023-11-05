@@ -120,5 +120,3 @@ async def main(receipt_info):
         display.stop()
 
 
-def run(receipt_info):
-    asyncio.get_event_loop().run_until_complete(main(receipt_info))

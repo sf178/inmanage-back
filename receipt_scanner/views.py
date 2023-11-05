@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 
 from .models import Receipt, ReceiptItem  # Импорт ваших моделей
-from .scanner import run as check_receipt
+from .scanner import main
 from rest_framework import generics, status
 from rest_framework.response import Response
 from .models import Receipt, ReceiptItem
@@ -21,7 +21,8 @@ class ReceiptView(APIView):
     permission_classes = [IsAuthenticatedCustom]
 
     async def get_receipt_info(self, receipt_info):
-        return await check_receipt(receipt_info)
+        # Замените вызов check_receipt на main из scanner.py
+        return await main(receipt_info)
 
     def post(self, request, *args, **kwargs):
         receipt_info = request.data  # Изменено для DRF
