@@ -1,3 +1,6 @@
+from datetime import datetime, timezone
+from os import environ
+
 import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -5,14 +8,31 @@ from rest_framework import status
 from .models import Receipt, ReceiptItem
 from .serializers import ReceiptSerializer, ReceiptItemSerializer
 
+env = environ.Env()
 
 class ReceiptAPI(APIView):
 
     def post(self, request, *args, **kwargs):
         url = 'https://proverkacheka.com/api/v1/check/get'
 
-        data = request.data
-
+        request_data = request.data
+        fn = request_data.get('fn')
+        fd = request_data.get('fd')
+        fp = request_data.get('fp')
+        n = request_data.get('n')
+        s = request_data.get('s')
+        t = request_data.get('t')
+        date_time_str = datetime.strptime(t, "%d.%m.%Y %H:%M")
+        date_time = timezone.make_aware(date_time_str)
+        data = {
+            'fn': fn,
+            'fd': fd,
+            'fp': fp,
+            'n': n,
+            's': s.replace('.', ''),  # Удаление точки из суммы
+            't': date_time,  # Преобразование в нужный формат
+            'token': env('receipt_tkn')  # Предполагая, что у вас есть токен
+        }
         response = requests.post(url, data=data)
         try:
             response_data = response.json()
