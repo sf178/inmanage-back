@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import Receipt, ReceiptItem  # Импорт ваших моделей
 from .scanner import run as check_receipt
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from .models import Receipt, ReceiptItem
 from .serializers import ReceiptSerializer, ReceiptItemSerializer
@@ -15,15 +15,15 @@ from django.shortcuts import get_object_or_404
 from test_backend.custom_methods import IsAuthenticatedCustom
 
 
-@csrf_exempt
-class ReceiptView(View):
+class ReceiptView(APIView):
     permission_classes = [IsAuthenticatedCustom]
 
     async def get_receipt_info(self, receipt_info):
         return await check_receipt(receipt_info)
 
     def post(self, request, *args, **kwargs):
-        receipt_info = request.POST.dict()  # Получение данных из POST-запроса
+        receipt_info = request.data  # Изменено для DRF
+
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
@@ -31,7 +31,6 @@ class ReceiptView(View):
             response_data = loop.run_until_complete(self.get_receipt_info(receipt_info))
         finally:
             loop.close()
-
         # Создание и сохранение экземпляра Receipt
         receipt = Receipt(
             date_time=response_data['date_time'],
@@ -59,7 +58,7 @@ class ReceiptView(View):
             )
             item.save()
 
-        return JsonResponse(response_data)  # Возвращение данных в формате JSON
+        return Response(response_data, status=status.HTTP_200_OK)  # Изменено для DRF
 
 
 class ListUserReceiptsView(generics.ListAPIView):
