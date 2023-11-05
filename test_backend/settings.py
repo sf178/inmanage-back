@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'phonenumber_field',
+    'receipt_scanner.apps.ReceiptScannerConfig'
     #'django_extensions'
 ]
 
@@ -99,7 +101,7 @@ DATABASES = {
         'NAME': 'inmanage',
         'USER': 'postgres',
         'PASSWORD': 'samara63',
-        'HOST': 'db',
+        'HOST': '192.168.0.179',
         'PORT': '5432',
     }
 }
