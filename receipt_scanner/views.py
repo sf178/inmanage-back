@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
-from os import environ
+import os
+import environ
 
 import requests
 from rest_framework.views import APIView
