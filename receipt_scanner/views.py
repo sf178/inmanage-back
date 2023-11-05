@@ -4,6 +4,7 @@ from django.views import View
 import asyncio
 
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
 
 from .models import Receipt, ReceiptItem  # Импорт ваших моделей
 from .scanner import run as check_receipt
