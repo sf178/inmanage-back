@@ -57,6 +57,7 @@ class ReceiptAPI(APIView):
             'fiscal_document_number': receipt_info.get('fiscalDocumentNumber'),
             'fiscal_document_format_version': receipt_info.get('fiscalDocumentFormatVer'),
         }
+
         receipt_serializer = ReceiptSerializer(data=receipt_data)
         if receipt_serializer.is_valid():
             receipt = receipt_serializer.save()
