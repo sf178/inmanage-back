@@ -32,11 +32,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='business',
-            name='own_funds',
-            field=models.BooleanField(blank=True, null=True),
-        ),
-        migrations.AlterField(
-            model_name='business',
             name='type',
             field=models.TextField(blank=True, null=True),
         ),
@@ -59,11 +54,6 @@ class Migration(migrations.Migration):
             model_name='historicalbusiness',
             name='name',
             field=models.TextField(blank=True, null=True),
-        ),
-        migrations.AlterField(
-            model_name='historicalbusiness',
-            name='own_funds',
-            field=models.BooleanField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='historicalbusiness',

@@ -142,7 +142,8 @@ class Business(models.Model):
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
     average_profit = models.FloatField(blank=True, null=True, default=0.0)
     revenue = models.FloatField(blank=True, null=True, default=0.0)
-    own_funds = models.BooleanField(blank=True, null=True, default=True)
+    own_funds = models.BooleanField(blank=True, null=True, default=True)  # loan indicator
+
     equipment = models.ForeignKey('inventory.Inventory', on_delete=models.CASCADE, blank=True, null=True)
     third_party_tools = models.FloatField(blank=True, null=True, default=0.0)
     third_party_tools_percentage = models.FloatField(blank=True, null=True, default=0.0)
