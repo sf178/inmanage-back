@@ -14,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicaltodotask',
             name='color',
-            field=models.CharField(blank=True, max_length=7, null=True, validators=[todo.models.validate_color_hex]),
+            field=models.CharField(blank=True, max_length=7, null=True),
         ),
         migrations.AddField(
             model_name='todotask',
             name='color',
-            field=models.CharField(blank=True, max_length=7, null=True, validators=[todo.models.validate_color_hex]),
+            field=models.CharField(blank=True, max_length=7, null=True),
         ),
     ]

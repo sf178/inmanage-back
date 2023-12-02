@@ -9,52 +9,89 @@ from test_backend.custom_methods import IsAuthenticatedCustom
 from django.db.models import Q
 
 
-class ExpensePersonalCategoryListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
-    serializer_class = ExpensePersonalCategorySerializer
+# PersonalExpenseCategory Views
+class PersonalExpenseCategoryListCreateView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    serializer_class = PersonalExpenseCategorySerializer
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return ExpensePersonalCategory.objects.filter(Q(user=self.request.user) | Q(is_default=True))
+        return PersonalExpenseCategory.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        data = request.data
+        return self.create(request, *args, **kwargs)
 
-        # Если передан список, обрабатываем каждую категорию в списке
-        if isinstance(data, list):
-            created_categories = []
-            for category_data in data:
-                serializer = self.get_serializer(data=category_data)
-                serializer.is_valid(raise_exception=True)
-                self.perform_create(serializer)
-                created_categories.append(serializer.data)
-            return Response(created_categories, status=201)
-
-        # Если передана одна категория
-        else:
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=201, headers=headers)
-
-    def perform_create(self, serializer, *args, **kwargs):
-        if 'user' in serializer.validated_data:
-            raise ValidationError("You cannot set the user manually.")
+    def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-class ExpensePersonalCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
-    serializer_class = ExpensePersonalCategorySerializer
+
+class PersonalExpenseCategoryDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = PersonalExpenseCategorySerializer
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return ExpensePersonalCategory.objects.filter(user=self.request.user)
+        return PersonalExpenseCategory.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
+
+class AssetCategoryListCreateView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = AssetCategory.objects.all()
+    serializer_class = AssetCategorySerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class AssetCategoryDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = AssetCategory.objects.all()
+    serializer_class = AssetCategorySerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+# LiabilityCategory Views
+class LiabilityCategoryListCreateView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = LiabilityCategory.objects.all()
+    serializer_class = LiabilityCategorySerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class LiabilityCategoryDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = LiabilityCategory.objects.all()
+    serializer_class = LiabilityCategorySerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 class ExpenseGeneralCategoryListView(mixins.ListModelMixin,
                                      mixins.CreateModelMixin,
@@ -82,6 +119,9 @@ class ExpenseGeneralCategoryListView(mixins.ListModelMixin,
                 # добавьте код для создания/обновления подкатегории
                 ExpenseSubCategory.objects.update_or_create(name=subcat_name, general_category=instance)
         serializer.save()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class ExpenseGeneralCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):

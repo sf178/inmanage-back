@@ -179,13 +179,20 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
         # handle favourite_cards data
         if favourite_cards_data:
-            for card_id in favourite_cards_data:
-                try:
-                    card_to_add = Card.objects.get(id=card_id)
-                    balance.favourite_cards.add(card_to_add)
-                except Card.DoesNotExist:
-                    return Response({"error": f"Card with id {card_id} does not exist."},
-                                    status=status.HTTP_400_BAD_REQUEST)
+            if isinstance(favourite_cards_data, list):
+                # Очистить текущие избранные карты, если нужно
+                balance.favourite_cards.clear()
+
+                for card_id in favourite_cards_data:
+                    try:
+                        card_to_add = Card.objects.get(id=card_id)
+                        balance.favourite_cards.add(card_to_add)
+                    except Card.DoesNotExist:
+                        return Response({"error": f"Card with id {card_id} does not exist."},
+                                        status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "favourite_cards must be a list."},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         instance = Balance.objects.filter(user=user).first()
         inst_serializer = self.get_serializer(instance)

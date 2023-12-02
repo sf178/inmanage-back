@@ -127,11 +127,11 @@ class TransportImage(models.Model):
 
 class Business(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.TextField(blank=True)
-    address = models.TextField(blank=True)
+    name = models.TextField(blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
-    type = models.BooleanField(blank=True, null=True)
-    direction = models.TextField(blank=True)
+    type = models.TextField(blank=True, null=True)
+    direction = models.TextField(blank=True, null=True)
     bought_price = models.FloatField(blank=True, null=True, default=0.0)
     #investment_type = models.TextField()
     month_income = models.FloatField(blank=True, null=True, default=0.0)
@@ -142,11 +142,11 @@ class Business(models.Model):
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
     average_profit = models.FloatField(blank=True, null=True, default=0.0)
     revenue = models.FloatField(blank=True, null=True, default=0.0)
-    own_funds = models.FloatField(blank=True, null=True, default=0.0)
+    own_funds = models.BooleanField(blank=True, null=True, default=True)
     equipment = models.ForeignKey('inventory.Inventory', on_delete=models.CASCADE, blank=True, null=True)
     third_party_tools = models.FloatField(blank=True, null=True, default=0.0)
     third_party_tools_percentage = models.FloatField(blank=True, null=True, default=0.0)
-    creditor = models.TextField(blank=True)
+    creditor = models.TextField(blank=True, null=True)
     #### loans part ####
     loan = models.BooleanField(blank=True, null=True)  # loan indicator
     loan_link = models.ForeignKey('passives.Loans', on_delete=models.SET_NULL, blank=True, null=True, related_name='+')

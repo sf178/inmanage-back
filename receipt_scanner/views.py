@@ -41,12 +41,25 @@ class ReceiptAPI(APIView):
             return Response({"error": "Failed to decode JSON response"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Извлечение данных из ответа
-        receipt_info = response_data.get('data', {}).get('json', {})
-        items = receipt_info.get('items', [])
+        response = requests.post(url, data=data)
 
-        # Создание объекта Receipt
-        receipt_info = response_data['data']['json']
+        try:
+            response_data = response.json()
+            if not isinstance(response_data, dict):
+                # Handle case where response is not a dictionary
+                return Response({"error": "Invalid JSON format received"}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError:
+            # Handle case where response is not JSON at all
+            return Response({"error": "Failed to decode JSON response"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Now we can be confident that response_data is a dictionary
+        try:
+            receipt_info = response_data.get('data', {}).get('json', {})
+        except Exception as e:
+            return Response({
+                                'error': 'Missing receipt information',
+                                'code': e
+                             })
         # Создание объекта Receipt
         receipt = Receipt.objects.create(
             user=receipt_info['user'],

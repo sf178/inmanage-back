@@ -2,12 +2,20 @@ from rest_framework import serializers
 from .models import *
 
 
-class ExpensePersonalCategorySerializer(serializers.ModelSerializer):
-
+class PersonalExpenseCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ExpensePersonalCategory
-        fields = ['id', 'name']
+        model = PersonalExpenseCategory
+        fields = ['id', 'title', 'icon_id', 'user']
 
+class AssetCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssetCategory
+        fields = ['id', 'title', 'icon_id', 'asset_type']
+
+class LiabilityCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LiabilityCategory
+        fields = ['id', 'title', 'icon_id', 'liability_type']
 
 
 

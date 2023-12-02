@@ -43,6 +43,7 @@ class InventoryAsset(models.Model):
     text = models.TextField(null=True, blank=True)
     price = models.FloatField(default=0.0, null=True, blank=True)
     flag = models.BooleanField(default=False, null=True, blank=True)
+    is_consumables = models.BooleanField(default=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
