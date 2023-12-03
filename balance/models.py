@@ -44,7 +44,7 @@ class Balance(models.Model):
     total_income = models.FloatField(blank=True, null=True)
     total_expenses = models.FloatField(blank=True, null=True)
     currency = models.TextField(blank=True, null=True)
-    card_list = models.ManyToManyField(Card, blank=True, null=True)
+    card_list = models.ManyToManyField(Card, blank=True, null=True, related_name='+')
     favourite_cards = models.ManyToManyField(Card, blank=True, null=True, related_name='+')
     card_funds = models.FloatField(blank=True, null=True)
     card_income = models.FloatField(blank=True, null=True)

@@ -24,7 +24,6 @@ class CardListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Create
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-
         return self.perform_create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -179,6 +178,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
         # handle favourite_cards data
         if favourite_cards_data:
+            # return Response({"favourite_cards_data": favourite_cards_data})
             if isinstance(favourite_cards_data, list):
                 # Очистить текущие избранные карты, если нужно
                 balance.favourite_cards.clear()
@@ -191,7 +191,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
                         return Response({"error": f"Card with id {card_id} does not exist."},
                                         status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({"error": "favourite_cards must be a list."},
+               return Response({"error": "favourite_cards must be a list."},
                                 status=status.HTTP_400_BAD_REQUEST)
 
         instance = Balance.objects.filter(user=user).first()

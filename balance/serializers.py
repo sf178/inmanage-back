@@ -9,14 +9,14 @@ class CardSerializer(serializers.ModelSerializer):
         model = Card
         fields = '__all__'
 
-class FavCardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Card
-        fields = ('name', 'remainder')
+
 
 class BalanceSerializer(serializers.ModelSerializer):
     card_list = CardSerializer(many=True, read_only=True)
-    favourite_cards = FavCardSerializer(many=True, required=False)
+    # favourite_cards = CardSerializer(many=True, required=False)
+    favourite_cards = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Card.objects.all()
+    )
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
@@ -26,6 +26,9 @@ class BalanceSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Get the list of card IDs from the request data
         card_ids = validated_data.get('card_list', [])
+        # favourite_cards_data = validated_data.get('favourite_cards', [])
+        # if favourite_cards_data is not None:
+        #     instance.favourite_cards.set(favourite_cards_data)
 
         # Add the new card IDs to the existing card_list
         instance.card_list.add(*card_ids)
