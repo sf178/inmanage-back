@@ -45,6 +45,7 @@ class CardDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ge
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
+
 class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = CardSerializer
     lookup_field = 'id'
@@ -74,9 +75,6 @@ class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
 
         return Response(serializer.data)
 
@@ -237,7 +235,9 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.perform_create(request, *args, **kwargs)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self.perform_create(serializer)
 
     def perform_create(self, serializer, *args, **kwargs):
         # Проверка на наличие 'user' в data перед сохранением

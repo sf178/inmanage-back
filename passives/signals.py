@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from .models import *
 from .serializers import *
 from django.db import transaction
+from glob_parse.tasks import parse_avito_task
 
 
 @receiver(post_save, sender=Property)
@@ -232,6 +233,12 @@ def delete_loans(sender, instance, **kwargs):
 
     passives.total_funds -= instance.remainder
     passives.save()
+
+@receiver(post_save, sender=Property)
+def property_post_save(sender, instance, created, **kwargs):
+    if created:
+        src = 'passives'
+        parse_avito_task.delay(src, instance.id, instance.city, instance.square)
 
 #
 #

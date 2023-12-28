@@ -27,7 +27,10 @@ class Property(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     name = models.TextField(blank=True)
-    address = models.TextField(blank=True)
+    square = models.FloatField(blank=True, null=True, default=0.0)
+    city = models.TextField(blank=True, null=True)
+    street = models.TextField(blank=True, null=True)
+    building_number = models.TextField(blank=True, null=True)
     owner = models.TextField(blank=True)
     rent_type = models.BooleanField(blank=True, null=True)
     bought_price = models.FloatField(blank=True, null=True, default=0.0)
@@ -143,7 +146,7 @@ class Business(models.Model):
     average_profit = models.FloatField(blank=True, null=True, default=0.0)
     revenue = models.FloatField(blank=True, null=True, default=0.0)
     own_funds = models.BooleanField(blank=True, null=True, default=True)  # loan indicator
-
+    own_funds_amount = models.FloatField(blank=True, null=True, default=0.0)
     equipment = models.ForeignKey('inventory.Inventory', on_delete=models.CASCADE, blank=True, null=True)
     third_party_tools = models.FloatField(blank=True, null=True, default=0.0)
     third_party_tools_percentage = models.FloatField(blank=True, null=True, default=0.0)
@@ -230,7 +233,9 @@ class ActivesIncome(models.Model):
     property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     business = models.ForeignKey('actives.Business', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True)
     funds = models.FloatField(blank=True, null=True, default=0.0)
+    comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

@@ -1,170 +1,119 @@
-# from rest_framework.test import APITestCase
-# from .views import get_random, get_access_token, get_refresh_token
-# from .models import CustomUser, UserProfile
+# from rest_framework.test import APITestCase, APIClient
+# from rest_framework import status
+# from django.urls import reverse
 #
+# from .auth import Authentication
+# from .models import CustomUser, TemporaryCustomUser
+# from django.utils import timezone
+# import datetime
 #
-# class TestGenericFunctions(APITestCase):
-#
-#     def test_get_random(self):
-#
-#         rand1 = get_random(10)
-#         rand2 = get_random(10)
-#         rand3 = get_random(15)
-#
-#         # check that we are getting a result
-#         self.assertTrue(rand1)
-#
-#         # check that rand1 is not equal to rand2
-#         self.assertNotEqual(rand1, rand2)
-#
-#         # check that the length of result is what is expected
-#         self.assertEqual(len(rand1), 10)
-#         self.assertEqual(len(rand3), 15)
-#
-#     def test_get_access_token(self):
-#         payload = {
-#             "id": 1
-#         }
-#
-#         token = get_access_token(payload)
-#
-#         # check that we obtained a result
-#         self.assertTrue(token)
-#
-#     def test_get_refresh_token(self):
-#
-#         token = get_refresh_token()
-#
-#         # check that we obtained a result
-#         self.assertTrue(token)
-#
-#
-# class TestAuth(APITestCase):
-#     login_url = "/auth/login"
-#     register_url = "/auth/register"
-#     refresh_url = "/auth/refresh"
-#
-#     def test_register(self):
-#         payload = {
-#             "username": "adefemigreat",
-#             "password": "ade123",
-#             "email": "adefemigreat@yahoo.com"
-#         }
-#
-#         response = self.client.post(self.register_url, data=payload)
-#
-#         # check that we obtain a status of 201
-#         self.assertEqual(response.status_code, 201)
-#
-#     def test_login(self):
-#         payload = {
-#             "username": "adefemigreat",
-#             "password": "ade123",
-#             "email": "adefemigreat@yahoo.com"
-#         }
-#
-#         # register
-#         self.client.post(self.register_url, data=payload)
-#
-#         # login
-#         response = self.client.post(self.login_url, data=payload)
-#         result = response.json()
-#
-#         # check that we obtain a status of 200
-#         self.assertEqual(response.status_code, 200)
-#
-#         # check that we obtained both the refresh and access token
-#         self.assertTrue(result["access"])
-#         self.assertTrue(result["refresh"])
-#
-#     def test_refresh(self):
-#         payload = {
-#             "username": "adefemigreat",
-#             "password": "ade123",
-#             "email": "adefemigreat@yahoo.com"
-#         }
-#
-#         # register
-#         self.client.post(self.register_url, data=payload)
-#
-#         # login
-#         response = self.client.post(self.login_url, data=payload)
-#         refresh = response.json()["refresh"]
-#
-#         # get refresh
-#         response = self.client.post(
-#             self.refresh_url, data={"refresh": refresh})
-#         result = response.json()
-#
-#         # check that we obtain a status of 200
-#         self.assertEqual(response.status_code, 200)
-#
-#         # check that we obtained both the refresh and access token
-#         self.assertTrue(result["access"])
-#         self.assertTrue(result["refresh"])
-#
-#
-# class TestUserInfo(APITestCase):
-#     profile_url = "/auth/profile"
-#     login_url = "/auth/login"
+# class UserAccountTests(APITestCase):
 #
 #     def setUp(self):
-#         payload = {
-#             "username": "adefemigreat",
-#             "password": "ade123",
-#             "email": "adefemigreat@yahoo.com"
-#         }
+#         # Создаем пользователя для тестирования
+#         self.user = CustomUser.objects.create_user(phone_number="+79871620432", password="testpassword")
+#         self.client = APIClient()
 #
-#         self.user = CustomUser.objects.create_user(**payload)
+#     def test_verify_token(self):
+#         # Вход в систему для получения токена
+#         login_response = self.client.post(reverse('login'), {
+#             "phone_number": "+79871620432",
+#             "password": "testpassword"
+#         })
+#         login_response_data = login_response.json()
+#         access_token = login_response_data.get('access')
 #
-#         # login
-#         response = self.client.post(self.login_url, data=payload)
-#         result = response.json()
+#         # Проверяем, что токен был получен
+#         self.assertIsNotNone(access_token, "Не удалось получить токен доступа")
 #
-#         self.bearer = {
-#             'HTTP_AUTHORIZATION': 'Bearer {}'.format(result['access'])}
+#         # Имитируем аутентифицированный запрос с использованием токена
+#         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + access_token)
+#         response = self.client.get(reverse('balance-list'))
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
 #
+#         # Верификация токена
+#         decoded_data = Authentication.verify_token(access_token)
+#         self.assertIsNotNone(decoded_data, "Токен не прошел верификацию")
+#         self.assertEqual(decoded_data['user_id'], self.user.id, "Токен не соответствует ожидаемому пользователю")
+#     # def test_initial_registration(self):
+#     #     data = {"phone_number": "+79871620432", "password": "testpassword"}
+#     #     response = self.client.post(reverse('register'), data)
+#     #     print("Response Data (Initial Registration):", response.data)  # Логирование ответа
+#     #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+#     #
+#     # def test_confirm_registration(self):
+#     #     temp_user = TemporaryCustomUser.objects.create(phone_number="+79871620432", temp_token="0432")
+#     #     data = {"temp_token": "0432", "code": "1111", "password": "testpassword", "name": "Test User",
+#     #             "birthdate": "1990-01-01"}
+#     #     response = self.client.post(reverse('register-confirm'), data)
+#     #     print("Response Data (Confirm Registration):", response.data)  # Логирование ответа
+#     #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+#     #
+#     # def test_login(self):
+#     #     """
+#     #     Тестирование процесса входа в систему
+#     #     """
+#     #     user = CustomUser.objects.create_user(phone_number="+79871620432", password="testpassword")
+#     #     data = {
+#     #         "phone_number": "+79871620432",
+#     #         "password": "testpassword"
+#     #     }
+#     #     response = self.client.post(reverse('login'), data)
+#     #     response_json = response.json()
+#     #     self.assertIn("access", response_json)
+#     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+#     #
+#     # def test_logout(self):
+#     #     """
+#     #     Тестирование процесса выхода из системы
+#     #     """
+#     #     user = CustomUser.objects.create_user(phone_number="+79871620432", password="testpassword")
+#     #     data = {
+#     #         "phone_number": "+79871620432",
+#     #         "password": "testpassword"
+#     #     }
+#     #     login = self.client.post(reverse('login'), data)
+#     #     login_response = login.json()
+#     #     access_token = login_response.get('access')  # Извлечение токена из ответа
+#     #
+#     #     # Проверка, получен ли токен
+#     #     self.assertIsNotNone(access_token, "Не удалось получить токен")
+#     #
+#     #     # Использование токена для аутентификации в последующих запросах
+#     #     self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + access_token)
+#     #     response = self.client.get(reverse('logout'))
+#     #     print("Response Status Code (Logout):", response.status_code)
+#     #     print("Response Data (Logout):", response.data)  # Добавлен вывод данных ответа
+#     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+#     #
 #
-#     def test_user_search(self):
+#     # def test_refresh_token(self):
+#     #     """
+#     #     Тестирование обновления токена доступа
+#     #     """
+#     #     user = CustomUser.objects.create_user(phone_number="+79871620432", password="testpassword")
+#     #     data = {
+#     #             "phone_number": "+79871620432",
+#     #             "password": "testpassword"
+#     #     }
+#     #     login = self.client.post(reverse('login'), data)
+#     #     login_response = login.json()
+#     #     # print(login_response)
+#     #     refresh_token = login_response.get('refresh')
+#     #     access_token = login_response.get('access')  # Извлечение токена из ответа
+#     #
+#     #     # Проверка, получен ли токен
+#     #     self.assertIsNotNone(access_token, "Не удалось получить токен")
+#     #
+#     #     # Использование токена для аутентификации в последующих запросах
+#     #     self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + access_token)
+#     #
+#     #     response = self.client.post(reverse('refresh'), {
+#     #                                                     'refresh': refresh_token
+#     #                                                      })
+#     #     # print(response.data)
+#     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+#     #     self.assertIn("access", response.data)
 #
-#         UserProfile.objects.create(user=self.user, first_name="Adefemi", last_name="oseni",
-#                                    caption="live is all about living", about="I'm a youtuber")
+#     # Добавьте дополнительные тесты для других функций вашего приложения
 #
-#         user2 = CustomUser.objects.create_user(
-#             username="tester", password="tester123", email="adefemi@yahoo.com")
-#         UserProfile.objects.create(user=user2, first_name="Vester", last_name="Mango",
-#                                    caption="it's all about testing", about="I'm a youtuber")
-#
-#         user3 = CustomUser.objects.create_user(
-#             username="vasman", password="vasman123", email="adefemi@yahoo.com2")
-#         UserProfile.objects.create(user=user3, first_name="Adeyemi", last_name="Boseman",
-#                                    caption="it's all about testing", about="I'm a youtuber")
-#
-#         # test keyword = adefemi oseni
-#         url = self.profile_url + "?keyword=adefemi oseni"
-#
-#         response = self.client.get(url, **self.bearer)
-#         result = response.json()["results"]
-#
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(result), 0)
-#
-#         # test keyword = ade
-#         url = self.profile_url + "?keyword=ade"
-#
-#         response = self.client.get(url, **self.bearer)
-#         result = response.json()["results"]
-#
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(result), 2)
-#         self.assertEqual(result[1]["user"]["username"], "vasman")
-#
-#         # test keyword = vester
-#         url = self.profile_url + "?keyword=vester"
-#
-#         response = self.client.get(url, **self.bearer)
-#         result = response.json()["results"]
-#
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(result), 1)
-#         self.assertEqual(result[0]["user"]["username"], "tester")

@@ -1,8 +1,12 @@
 import jwt
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timezone
 from rest_framework.authentication import BaseAuthentication
 from .models import CustomUser, Jwt
+import logging
+from jwt import DecodeError, ExpiredSignatureError, InvalidTokenError
+
+logger = logging.getLogger(__name__)
 
 
 class Authentication(BaseAuthentication):
@@ -37,17 +41,31 @@ class Authentication(BaseAuthentication):
 
     @staticmethod
     def verify_token(token):
-        # decode the token
         try:
-            decoded_data = jwt.decode(
-                token, settings.SECRET_KEY, algorithm="HS256")
-        except Exception:
+            decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        except ExpiredSignatureError:
+            logger.warning("Token has expired")
+            return None
+        except DecodeError:
+            logger.error("Error decoding token - DecodeError. Token: " + str(token))
+            return None
+        except InvalidTokenError:
+            logger.error("Invalid token")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error decoding token: {e}")
             return None
 
-        # check if token as exipired
-        exp = decoded_data["exp"]
+        try:
+            exp = decoded_data["exp"]
+            if not exp:
+                logger.warning(f'Nothing found in exp:\nexp: {exp}')
+        except Exception as e:
+            logger.warning(f'Error during founding exp: {e}')
 
-        if datetime.now().timestamp() > exp:
+        time = datetime.now(timezone.utc).timestamp()
+        if time > exp:
+            logger.warning(f'Token expired\n\nnow: {time}\nexp: {exp}')
             return None
 
-        return
+        return decoded_data

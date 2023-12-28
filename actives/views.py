@@ -16,35 +16,6 @@ import inventory.models as inv
 from .serializers import *
 from сars_parser.parser.main import get_average
 from .actives_scripts.transport_mark_model.main import set_mark_model
-'''
-####
-
-
-            to change auth permissions you should change all rows:
-                                
-                                permission_classes = [IsAuthenticatedCustom]
-                                
-                                        to
-                                        
-                                permission_classes = [IsAuthenticatedCustom]        
-
-            to enable check for user's id from request with object's id you should uncomment all sections:
-            
-                            if request.user.id != instance.user_id:
-                                return Response({'error': 'You are not authorized to perform this operation.'},
-                                                status=status.HTTP_401_UNAUTHORIZED)
-                                                
-
-####
-'''
-
-'''
-####
-
-        дописать функции для переноса объектов "в кредит" в passives/Loans
-
-####
-'''
 
 
 class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.UpdateModelMixin,
@@ -231,47 +202,13 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        #serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
-        # brand = request.data['mark']
-        # name = request.data['model']
-
-        # mark, model = set_mark_model(brand, name)
-        # serializer.validated_data['mark'] = brand
-        # serializer.validated_data['model'] = name
-        # average_market, min_market, max_market = get_average(mark, model)
-        # serializer.validated_data['average_market_price'] = average_market
-        # serializer.validated_data['min_market_price'] = min_market
-        # serializer.validated_data['max_market_price'] = max_market
-
-
-        # Check if an object with the same name already exists
-        # if Transport.objects.filter(name=name).exists():
-        #     return Response({'message': 'Object with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create the Property object
         self.perform_create(serializer)
-        #return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        # if serializer.instance.loan:
-        #     # Create the Loans object
-        #     loan = Loans(
-        #         user_id=serializer.instance.user_id,
-        #         name=serializer.instance.name,
-        #         remainder=serializer.instance.actual_price - serializer.instance.initial_payment,
-        #         sum=serializer.instance.bought_price,
-        #         loan_term=serializer.instance.loan_term,
-        #         percentage=serializer.instance.percentage,
-        #         month_payment=serializer.instance.month_payment,
-        #         maintenance_cost=serializer.instance.month_expense
-        #     )
-        #     loan.save()
-        #     serializer.instance.loan_link = loan
         serializer.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        # return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         # Проверка на наличие 'user' в data перед сохранением
@@ -387,26 +324,6 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-        # Check if the Property object has a non-empty loan field
-        # if serializer.instance.loan:
-        #     # Create the Loans object
-        #     loan = Loans(
-        #         user_id=serializer.instance.user_id,
-        #         name=serializer.instance.name,
-        #         #remainder=serializer.instance.actual_price - serializer.instance.initial_payment,
-        #         sum=serializer.instance.bought_price,
-        #         loan_term=serializer.instance.loan_term,
-        #         percentage=serializer.instance.percentage,
-        #         month_payment=serializer.instance.month_payment,
-        #         maintenance_cost=serializer.instance.month_expense
-        #     )
-        #     loan.save()
-        #     serializer.instance.loan_link = loan
-        # serializer.save()
-        # headers = self.get_success_headers(serializer.data)
-        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        # return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         # Проверка на наличие 'user' в data перед сохранением
@@ -539,54 +456,7 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
             serializer = PropertySerializer(business_instance)
             return Response(serializer.data)
-        # if business_instance.equipment and business_instance.equipment.launch_status:
-        #     business_instance.equipment.launch_status = not business_instance.equipment.launch_status
-        #     business_instance.save(update_fields=['equipment'])
-        #     business_instance = self.get_object()
-        #
-        #     serializer = PropertySerializer(business_instance)
-        #     return Response(serializer.data)
-        # # Если уже существует Inventory с launch_status равным False
-        # if business_instance.equipment and not business_instance.equipment.launch_status:
-        #     new_inventory = business_instance.equipment
-        #
-        #     # Получение ContentType для модели Actives
-        #     actives_content_type = ContentType.objects.get_for_model(Actives)
-        #
-        #     # Создание нового объекта Inventory, наследующего поля старого
-        #     # Создаем объект PreviousInventory на основе текущего состояния old_inventory
-        #     previous_inv = inv.PreviousInventory.objects.create(
-        #         user=new_inventory.user,
-        #         content_type=new_inventory.content_type,
-        #         object_id=new_inventory.object_id,
-        #         launch_status=new_inventory.launch_status,
-        #         total_cost=new_inventory.total_cost
-        #     )
-        #
-        #     # Копируем связанные данные (assets и expenses)
-        #     for asset in new_inventory.assets.all():
-        #         previous_inv.assets.add(asset)
-        #     for expense in new_inventory.expenses.all():
-        #         previous_inv.expenses.add(expense)
-        #     if new_inventory.previous_inventories.exists():
-        #         last_previous_inventory = new_inventory.previous_inventories.latest('created_at')
-        #         previous_inv.previous_inventory.set([last_previous_inventory])
-        #         previous_inv.save()
-        #     # Связывание старого объекта Inventory с новым через GenericRelation
-        #     new_inventory.previous_inventories.add(previous_inv)
-        #
-        #     # Обновление поля equipment в Property
-        #     business_instance.equipment = new_inventory
-        #     business_instance.save()
-        #
-        #     business_instance = self.get_object()
-        #
-        #     # Сериализация объекта Property
-        #     serializer = PropertySerializer(business_instance)
-        #     return Response(serializer.data)
 
-    # def put(self, request, *args, **kwargs):
-    #     return self.update(request, *args, **kwargs)
 
 class BusinessDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = BusinessSerializer
@@ -652,7 +522,10 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
 
         return self.perform_create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         # Проверка на наличие 'user' в data перед сохранением
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         if 'user' in serializer.validated_data:
@@ -686,29 +559,6 @@ class ActiveList(generics.ListAPIView):
         return Actives.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        # user = request.data.pop('user', None)
-        # actives = Actives.objects.get(user=user)
-        # total_funds = 0
-        # total_income = 0
-        # total_expenses = 0
-        # if actives.properties:
-        #     total_funds += actives.properties.total_funds or 0
-        #     total_income += actives.properties.total_income or 0
-        #     total_expenses += actives.properties.total_expenses or 0
-        # if actives.transports:
-        #     total_funds += actives.transports.total_funds or 0
-        #     total_income += actives.transports.total_income or 0
-        #     total_expenses += actives.transports.total_expenses or 0
-        # if actives.businesses:
-        #     total_funds += actives.businesses.total_funds or 0
-        #     total_income += actives.businesses.total_income or 0
-        #     total_expenses += actives.businesses.total_expenses or 0
-        #
-        # # Сохранение обновленного объекта Actives
-        # actives.total_funds = total_funds
-        # actives.total_income = total_income
-        # actives.total_expenses = total_expenses
-        # actives.save()  # update_fields=['total_funds', 'total_income', 'total_expenses']
 
         instance = self.get_queryset().first()  # Note: This only returns the first active for the user
         serializer = self.get_serializer(instance)

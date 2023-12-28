@@ -6,7 +6,7 @@ import environ
 from django.http import JsonResponse
 
 from .models import Jwt, CustomUser, Favorite, TemporaryCustomUser
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from django.conf import settings
 import random
 import string
@@ -28,6 +28,9 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import UserProfile
 from .serializers import UserProfileSerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_random(length):
@@ -37,7 +40,7 @@ def get_random(length):
 def get_access_token(payload):
     return jwtlib.encode(
         #{"exp": datetime.now() + timedelta(minutes=5), **payload},
-        {"exp": datetime.now() + timedelta(days=365), **payload},
+        {"exp": datetime.now(timezone.utc) + timedelta(days=365), **payload},
         settings.SECRET_KEY,
         algorithm="HS256"
     )
@@ -45,7 +48,7 @@ def get_access_token(payload):
 
 def get_refresh_token():
     return jwtlib.encode(
-        {"exp": datetime.now() + timedelta(days=365), "data": get_random(10)},
+        {"exp": datetime.now(timezone.utc) + timedelta(days=365), "data": get_random(10)},
         settings.SECRET_KEY,
         algorithm="HS256"
     )
@@ -99,6 +102,7 @@ class RegisterView(APIView):
     env = environ.Env()
 
     def post(self, request):
+        logger.info(f"Received data: {request.data}")
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -108,11 +112,11 @@ class RegisterView(APIView):
 
         # temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
         temp_token = str(random.randint(1000, 9999))
-        temp_user = TemporaryCustomUser.objects.filter(phone_number=phone_number)
-        if not temp_user or temp_user is None or temp_user == []:
+        temp_user = TemporaryCustomUser.objects.filter(phone_number=phone_number).first()
+        if temp_user:
+            temp_user.temp_token = temp_token
+        else:
             temp_user = TemporaryCustomUser.objects.create(phone_number=phone_number, temp_token=temp_token)
-            # Если запись уже существует, обновляем temp_token
-        temp_user.temp_token = temp_token
         temp_user.save()
         # Закомментированный код для отправки смс
         # send_sms(phone_number, "Your verification code is: 1111")
@@ -175,6 +179,8 @@ class RefreshView(APIView):
     serializer_class = RefreshSerializer
 
     def post(self, request):
+        logger.info(f"Received refresh token data: {request.data}")
+
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -183,8 +189,16 @@ class RefreshView(APIView):
                 refresh=serializer.validated_data["refresh"])
         except Jwt.DoesNotExist:
             return Response({"error": "refresh token not found"}, status="400")
-        if not Authentication.verify_token(serializer.validated_data["refresh"]):
-            return Response({"error": "Token is invalid or has expired"})
+        try:
+            verification = Authentication.verify_token(serializer.validated_data["refresh"])
+            if not verification:
+                return Response({
+                                "error": "Token is invalid or has expired"
+                                # "timedelta": verification
+                                 })
+        except Exception as e:
+            return e
+
 
         access = get_access_token({"user_id": active_jwt.user.id})
         refresh = get_refresh_token()
@@ -297,8 +311,7 @@ class LogoutView(APIView):
     permission_classes = (IsAuthenticatedCustom, )
 
     def get(self, request):
-        user_id = request.user.id
-
-        Jwt.objects.filter(user_id=user_id).delete()
-
-        return Response("logged out successfully", status=200)
+        if request.user and request.user.is_authenticated:
+            Jwt.objects.filter(user_id=request.user.id).delete()
+            return Response("Logged out successfully", status=status.HTTP_200_OK)
+        return Response("Unauthorized", status=status.HTTP_401_UNAUTHORIZED)

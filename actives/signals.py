@@ -1,8 +1,12 @@
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 from .models import *
 from .serializers import *
 from passives.models import Loans, MainLoans
+from glob_parse.tasks import parse_avito_task
 from balance import models as bal
 from django.db import transaction
 
@@ -283,6 +287,15 @@ def update_business_totals(sender, instance, created, **kwargs):
 def update_business_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
         update_business_totals(sender=Business, instance=instance, created=False)
+
+
+@receiver(post_save, sender=Property)
+def property_post_save(sender, instance, created, **kwargs):
+    if created:
+        src = 'actives'
+        parse_avito_task.delay(src, instance.id, instance.city, instance.square)
+
+        # return HttpResponseRedirect(reverse('parser_view', args=[instance.id, instance.city, instance.square]))
 
 
 # def update_main_totals(instance, related_field):

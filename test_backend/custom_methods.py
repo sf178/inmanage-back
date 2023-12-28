@@ -10,9 +10,15 @@ class IsAuthenticatedCustom(BasePermission):
 
     def has_permission(self, request, view):
         from front.views import decodeJWT
-        user = decodeJWT(request.META['HTTP_AUTHORIZATION'])
+
+        auth_header = request.META.get('HTTP_AUTHORIZATION')
+        if not auth_header:
+            return False
+
+        user = decodeJWT(auth_header)
         if not user:
             return False
+
         request.user = user
         if request.user and request.user.is_authenticated:
             from front.models import CustomUser
@@ -20,7 +26,6 @@ class IsAuthenticatedCustom(BasePermission):
                 is_online=timezone.now())
             return True
         return False
-
 
 class IsAuthenticatedOrReadCustom(BasePermission):
     def has_permission(self, request, view):

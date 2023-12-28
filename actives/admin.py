@@ -29,12 +29,12 @@ class MainBusinessAdmin(admin.ModelAdmin):
 
 class PropertyAdmin(admin.ModelAdmin):
     list_display = (
-    'id', 'user_id', 'name', 'address', 'owner', 'rent_type', 'bought_price', 'actual_price', 'initial_payment',
+    'id', 'user_id', 'name', 'city', 'street', 'square', 'owner', 'rent_type', 'bought_price', 'actual_price', 'initial_payment',
     'loan_term', 'percentage', 'month_payment', 'revenue', 'equipment_price', 'month_income', 'month_expense',
     'average_profit'
     )
     list_filter = ('user_id', 'name', 'owner', 'rent_type')
-    search_fields = ('name', 'address', 'owner')
+    search_fields = ('name', 'city', 'street', 'square', 'owner')
 
 
 class TransportAdmin(admin.ModelAdmin):
