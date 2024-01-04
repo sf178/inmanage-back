@@ -129,7 +129,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
         total_income += card_income
         total_expenses += card_expenses
-        total_funds += card_funds
+        total_funds = (total_funds + card_funds + total_income) - total_expenses
 
         return total_income, total_expenses, total_funds, card_funds, card_income, card_expenses
 

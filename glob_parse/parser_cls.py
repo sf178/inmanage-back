@@ -410,7 +410,7 @@ class AvitoParse:
         return title_file
 
     @logger.catch
-    def count_average(self):
+    async def count_average(self):
         async with aiofiles.open(self.title_file, mode='r', encoding='utf-8') as file:
             reader = csv.reader(file)
             total_price = 0

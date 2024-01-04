@@ -76,7 +76,7 @@ class PassiveExpensesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Expenses
-        fields = ('id', 'property', 'transport', 'loan', 'funds', 'created_at')
+        fields = '__all__'
 
 
 PropertySerializer._declared_fields['expenses'] = PassiveExpensesSerializer(many=True, read_only=True, required=False, allow_null=True)

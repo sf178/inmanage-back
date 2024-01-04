@@ -131,6 +131,8 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
 
 class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
     lookup_field = 'id'
     def get_queryset(self):
         return Property.objects.filter(user=self.request.user)
