@@ -293,7 +293,7 @@ def update_business_totals_on_income_change(sender, instance, action, **kwargs):
 def property_post_save(sender, instance, created, **kwargs):
     if created:
         src = 'actives'
-        parse_avito_task.delay(src, instance.id, instance.city, instance.square)
+        parse_avito_task.delay(src=src, property_id=instance.id, city=instance.city, square=instance.square)
 
         # return HttpResponseRedirect(reverse('parser_view', args=[instance.id, instance.city, instance.square]))
 
