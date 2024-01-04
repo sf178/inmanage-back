@@ -26,10 +26,10 @@ from seleniumbase import SB
 from loguru import logger
 from .locator import LocatorAvito
 from .proxy import get_proxy
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-
-driver = webdriver.Chrome(ChromeDriverManager().install())
+# from selenium import webdriver
+# from webdriver_manager.chrome import ChromeDriverManager
+#
+# driver = webdriver.Chrome(ChromeDriverManager().install())
 
 
 
