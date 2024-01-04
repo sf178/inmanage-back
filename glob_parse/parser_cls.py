@@ -56,7 +56,7 @@ class AvitoParse:
         self.min_price = int(min_price)
         self.geo = geo
         self.square = square
-        self.id = property_id
+        self.property_id = property_id
         self.debug_mode = debug_mode
         self.proxy_list = get_proxy()  # Получаем список прокси
 
@@ -406,7 +406,7 @@ class AvitoParse:
         #
         # else:
         #     title_file = 'all'
-        title_file = f'result_{self.sender}_{self.id}'
+        title_file = f'result_{self.sender}_{self.property_id}'
         return title_file
 
     @logger.catch
@@ -430,7 +430,7 @@ class AvitoParse:
         else:
             average_price = 0
 
-        update_url = f"http://web/{self.sender}/properties/up/{self.id}"  # Укажите здесь URL вашего API
+        update_url = f"http://web/{self.sender}/properties/up/{self.property_id}"  # Укажите здесь URL вашего API
         response = requests.patch(update_url, json={'actual_price': average_price})
 
         if response.status_code == 200:
