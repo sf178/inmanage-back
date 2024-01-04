@@ -50,13 +50,13 @@ class AvitoParse:
         self.sender = src
         self.keys_word = keysword_list
         self.count = count
+        self.property_id = property_id
         self.data = []
         self.title_file = self.__get_file_title()
         self.max_price = int(max_price)
         self.min_price = int(min_price)
         self.geo = geo
         self.square = square
-        self.property_id = property_id
         self.debug_mode = debug_mode
         self.proxy_list = get_proxy()  # Получаем список прокси
 
