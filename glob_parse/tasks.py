@@ -16,7 +16,7 @@ except Exception:
         url = re.search(regex, line_url)[0]
 num_ads = config["Avito"]["NUM_ADS"]
 freq = config["Avito"]["FREQ"]
-keys = config["Avito"]["KEYS"]
+keys = config["Avito"]["KEYS"].split(', ')
 max_price = config["Avito"].get("MAX_PRICE", "0") or "0"
 min_price = config["Avito"].get("MIN_PRICE", "0") or "0"
 
@@ -24,6 +24,7 @@ min_price = config["Avito"].get("MIN_PRICE", "0") or "0"
 def parse_avito_task(src, property_id, city, square):
     city_url = get_city(city)
     correct_url = url.replace('%city%', city_url)
-    parser = AvitoParse(src=src, property_id=property_id, url=correct_url, geo=city, square=square, count=int(num_ads), min_price=min_price, max_price=max_price)
+    parser = AvitoParse(src=src, property_id=property_id, url=correct_url, geo=city, square=square,
+                        count=int(num_ads), min_price=min_price, max_price=max_price, keysword_list=keys)
     parser.parse()
 
