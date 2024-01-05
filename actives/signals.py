@@ -10,12 +10,13 @@ from passives.models import Loans, MainLoans
 from glob_parse.tasks import parse_avito_task
 from balance import models as bal
 from django.db import transaction
-from balance.models import Income, Expenses
+from balance.models import Card, Income, Expenses
 
 @receiver(post_save, sender=ActivesIncome)
 def create_income_from_actives(sender, instance, created, **kwargs):
     if created:
         content_object = None
+        card = Card.objects.get(id=instance.writeoff_account, user=instance.user)
         if instance.property:
             content_object = instance.property
         elif instance.transport:
@@ -25,7 +26,7 @@ def create_income_from_actives(sender, instance, created, **kwargs):
 
         if content_object:
             content_type = ContentType.objects.get_for_model(content_object)
-            Income.objects.create(
+            income_instance = Income.objects.create(
                 user=instance.user,
                 writeoff_account=instance.writeoff_account,
                 funds=instance.funds,
@@ -33,11 +34,13 @@ def create_income_from_actives(sender, instance, created, **kwargs):
                 content_type=content_type,
                 object_id=content_object.id
             )
+            card.income.add(income_instance)
 
 
 @receiver(post_save, sender=ActivesExpenses)
 def create_expenses_from_actives(sender, instance, created, **kwargs):
     if created:
+        card = Card.objects.get(id=instance.writeoff_account, user=instance.user)
         content_object = None
         if instance.property:
             content_object = instance.property
@@ -48,7 +51,7 @@ def create_expenses_from_actives(sender, instance, created, **kwargs):
 
         if content_object:
             content_type = ContentType.objects.get_for_model(content_object)
-            Expenses.objects.create(
+            expenses_instance = Expenses.objects.create(
                 user=instance.user,
                 writeoff_account=instance.writeoff_account,
                 title=instance.title,
@@ -57,6 +60,8 @@ def create_expenses_from_actives(sender, instance, created, **kwargs):
                 content_type=content_type,
                 object_id=content_object.id
             )
+            card.expenses.add(expenses_instance)
+
 
 
 @receiver(post_save, sender=Property)
