@@ -90,40 +90,40 @@ def update_property_totals_on_income_change(sender, instance, action, **kwargs):
         update_card_totals(sender=sender, instance=instance, created=False)
 
 
-def decrease_remainder(card, instance):
-    card.remainder = card.remainder - instance.funds
-    card.save(update_fields=['remainder'])
+def decrease_remainder(writeoff_account, instance):
+    writeoff_account.remainder = writeoff_account.remainder - instance.funds
+    writeoff_account.save(update_fields=['remainder'])
 
 
-def increase_remainder(card, instance):
-    card.remainder = card.remainder + instance.funds
-    card.save(update_fields=['remainder'])
+def increase_remainder(writeoff_account, instance):
+    writeoff_account.remainder = writeoff_account.remainder + instance.funds
+    writeoff_account.save(update_fields=['remainder'])
 
 
 @receiver(post_save, sender=Expenses)
 @receiver(post_save, sender=Income)
 def decrease_card_remainder(sender, instance, created, **kwargs):
-    card = instance.card
-    if card:
+    writeoff_account = instance.card
+    if writeoff_account:
         if sender == Expenses:
-            decrease_remainder(card, instance)
+            decrease_remainder(writeoff_account, instance)
         if sender == Income:
-            increase_remainder(card, instance)
+            increase_remainder(writeoff_account, instance)
 
 
 @receiver(post_delete, sender=Expenses)
 @receiver(post_delete, sender=Income)
 def increase_card_remainder(sender, instance, **kwargs):
     try:
-        card = instance.card
-        if card:
+        writeoff_account = instance.writeoff_account
+        if writeoff_account:
             if sender == Expenses:
-                increase_remainder(card, instance)
-                update_balance(sender=sender, instance=card)
+                increase_remainder(writeoff_account, instance)
+                update_balance(sender=sender, instance=writeoff_account)
 
             if sender == Income:
-                decrease_remainder(card, instance)
-                update_balance(sender=sender, instance=card)
+                decrease_remainder(writeoff_account, instance)
+                update_balance(sender=sender, instance=writeoff_account)
 
     except:
         pass
@@ -132,19 +132,19 @@ def increase_card_remainder(sender, instance, **kwargs):
 @receiver(post_delete, sender=act.ActivesExpenses)
 @receiver(post_delete, sender=pas.Expenses)
 def update_card_expenses_on_delete(sender, instance, **kwargs):
-    card = instance.writeoff_account
-    if card:
+    writeoff_account = instance.writeoff_account
+    if writeoff_account:
         # Assuming you have a mechanism to uniquely identify the corresponding Expenses object.
         # Maybe by using the same title, description, user, etc.
         expenses = Expenses.objects.filter(
             user=instance.user,
-            card=card,
+            writeoff_account=writeoff_account,
             title=instance.title,
             description=instance.description,
             funds=instance.funds,
         ).first()
 
         if expenses:
-            card.expenses.remove(expenses)
+            writeoff_account.expenses.remove(expenses)
             expenses.delete()  # If you want to actually delete the Expenses object.
-            card.save()
+            writeoff_account.save()
