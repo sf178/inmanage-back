@@ -1,9 +1,63 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
+
+from balance.models import Card
 from .models import *
 from .serializers import *
 from django.db import transaction
+from balance.models import Card as Card, Income as BalIncome, Expenses as BalExpenses
 
+
+@receiver(post_save, sender=Income)
+def create_income_from_planner(sender, instance, created, **kwargs):
+    if created:
+        content_object = None
+        card = Card.objects.get(id=instance.writeoff_account.id, user=instance.user)
+        if instance.task:
+            content_object = instance.task
+        elif instance.item:
+            content_object = instance.item
+        elif instance.project:
+            content_object = instance.project
+
+        if content_object:
+            content_type = ContentType.objects.get_for_model(content_object)
+            income_instance = BalIncome.objects.create(
+                user=instance.user,
+                writeoff_account=instance.writeoff_account,
+                funds=instance.funds,
+                comment=instance.comment,
+                content_type=content_type,
+                object_id=content_object.id
+            )
+            card.income.add(income_instance)
+
+
+@receiver(post_save, sender=Expenses)
+def create_expenses_from_planner(sender, instance, created, **kwargs):
+    if created:
+        card = Card.objects.get(id=instance.writeoff_account.id, user=instance.user)
+        content_object = None
+        if instance.task:
+            content_object = instance.task
+        elif instance.item:
+            content_object = instance.item
+        elif instance.project:
+            content_object = instance.project
+
+        if content_object:
+            content_type = ContentType.objects.get_for_model(content_object)
+            expenses_instance = BalExpenses.objects.create(
+                user=instance.user,
+                writeoff_account=instance.writeoff_account,
+                title=instance.title,
+                description=instance.description,
+                funds=instance.funds,
+                content_type=content_type,
+                object_id=content_object.id
+            )
+            card.expenses.add(expenses_instance)
 
 @receiver(post_save, sender=TodoItem)
 def update_todo_task(sender, instance, **kwargs):

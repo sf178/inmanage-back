@@ -5,13 +5,14 @@ from .models import *
 from .serializers import *
 from django.db import transaction
 from glob_parse.tasks import parse_avito_task
-from balance.models import Income as BalIncome
+from balance.models import Card
 from balance.models import Expenses as BalExpenses
 
 
 @receiver(post_save, sender=Expenses)
 def create_expenses_from_passives(sender, instance, created, **kwargs):
     if created:
+        card = Card.objects.get(id=instance.writeoff_account.id, user=instance.user)
         content_object = None
         if instance.property:
             content_object = instance.property
@@ -22,7 +23,7 @@ def create_expenses_from_passives(sender, instance, created, **kwargs):
 
         if content_object:
             content_type = ContentType.objects.get_for_model(content_object)
-            Expenses.objects.create(
+            expenses_instance = BalExpenses.objects.create(
                 user=instance.user,
                 writeoff_account=instance.writeoff_account,
                 title=instance.title,
@@ -31,6 +32,7 @@ def create_expenses_from_passives(sender, instance, created, **kwargs):
                 content_type=content_type,
                 object_id=content_object.id
             )
+            card.expenses.add(expenses_instance)
 
 
 @receiver(post_save, sender=Property)
@@ -85,6 +87,7 @@ def update_main_properties(sender, instance, created, **kwargs):
         main_properties.save(update_fields=['total_funds'])
         passives.total_funds += instance.actual_price
         passives.save()
+
 
 @transaction.atomic
 def update_property_totals(sender, instance, created, **kwargs):

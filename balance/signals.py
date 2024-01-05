@@ -128,23 +128,23 @@ def increase_card_remainder(sender, instance, **kwargs):
     except:
         pass
 
-
-@receiver(post_delete, sender=act.ActivesExpenses)
-@receiver(post_delete, sender=pas.Expenses)
-def update_card_expenses_on_delete(sender, instance, **kwargs):
-    writeoff_account = instance.writeoff_account
-    if writeoff_account:
-        # Assuming you have a mechanism to uniquely identify the corresponding Expenses object.
-        # Maybe by using the same title, description, user, etc.
-        expenses = Expenses.objects.filter(
-            user=instance.user,
-            writeoff_account=writeoff_account,
-            title=instance.title,
-            description=instance.description,
-            funds=instance.funds,
-        ).first()
-
-        if expenses:
-            writeoff_account.expenses.remove(expenses)
-            expenses.delete()  # If you want to actually delete the Expenses object.
-            writeoff_account.save()
+#
+# @receiver(post_delete, sender=act.ActivesExpenses)
+# @receiver(post_delete, sender=pas.Expenses)
+# def update_card_expenses_on_delete(sender, instance, **kwargs):
+#     writeoff_account = instance.writeoff_account
+#     if writeoff_account:
+#         # Assuming you have a mechanism to uniquely identify the corresponding Expenses object.
+#         # Maybe by using the same title, description, user, etc.
+#         expenses = Expenses.objects.filter(
+#             user=instance.user,
+#             writeoff_account=writeoff_account,
+#             title=instance.title,
+#             description=instance.description,
+#             funds=instance.funds,
+#         ).first()
+#
+#         if expenses:
+#             writeoff_account.expenses.remove(expenses)
+#             expenses.delete()  # If you want to actually delete the Expenses object.
+#             writeoff_account.save()
