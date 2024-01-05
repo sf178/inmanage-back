@@ -103,7 +103,7 @@ def increase_remainder(writeoff_account, instance):
 @receiver(post_save, sender=Expenses)
 @receiver(post_save, sender=Income)
 def decrease_card_remainder(sender, instance, created, **kwargs):
-    writeoff_account = instance.card
+    writeoff_account = instance.writeoff_account
     if writeoff_account:
         if sender == Expenses:
             decrease_remainder(writeoff_account, instance)
