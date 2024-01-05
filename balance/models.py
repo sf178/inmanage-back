@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from front.models import CustomUser
 from simple_history.models import HistoricalRecords
@@ -64,20 +66,27 @@ class Balance(models.Model):
 class Income(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    # card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    # category = models.ForeignKey('category.PersonalCategory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     funds = models.FloatField(blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Expenses(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    category = ArrayField(models.TextField(blank=True), blank=True, default=list)
+    # card = models.ForeignKey(Card, on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    category = models.ForeignKey('category.PersonalCategory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     funds = models.FloatField(blank=True, null=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,9 +1,36 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from .models import *
 from .serializers import *
 from django.db import transaction
 from glob_parse.tasks import parse_avito_task
+from balance.models import Income as BalIncome
+from balance.models import Expenses as BalExpenses
+
+
+@receiver(post_save, sender=Expenses)
+def create_expenses_from_passives(sender, instance, created, **kwargs):
+    if created:
+        content_object = None
+        if instance.property:
+            content_object = instance.property
+        elif instance.transport:
+            content_object = instance.transport
+        elif instance.loan:
+            content_object = instance.loan
+
+        if content_object:
+            content_type = ContentType.objects.get_for_model(content_object)
+            Expenses.objects.create(
+                user=instance.user,
+                writeoff_account=instance.writeoff_account,
+                title=instance.title,
+                description=instance.description,
+                funds=instance.funds,
+                content_type=content_type,
+                object_id=content_object.id
+            )
 
 
 @receiver(post_save, sender=Property)

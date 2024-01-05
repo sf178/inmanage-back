@@ -120,39 +120,6 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
     def put(self, request, *args, **kwargs):
         return self.update_done(request, *args, **kwargs)
 
-    def patch(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if 'desc_list' in request.data:
-            items = request.data.pop('desc_list')
-            for item in items:
-                items_serializer = TodoItemSerializer(data=item)
-                items_serializer.is_valid(raise_exception=True)
-                item_instance = items_serializer.save(user_id=instance.user, task=instance)
-                instance.desc_list.add(item_instance)
-        if 'income' in request.data:
-            income_data = request.data.pop('income')
-            for income in income_data:
-                income_serializer = TodoIncomeSerializer(data=income)
-                income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=instance.user, task=instance)
-                instance.income.add(income_instance)
-        if 'expenses' in request.data:
-            expenses_data = request.data.pop('expenses')
-            for expense in expenses_data:
-                expenses_serializer = TodoExpensesSerializer(data=expense)
-                expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user, task=instance)
-                instance.expenses.add(expenses_instance)
-
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-
-        return Response(serializer.data)
-
     def update_done(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -169,6 +136,42 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         serializer.save()
         return Response(serializer.data)
 
+
+class TodoTaskUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                         mixins.DestroyModelMixin):
+    serializer_class = TodoTaskSerializer
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return TodoTask.objects.filter(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # Обработка вложенных данных
+        nested_data_fields = {
+            'desc_list': TodoItemSerializer,
+            'income': TodoIncomeSerializer,
+            'expenses': TodoExpensesSerializer
+        }
+        for field_name, serializer_class in nested_data_fields.items():
+            self._process_nested_data(field_name, serializer_class, instance, request)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
+    def _process_nested_data(self, field_name, serializer_class, instance, request):
+        if field_name in request.data:
+            nested_data = request.data.pop(field_name)
+            for item_data in nested_data:
+                item_serializer = serializer_class(data=item_data)
+                item_serializer.is_valid(raise_exception=True)
+                item_instance = item_serializer.save(user_id=instance.user, task=instance)
+                getattr(instance, field_name).add(item_instance)
 
 class TodoTaskDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = TodoTaskSerializer
@@ -436,7 +439,7 @@ class ProjectDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 
 
 class PlannerListView(generics.GenericAPIView, mixins.ListModelMixin):
-    serializer_class = ProjectSerializer
+    serializer_class = PlannerSerializer
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):

@@ -245,7 +245,7 @@ class ActivesExpenses(models.Model):
     property = models.ForeignKey('actives.Property', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     business = models.ForeignKey('actives.Business', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    category = models.TextField(blank=True, null=True)
+    # category = models.ForeignKey('category.ActivesCategory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True)

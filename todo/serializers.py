@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from .models import *
 from test_backend.custom_methods import CustomDateTimeField
-created_at = CustomDateTimeField(required=False)
+
 
 class TodoIncomeSerializer(serializers.ModelSerializer):
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
         model = Income
-        fields = ('id', 'created_at')
+        fields = '__all__'
 
 
 class TodoExpensesSerializer(serializers.ModelSerializer):
@@ -16,7 +16,7 @@ class TodoExpensesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Expenses
-        fields = ('id', 'created_at')
+        fields = '__all__'
 
 
 class TodoItemSerializer(serializers.ModelSerializer):

@@ -1,7 +1,8 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from .models import *
 from .serializers import *
+from django.db import transaction
 
 
 @receiver(post_save, sender=TodoItem)
@@ -23,3 +24,4 @@ def update_project(sender, instance, **kwargs):
     if instance.project and not instance.done and instance.project.done:
         instance.project.done = False
         instance.project.save()
+

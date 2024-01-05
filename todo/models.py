@@ -92,6 +92,7 @@ class Income(models.Model):
     item = models.ForeignKey('todo.TodoItem', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     project = models.ForeignKey('todo.Project', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    # category = models.ForeignKey('category.PersonalCategory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     funds = models.FloatField(blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -104,7 +105,7 @@ class Expenses(models.Model):
     item = models.ForeignKey('todo.TodoItem', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     project = models.ForeignKey('todo.Project', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    category = models.TextField(blank=True, null=True)
+    # category = models.ForeignKey('category.PersonalCategory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     funds = models.FloatField(blank=True, null=True)
@@ -130,3 +131,13 @@ class Planner(models.Model):
     def __str__(self):
         return f"Planner ID: {self.id} - Total Income: {self.total_income} - Total Expenses: {self.total_expenses}"
 
+
+# class MainTasks(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
+#     total_funds = models.FloatField(blank=True, null=True, default=0.0)
+#     total_income = models.FloatField(blank=True, null=True, default=0.0)
+#     total_expenses = models.FloatField(blank=True, null=True, default=0.0)
+#     tasks = models.ManyToManyField(TodoTask, blank=True, null=True)
+#     def __str__(self):
+#         return f'ID: {self.id}'
