@@ -31,32 +31,32 @@ def update_balance(sender, instance, **kwargs):
 def update_balance_on_delete(sender, instance, **kwargs):
     update_balance(sender, instance, **kwargs)
 
-
-@receiver(post_save, sender=act.ActivesExpenses)
-@receiver(post_save, sender=pas.Expenses)
-def update_card_expenses(sender, instance, created, **kwargs):
-    """
-    При создании объекта ActivesExpenses обновляет поле expenses у соответствующего объекта Card.
-    """
-    if created:  # Проверяем, что объект был создан, а не обновлен
-        card = instance.writeoff_account
-        if card:
-            expenses = Expenses.objects.create(
-                user=instance.user,
-                card=card,
-                title=instance.title,
-                description=instance.description,
-                funds=instance.funds,
-            )
-            category_value = instance.category
-            if category_value:  # Проверка, что значение не None и не пустое
-                if category_value not in expenses.category:
-                    expenses.category.append(category_value)
-                    expenses.save(update_fields=['category'])
-
-            # Связываем объект Expenses с объектом Card
-            card.expenses.add(expenses)
-            card.save()
+#
+# @receiver(post_save, sender=act.ActivesExpenses)
+# @receiver(post_save, sender=pas.Expenses)
+# def update_card_expenses(sender, instance, created, **kwargs):
+#     """
+#     При создании объекта ActivesExpenses обновляет поле expenses у соответствующего объекта Card.
+#     """
+#     if created:  # Проверяем, что объект был создан, а не обновлен
+#         card = instance.writeoff_account
+#         if card:
+#             expenses = Expenses.objects.create(
+#                 user=instance.user,
+#                 writeoff_account=card,
+#                 title=instance.title,
+#                 description=instance.description,
+#                 funds=instance.funds,
+#             )
+#             category_value = instance.category
+#             if category_value:  # Проверка, что значение не None и не пустое
+#                 if category_value not in expenses.category:
+#                     expenses.category.append(category_value)
+#                     expenses.save(update_fields=['category'])
+#
+#             # Связываем объект Expenses с объектом Card
+#             card.expenses.add(expenses)
+#             card.save()
 
 
 # @receiver(post_save, sender=Card)
