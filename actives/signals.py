@@ -12,11 +12,12 @@ from balance import models as bal
 from django.db import transaction
 from balance.models import Card, Income, Expenses
 
+
 @receiver(post_save, sender=ActivesIncome)
 def create_income_from_actives(sender, instance, created, **kwargs):
     if created:
         content_object = None
-        card = Card.objects.get(id=instance.writeoff_account, user=instance.user)
+        card = Card.objects.get(id=instance.writeoff_account.id, user=instance.user)
         if instance.property:
             content_object = instance.property
         elif instance.transport:
@@ -40,7 +41,7 @@ def create_income_from_actives(sender, instance, created, **kwargs):
 @receiver(post_save, sender=ActivesExpenses)
 def create_expenses_from_actives(sender, instance, created, **kwargs):
     if created:
-        card = Card.objects.get(id=instance.writeoff_account, user=instance.user)
+        card = Card.objects.get(id=instance.writeoff_account.id, user=instance.user)
         content_object = None
         if instance.property:
             content_object = instance.property
