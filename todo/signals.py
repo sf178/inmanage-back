@@ -65,11 +65,26 @@ def create_expenses_from_planner(sender, instance, created, **kwargs):
             instance.save(update_fields=['child'])
         update_project_totals(instance, is_income=False)
 
-def update_project_totals(project):
+
+def update_project_totals(instance, is_income):
+    project = get_project_from_instance(instance)
+
+    if project:
+        update_totals_for_project(project)
+
+def get_project_from_instance(instance):
+    if instance.task:
+        return instance.task.project
+    elif instance.item:
+        return instance.item.task.project
+    elif instance.project:
+        return instance.project
+    return None
+
+def update_totals_for_project(project):
     project.total_income = calculate_total(project, is_income=True)
     project.total_expenses = calculate_total(project, is_income=False)
     project.save()
-
 
 def calculate_total(project, is_income):
     total = 0
