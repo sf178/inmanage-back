@@ -72,7 +72,9 @@ def update_project_totals(instance, is_income):
     if project:
         update_totals_for_project(project)
 
+
 def get_project_from_instance(instance):
+    # Получение проекта из экземпляра дохода или расхода
     if instance.task:
         return instance.task.project
     elif instance.item:
@@ -81,10 +83,13 @@ def get_project_from_instance(instance):
         return instance.project
     return None
 
+
 def update_totals_for_project(project):
+    # Обновление общего дохода и расхода для проекта
     project.total_income = calculate_total(project, is_income=True)
     project.total_expenses = calculate_total(project, is_income=False)
     project.save()
+
 
 def calculate_total(project, is_income):
     total = 0
@@ -93,16 +98,15 @@ def calculate_total(project, is_income):
     else:
         related_field = 'expenses'
 
-    # Добавляем доходы/расходы непосредственно связанные с проектом
+    # Доходы/расходы проекта
     for entry in getattr(project, related_field).all():
         total += entry.funds
 
-    # Добавляем доходы/расходы связанные с задачами проекта
+    # Доходы/расходы связанных задач и подзадач
     for task in project.tasks_list.all():
         for entry in getattr(task, related_field).all():
             total += entry.funds
 
-        # Добавляем доходы/расходы связанные с подзадачами каждой задачи
         for item in task.desc_list.all():
             for entry in getattr(item, related_field).all():
                 total += entry.funds
