@@ -59,7 +59,7 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         task = task_serializer.save(user=self.request.user)
         if 'project' in request.data:
             project_id = request.data['project']
-            project_instance = Project.objects.get(id=project_id)
+            project_instance = Project.objects.get(id=project_id, user=self.request.user)
             project_instance.tasks_list.add(task)
             task.project = project_instance
             task.save()  # Сохраняем изменение связанного проекта
@@ -173,6 +173,7 @@ class TodoTaskUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
                 item_instance = item_serializer.save(user_id=instance.user, task=instance)
                 getattr(instance, field_name).add(item_instance)
 
+
 class TodoTaskDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = TodoTaskSerializer
     lookup_field = 'pk'
@@ -198,10 +199,12 @@ class TodoItemListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
     def post(self, request, *args, **kwargs):
         return self.perform_create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer, *args, **kwargs):
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
+
+
 class TodoItemDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                          mixins.DestroyModelMixin):
     serializer_class = TodoItemSerializer
@@ -328,6 +331,7 @@ class ProjectListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
 
+
 class ProjectDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                         mixins.DestroyModelMixin):
     serializer_class = ProjectSerializer
@@ -446,10 +450,10 @@ class PlannerListView(generics.GenericAPIView, mixins.ListModelMixin):
         return Planner.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        user = request.data.pop('user', None)
+        # user = request.data.pop('user', None)
         instance = self.get_queryset().first()
-        all_projects = Project.objects.filter(user=user)
-        all_tasks = TodoTask.objects.filter(user=user)
+        all_projects = Project.objects.filter(user=self.request.user)
+        all_tasks = TodoTask.objects.filter(user=self.request.user)
 
         # Добавление проектов и задач в Planner
         instance.projects.set(all_projects)

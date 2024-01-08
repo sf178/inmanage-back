@@ -202,6 +202,7 @@ class Expenses(models.Model):
     loan = models.ForeignKey('passives.Loans', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     # category = models.ForeignKey('category.PersonalCategory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    child = models.ForeignKey('balance.Expenses', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     funds = models.FloatField(blank=True, null=True, default=0.0)

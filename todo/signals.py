@@ -32,6 +32,8 @@ def create_income_from_planner(sender, instance, created, **kwargs):
                 object_id=content_object.id
             )
             card.income.add(income_instance)
+            instance.child = income_instance
+            instance.save(update_fields=['child'])
 
 
 @receiver(post_save, sender=Expenses)
@@ -58,6 +60,9 @@ def create_expenses_from_planner(sender, instance, created, **kwargs):
                 object_id=content_object.id
             )
             card.expenses.add(expenses_instance)
+            instance.child = expenses_instance
+            instance.save(update_fields=['child'])
+
 
 @receiver(post_save, sender=TodoItem)
 def update_todo_task(sender, instance, **kwargs):

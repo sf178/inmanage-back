@@ -36,6 +36,8 @@ def create_income_from_actives(sender, instance, created, **kwargs):
                 object_id=content_object.id
             )
             card.income.add(income_instance)
+            instance.child = income_instance
+            instance.save(update_fields=['child'])
 
 
 @receiver(post_save, sender=ActivesExpenses)
@@ -62,7 +64,8 @@ def create_expenses_from_actives(sender, instance, created, **kwargs):
                 object_id=content_object.id
             )
             card.expenses.add(expenses_instance)
-
+            instance.child = expenses_instance
+            instance.save(update_fields=['child'])
 
 
 @receiver(post_save, sender=Property)

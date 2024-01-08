@@ -33,6 +33,8 @@ def create_expenses_from_passives(sender, instance, created, **kwargs):
                 object_id=content_object.id
             )
             card.expenses.add(expenses_instance)
+            instance.child = expenses_instance
+            instance.save(update_fields=['child'])
 
 
 @receiver(post_save, sender=Property)
