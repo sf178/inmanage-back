@@ -170,7 +170,7 @@ class TodoTaskUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
             for item_data in nested_data:
                 item_serializer = serializer_class(data=item_data)
                 item_serializer.is_valid(raise_exception=True)
-                item_instance = item_serializer.save(user_id=instance.user, task=instance)
+                item_instance = item_serializer.save(user=instance.user, task=instance)
                 getattr(instance, field_name).add(item_instance)
 
 
@@ -304,7 +304,7 @@ class TodoItemUpdateView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
             for item_data in nested_data:
                 item_serializer = serializer_class(data=item_data)
                 item_serializer.is_valid(raise_exception=True)
-                item_instance = item_serializer.save(user_id=instance.user, task=instance)
+                item_instance = item_serializer.save(user=instance.user, task=instance)
                 getattr(instance, field_name).add(item_instance)
 
 
