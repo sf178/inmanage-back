@@ -34,6 +34,7 @@ def create_income_from_planner(sender, instance, created, **kwargs):
             card.income.add(income_instance)
             instance.child = income_instance
             instance.save(update_fields=['child'])
+        update_project_totals(instance, is_income=True)
 
 
 @receiver(post_save, sender=Expenses)
@@ -62,6 +63,36 @@ def create_expenses_from_planner(sender, instance, created, **kwargs):
             card.expenses.add(expenses_instance)
             instance.child = expenses_instance
             instance.save(update_fields=['child'])
+        update_project_totals(instance, is_income=False)
+
+def update_project_totals(project):
+    project.total_income = calculate_total(project, is_income=True)
+    project.total_expenses = calculate_total(project, is_income=False)
+    project.save()
+
+
+def calculate_total(project, is_income):
+    total = 0
+    if is_income:
+        related_field = 'income'
+    else:
+        related_field = 'expenses'
+
+    # Добавляем доходы/расходы непосредственно связанные с проектом
+    for entry in getattr(project, related_field).all():
+        total += entry.funds
+
+    # Добавляем доходы/расходы связанные с задачами проекта
+    for task in project.tasks_list.all():
+        for entry in getattr(task, related_field).all():
+            total += entry.funds
+
+        # Добавляем доходы/расходы связанные с подзадачами каждой задачи
+        for item in task.desc_list.all():
+            for entry in getattr(item, related_field).all():
+                total += entry.funds
+
+    return total
 
 
 @receiver(post_save, sender=TodoItem)

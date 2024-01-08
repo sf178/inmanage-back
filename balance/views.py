@@ -8,6 +8,7 @@ from test_backend.custom_methods import IsAuthenticatedCustom
 
 from actives.models import Actives
 from passives.models import Passives
+from todo.models import Planner
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -127,6 +128,11 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
             card_income += (card.total_income or 0)
             card_funds += (card.remainder or 0)
 
+        # From Planner
+        planner = Planner.objects.filter(user=user).first()
+        if planner:
+            total_income += (planner.total_income or 0)
+            total_expenses += (planner.total_expenses or 0)
         # total_income += card_income
         total_expenses += card_expenses
         total_funds = (total_funds + total_income + (card_funds - card_income)) - total_expenses

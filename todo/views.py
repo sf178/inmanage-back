@@ -524,14 +524,25 @@ class PlannerListView(generics.GenericAPIView, mixins.ListModelMixin):
         return Planner.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        # user = request.data.pop('user', None)
+        # Получение первого планировщика пользователя
         instance = self.get_queryset().first()
+
+        # Получение всех проектов и задач пользователя
         all_projects = Project.objects.filter(user=self.request.user)
         all_tasks = TodoTask.objects.filter(user=self.request.user)
 
-        # Добавление проектов и задач в Planner
+        # Обновление проектов и задач в планировщике
         instance.projects.set(all_projects)
         instance.tasks.set(all_tasks)
+
+        # Обновление общих сумм доходов и расходов
+        total_income = sum(project.total_income for project in all_projects if project.total_income)
+        total_expenses = sum(project.total_expenses for project in all_projects if project.total_expenses)
+        instance.total_income = total_income
+        instance.total_expenses = total_expenses
+        instance.save()
+
+        # Получение сериализованных данных
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
