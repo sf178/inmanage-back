@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from .models import *
 from actives import models as act
 from passives import models as pas
+from todo import models as plan
 from .views import BalanceListView
 from django.db import transaction
 
@@ -28,6 +29,7 @@ def update_balance(sender, instance, **kwargs):
 @receiver(post_delete, sender=act.Actives)
 @receiver(post_delete, sender=pas.Passives)
 @receiver(post_delete, sender=Card)
+@receiver(post_delete, sender=plan.Planner)
 def update_balance_on_delete(sender, instance, **kwargs):
     update_balance(sender, instance, **kwargs)
 

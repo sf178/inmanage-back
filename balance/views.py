@@ -63,14 +63,14 @@ class CardUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for income in income_data:
                 income_serializer = BalanceIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=instance.user.id, card=instance)
+                income_instance = income_serializer.save(user_id=instance.user.id, writeoff_account=instance)
                 instance.income.add(income_instance)
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
             for expense in expenses_data:
                 expenses_serializer = BalanceExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user.id, card=instance)
+                expenses_instance = expenses_serializer.save(user_id=instance.user.id, writeoff_account=instance)
                 instance.expenses.add(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -270,6 +270,7 @@ class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
 
 # View mixin for listing all Expenses objects and creating new Expenses objects
 class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
