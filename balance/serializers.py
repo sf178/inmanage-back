@@ -54,10 +54,25 @@ class BalanceIncomeSerializer(serializers.ModelSerializer):
 class BalanceExpensesSerializer(serializers.ModelSerializer):
     # category = PersonalExpenseCategorySerializer(required=False, read_only=True)
     created_at = CustomDateTimeField(required=False)
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=PersonalCategory.objects.all(),
+        write_only=True, required=False
+    )
 
     class Meta:
         model = Expenses
         fields = '__all__'
+        # Поле 'category' теперь доступно только для записи
+        extra_kwargs = {
+            'category': {'write_only': True},
+        }
+
+    def to_representation(self, instance):
+        """ Изменяем представление данных при сериализации. """
+        representation = super().to_representation(instance)
+        # Добавляем полное представление категории
+        representation['category'] = PersonalExpenseCategorySerializer(instance.category).data
+        return representation
 
 
 CardSerializer._declared_fields['income'] = BalanceIncomeSerializer(many=True, read_only=True, required=False, allow_null=True)
