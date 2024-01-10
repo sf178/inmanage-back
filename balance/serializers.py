@@ -52,7 +52,7 @@ class BalanceIncomeSerializer(serializers.ModelSerializer):
 
 
 class BalanceExpensesSerializer(serializers.ModelSerializer):
-    category = PersonalExpenseCategorySerializer(required=False)
+    category = PersonalExpenseCategorySerializer(required=False, read_only=True)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
