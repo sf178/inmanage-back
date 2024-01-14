@@ -1,5 +1,9 @@
+from rest_framework import generics, permissions, mixins
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from test_backend.custom_methods import IsAuthenticatedCustom
-from rest_framework import mixins, generics
+from rest_framework import mixins, generics, status
 from .models import WorkIncome, Work, Project
 from .serializers import WorkIncomeSerializer, WorkSerializer, ProjectSerializer
 from rest_framework.exceptions import ValidationError
@@ -67,6 +71,9 @@ class WorkListView(mixins.ListModelMixin, generics.GenericAPIView):
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
+        # headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class WorkDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
