@@ -100,6 +100,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         # Фильтрация объектов по текущему пользователю
         return Balance.objects.filter(user=self.request.user)
 
+    '''тестовая хуйня, удалить если не сработает'''
     @staticmethod
     def calculate_totals(user):
         total_funds = 0
