@@ -11,6 +11,7 @@ class WorkIncome(models.Model):
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True)
     funds = models.FloatField(blank=True, null=True, default=0.0)
     comment = models.TextField(blank=True, null=True)
+    child = models.ForeignKey('balance.Income', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -19,8 +20,8 @@ class Work(models.Model):
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     name = models.TextField(blank=True, null=True)
 
-
-class Project(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    name = models.TextField(blank=True, null=True)
+#
+# class Project(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+#     name = models.TextField(blank=True, null=True)

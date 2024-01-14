@@ -102,51 +102,81 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
     @staticmethod
     def calculate_totals(user):
-        total_expenses = 0
-        total_income = 0
         total_funds = 0
         card_funds = 0
-        card_income = 0
-        card_expenses = 0
+
         # From Actives
         active = Actives.objects.filter(user=user).first()
         if active:
             total_funds += (active.total_funds or 0)
-            total_income += (active.total_income or 0)
-            total_expenses += (active.total_expenses or 0)
 
         # From Passives
         passive = Passives.objects.filter(user=user).first()
         if passive:
             total_funds += (passive.total_funds or 0)
-            total_expenses += (passive.total_expenses or 0)
 
         # From Cards
         cards = Card.objects.filter(user=user)
         for card in cards:
-            card_expenses += (card.total_expense or 0)
-            card_income += (card.total_income or 0)
             card_funds += (card.remainder or 0)
 
-        # From Planner
-        planner = Planner.objects.filter(user=user).first()
-        if planner:
-            total_income += (planner.total_income or 0)
-            total_expenses += (planner.total_expenses or 0)
-        # total_income += card_income
-        total_expenses += card_expenses
-        total_funds = (total_funds + total_income + (card_funds - card_income)) - total_expenses
+        # total_funds учитывает стоимость всех активов и пассивов, плюс остатки на картах
+        total_funds += card_funds
 
-        return total_income, total_expenses, total_funds, card_funds, card_income, card_expenses
+        # total_income и total_expenses равны card_income и card_expenses соответственно
+        card_income = sum(card.total_income or 0 for card in cards)
+        card_expenses = sum(card.total_expense or 0 for card in cards)
+
+        return card_income, card_expenses, total_funds, card_funds
+
+    '''ниже нормальная версия, использовать при неуспехе'''
+    # @staticmethod
+    # def calculate_totals(user):
+    #     total_expenses = 0
+    #     total_income = 0
+    #     total_funds = 0
+    #     card_funds = 0
+    #     card_income = 0
+    #     card_expenses = 0
+    #     # From Actives
+    #     active = Actives.objects.filter(user=user).first()
+    #     if active:
+    #         total_funds += (active.total_funds or 0)
+    #         total_income += (active.total_income or 0)
+    #         total_expenses += (active.total_expenses or 0)
+    #
+    #     # From Passives
+    #     passive = Passives.objects.filter(user=user).first()
+    #     if passive:
+    #         total_funds += (passive.total_funds or 0)
+    #         total_expenses += (passive.total_expenses or 0)
+    #
+    #     # From Cards
+    #     cards = Card.objects.filter(user=user)
+    #     for card in cards:
+    #         card_expenses += (card.total_expense or 0)
+    #         card_income += (card.total_income or 0)
+    #         card_funds += (card.remainder or 0)
+    #
+    #     # From Planner
+    #     planner = Planner.objects.filter(user=user).first()
+    #     if planner:
+    #         total_income += (planner.total_income or 0)
+    #         total_expenses += (planner.total_expenses or 0)
+    #     # total_income = card_income
+    #     # total_expenses += card_expenses
+    #     total_funds += (total_income + (card_funds - card_income)) - total_expenses
+    #
+    #     return total_income, total_expenses, total_funds, card_funds, card_income, card_expenses
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
         balance = Balance.objects.filter(user=user).first()  # or create a new one
 
-        total_income, total_expenses, total, card_funds, card_income, card_expenses = self.calculate_totals(user=user)
-
-        balance.total_income = total_income
-        balance.total_expenses = total_expenses
+        # total_income, total_expenses, total, card_funds, card_income, card_expenses = self.calculate_totals(user=user)
+        card_income, card_expenses, total, card_funds = self.calculate_totals(user=user)
+        balance.total_income = card_income
+        balance.total_expenses = card_expenses
         balance.total = total
         balance.card_funds = card_funds
         balance.card_income = card_income
