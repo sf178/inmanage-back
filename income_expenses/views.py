@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from test_backend.custom_methods import IsAuthenticatedCustom
 from rest_framework import mixins, generics, status
-from .models import WorkIncome, Work, Project
-from .serializers import WorkIncomeSerializer, WorkSerializer, ProjectSerializer
+from .models import WorkIncome, Work
+from .serializers import *
 from rest_framework.exceptions import ValidationError
 
 
@@ -97,31 +97,31 @@ class WorkDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
         return self.destroy(request, *args, **kwargs)
 
 
-class ProjectListView(mixins.ListModelMixin, generics.GenericAPIView):
-    serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticatedCustom]
+# class ProjectListView(mixins.ListModelMixin, generics.GenericAPIView):
+#     serializer_class = ProjectSerializer
+#     permission_classes = [IsAuthenticatedCustom]
+#
+#
+#     def get_queryset(self):
+#         return Project.objects.filter(user=self.request.user)
+#
+#
+#     def get(self, request, *args, **kwargs):
+#         return self.list(request, *args, **kwargs)
 
 
-    def get_queryset(self):
-        return Project.objects.filter(user=self.request.user)
-
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-
-class ProjectDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticatedCustom]
-
-    def get_queryset(self):
-        return Project.objects.filter(user=self.request.user)
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+# class ProjectDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+#     serializer_class = ProjectSerializer
+#     permission_classes = [IsAuthenticatedCustom]
+#
+#     def get_queryset(self):
+#         return Project.objects.filter(user=self.request.user)
+#
+#     def get(self, request, *args, **kwargs):
+#         return self.retrieve(request, *args, **kwargs)
+#
+#     def put(self, request, *args, **kwargs):
+#         return self.update(request, *args, **kwargs)
+#
+#     def delete(self, request, *args, **kwargs):
+#         return self.destroy(request, *args, **kwargs)

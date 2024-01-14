@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import WorkIncomeListView, WorkIncomeDetailView, WorkIncomeCreateView, WorkListView, WorkDetailView, ProjectListView, ProjectDetailView
+from .views import *
 
 urlpatterns = [
     # Маршруты для WorkIncome
@@ -12,6 +12,6 @@ urlpatterns = [
     path('works/<int:pk>/', WorkDetailView.as_view(), name='work-detail'),
 
     # Маршруты для Project
-    path('projects/', ProjectListView.as_view(), name='project-list'),
-    path('projects/<int:pk>/', ProjectDetailView.as_view(), name='project-detail'),
+    # path('projects/', ProjectListView.as_view(), name='project-list'),
+    # path('projects/<int:pk>/', ProjectDetailView.as_view(), name='project-detail'),
 ]

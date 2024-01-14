@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import WorkIncome, Work, Project
+from .models import WorkIncome, Work
 
 
 class WorkSerializer(serializers.ModelSerializer):
@@ -8,16 +8,16 @@ class WorkSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'name']
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project
-        fields = ['id', 'user', 'name']
+# class ProjectSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Project
+#         fields = ['id', 'user', 'name']
 
 
 class WorkIncomeSerializer(serializers.ModelSerializer):
     # Добавляем вложенные сериализаторы для Work и Project
     work_data = WorkSerializer(source='work', required=False)
-    project_data = ProjectSerializer(source='project', required=False)
+    # project_data = ProjectSerializer(source='project', required=False)
 
     class Meta:
         model = WorkIncome
