@@ -91,7 +91,7 @@ class LoginView(APIView):
             user_id=user.id, access=access, refresh=refresh
         )
         response = JsonResponse({"access": access, "refresh": refresh})
-        response.set_cookie(key='rfrsh_token', value=refresh, httponly=True, samesite=None)
+        response.set_cookie(key='rfrsh_token', value=refresh, httponly=True, samesite="Lax")
 
         return response
 
