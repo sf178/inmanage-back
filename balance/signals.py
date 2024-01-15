@@ -15,10 +15,9 @@ def update_balance(sender, instance, **kwargs):
     user = instance.user
     balance = Balance.objects.get(user=user)  # or create a new one
 
-    total_income, total_expenses, total, card_funds, card_income, card_expenses = BalanceListView.calculate_totals(user)
-
-    balance.total_income = total_income
-    balance.total_expenses = total_expenses
+    card_income, card_expenses, total, card_funds = BalanceListView.calculate_totals(user=user)
+    balance.total_income = card_income
+    balance.total_expenses = card_expenses
     balance.total = total
     balance.card_funds = card_funds
     balance.card_income = card_income
