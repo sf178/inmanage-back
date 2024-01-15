@@ -91,7 +91,7 @@ class LoginView(APIView):
             user_id=user.id, access=access, refresh=refresh
         )
         response = JsonResponse({"access": access, "refresh": refresh})
-        response.set_cookie(key='rfrsh_token', value=refresh, httponly=True)
+        response.set_cookie(key='rfrsh_token', value=refresh, httponly=True, samesite=None)
 
         return response
 
@@ -183,7 +183,7 @@ class RefreshView(APIView):
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
+        request
         try:
             active_jwt = Jwt.objects.get(
                 refresh=serializer.validated_data["refresh"])
@@ -198,7 +198,6 @@ class RefreshView(APIView):
                                  })
         except Exception as e:
             return e
-
 
         access = get_access_token({"user_id": active_jwt.user.id})
         refresh = get_refresh_token()
