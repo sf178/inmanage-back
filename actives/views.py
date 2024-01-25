@@ -18,6 +18,133 @@ from сars_parser.parser.main import get_average
 from .actives_scripts.transport_mark_model.main import set_mark_model
 
 
+class JewelryListView(mixins.ListModelMixin, generics.GenericAPIView, mixins.CreateModelMixin):
+    serializer_class = JewelrySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Jewelry.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+# Jewelry Detail View
+class JewelryDetailView(mixins.RetrieveModelMixin, generics.GenericAPIView):
+    serializer_class = JewelrySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Jewelry.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
+# Jewelry Create View
+# class JewelryCreateView(mixins.CreateModelMixin, generics.GenericAPIView):
+#     serializer_class = JewelrySerializer
+#     permission_classes = [IsAuthenticatedCustom]
+#
+#     def perform_create(self, serializer):
+#         serializer.save(user=self.request.user)
+#
+#     def post(self, request, *args, **kwargs):
+#         return self.create(request, *args, **kwargs)
+
+
+class JewelryUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
+    serializer_class = JewelrySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Jewelry.objects.filter(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
+class JewelryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = JewelrySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Jewelry.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+# Securities List View
+class SecuritiesListView(mixins.ListModelMixin, generics.GenericAPIView, mixins.CreateModelMixin):
+    serializer_class = SecuritiesSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Securities.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+# Securities Detail View
+class SecuritiesDetailView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = SecuritiesSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Securities.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
+# Securities Create View
+# class SecuritiesCreateView(mixins.CreateModelMixin, generics.GenericAPIView):
+#     serializer_class = SecuritiesSerializer
+#     permission_classes = [IsAuthenticatedCustom]
+#
+#     def perform_create(self, serializer):
+#         serializer.save(user=self.request.user)
+#
+#     def post(self, request, *args, **kwargs):
+#         return self.create(request, *args, **kwargs)
+
+
+class SecuritiesUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
+    serializer_class = SecuritiesSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Securities.objects.filter(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
+class SecuritiesDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = SecuritiesSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Securities.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
 class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.UpdateModelMixin,
                        mixins.CreateModelMixin):
     serializer_class = PropertySerializer
@@ -69,6 +196,7 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
+
 
 class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixins.CreateModelMixin):
     serializer_class = PropertySerializer

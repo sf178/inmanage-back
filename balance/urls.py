@@ -16,4 +16,9 @@ urlpatterns = [
     path('expenses/', ExpensesListView.as_view(), name='expenses-list'),
     path('expenses/<int:pk>', ExpensesDetailView.as_view(), name='expenses-detail'),
 
-    ]
+    path('payments/', PaymentListView.as_view(), name='payment-list'),
+    path('payments/<int:pk>/', PaymentDetailView.as_view(), name='payment-detail'),
+    path('payments/up/<int:pk>/', PaymentUpdateView.as_view(), name='payment-update'),
+    path('payments/del/<int:pk>/', PaymentDeleteView.as_view(), name='payment-delete'),
+
+]

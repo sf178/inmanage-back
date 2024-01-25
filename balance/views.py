@@ -13,6 +13,58 @@ from rest_framework import status
 from rest_framework.response import Response
 
 
+class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Payment.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+# Payment Detail View
+class PaymentDetailView(mixins.RetrieveModelMixin, generics.GenericAPIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Payment.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
+# Payment Update (Patch) View
+class PaymentUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Payment.objects.filter(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
+class PaymentDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Payment.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
 class CardListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = CardSerializer
     permission_classes = [IsAuthenticatedCustom]

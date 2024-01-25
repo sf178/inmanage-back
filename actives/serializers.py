@@ -10,7 +10,16 @@ def serialize_object_to_json(obj):
     return json.dumps(obj, default=str)
 
 
+class JewelrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Jewelry
+        fields = '__all__'
 
+
+class SecuritiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Securities
+        fields = '__all__'
 
 
 class PropertySerializer(serializers.ModelSerializer):

@@ -91,7 +91,7 @@ class LoginView(APIView):
             user_id=user.id, access=access, refresh=refresh
         )
         response = JsonResponse({"access": access, "refresh": refresh})
-        response.set_cookie(key='rfrsh_token', value=refresh, httponly=True, samesite=None)
+        response.set_cookie(key='rfrsh_token', value=refresh, samesite=None)
 
         return response
 
@@ -245,6 +245,7 @@ class UserProfileView(ModelViewSet):
         ).order_by("-fav_count")
         return result
 
+
     @staticmethod
     def user_fav_query(user):
         try:
@@ -275,6 +276,7 @@ class UserProfileView(ModelViewSet):
     def normalize_query(query_string, findterms=re.compile(r'"([^"]+)"|(\S+)').findall, normspace=re.compile(r'\s{2,}').sub):
         return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
 
+
 class UserProfilePartialUpdateView(mixins.RetrieveModelMixin,
                                    mixins.UpdateModelMixin,
                                    generics.GenericAPIView):
@@ -288,6 +290,7 @@ class UserProfilePartialUpdateView(mixins.RetrieveModelMixin,
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
 
 class MeView(APIView):
     permission_classes = (IsAuthenticatedCustom, )

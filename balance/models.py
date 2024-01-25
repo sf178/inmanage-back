@@ -8,6 +8,29 @@ from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
 
+class Payment(models.Model):
+    # PAYMENT_FREQUENCY_CHOICES = [
+    #     ('once', 'Once'),
+    #     ('daily', 'Daily'),
+    #     ('weekly', 'Weekly'),
+    #     ('monthly', 'Monthly')
+    # ]
+
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    name = models.TextField(blank=True, null=True)
+    amount = models.FloatField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    is_paid = models.BooleanField(default=False)
+    # frequency = models.CharField(max_length=10, choices=PAYMENT_FREQUENCY_CHOICES, default='once')
+    frequency = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name or ''
+
+
 class Card(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)

@@ -23,6 +23,36 @@ class MillisecondDateTimeField(models.DateTimeField):
         return super(MillisecondDateTimeField, self).pre_save(model_instance, add)
 
 
+class Jewelry(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    name = models.TextField(blank=True, null=True)
+    purchase_cost = models.FloatField(blank=True, null=True, default=0.0)
+    estimated_cost = models.FloatField(blank=True, null=True, default=0.0)
+    comment = models.TextField(blank=True, null=True)
+    photo = models.ImageField(upload_to='jewelry_photos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name or ''
+
+
+class Securities(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    name = models.TextField(blank=True, null=True)
+    broker = models.TextField(blank=True, null=True)
+    cost = models.FloatField(blank=True, null=True, default=0.0)
+    market_price = models.FloatField(blank=True, null=True, default=0.0)
+    count = models.IntegerField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name or ''
+
+
 class Property(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')

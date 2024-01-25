@@ -4,6 +4,12 @@ from test_backend.custom_methods import CustomDateTimeField
 from category.serializers import *
 
 
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = '__all__'
+
+
 class CardSerializer(serializers.ModelSerializer):
     created_at = CustomDateTimeField(required=False)
 
