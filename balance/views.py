@@ -1,6 +1,8 @@
+from django.http import JsonResponse
 from rest_framework import generics, permissions, mixins
 from django.db.models import Sum, Q
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from .models import *
 from .serializers import *
@@ -11,6 +13,16 @@ from passives.models import Passives
 from todo.models import Planner
 from rest_framework import status
 from rest_framework.response import Response
+import requests
+import json
+
+
+class CurrencyListView(ListModelMixin, GenericAPIView):
+    queryset = Currency.objects.all()
+    serializer_class = CurrencySerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):

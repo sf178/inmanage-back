@@ -20,5 +20,6 @@ urlpatterns = [
     path('payments/<int:pk>/', PaymentDetailView.as_view(), name='payment-detail'),
     path('payments/up/<int:pk>/', PaymentUpdateView.as_view(), name='payment-update'),
     path('payments/del/<int:pk>/', PaymentDeleteView.as_view(), name='payment-delete'),
+    path('currency/', CurrencyListView.as_view(), name='currency-list'),
 
 ]

@@ -4,6 +4,12 @@ from test_backend.custom_methods import CustomDateTimeField
 from category.serializers import *
 
 
+class CurrencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Currency
+        fields = '__all__'
+
+
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
