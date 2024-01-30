@@ -46,3 +46,4 @@ def currency_rates_task():
         return JsonResponse({'error': 'Не удалось получить данные о курсах валют'}, status=500)
 
 
+currency_rates_task(repeat=60*60*24)
