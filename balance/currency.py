@@ -1,7 +1,7 @@
 import json
 import requests
 from django.http import JsonResponse
-
+from django_background_tasks import background
 from balance.models import Currency
 
 
@@ -31,7 +31,8 @@ def get_rates_in_rub(api_key, currencies):
         return {currency: rates_in_rub[currency] for currency in currencies}
 
 
-def currency_rates_view():
+@background(schedule=60*60*24)
+def currency_rates_task():
     api_key = 'db8d9f75688041cf831131e1b35655e3'  # Установите ваш API ключ
     currencies = ['EUR', 'GBP', 'JPY', 'CNY', 'USD']  # Выбранные валюты
 
