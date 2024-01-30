@@ -13,7 +13,7 @@ from test_backend.custom_methods import IsAuthenticatedCustom
 from django.shortcuts import get_object_or_404
 from .models import *
 from .serializers import *
-from сars_parser.parser.main import get_average
+# from сars_parser.parser.main import get_average
 from .passives_scripts.transport_mark_model.main import set_mark_model
 
 

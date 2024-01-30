@@ -14,7 +14,7 @@ from .models import *
 import passives.models as pas
 import inventory.models as inv
 from .serializers import *
-from сars_parser.parser.main import get_average
+# from сars_parser.parser.main import get_average
 from .actives_scripts.transport_mark_model.main import set_mark_model
 
 
