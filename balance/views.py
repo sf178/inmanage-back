@@ -17,12 +17,15 @@ import requests
 import json
 
 
-class CurrencyListView(ListModelMixin, GenericAPIView):
+class CurrencyListView(ListModelMixin, CreateModelMixin, GenericAPIView):
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
