@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from .models import *
 from .serializers import *
 from django.db import transaction
-from glob_parse.tasks import parse_avito_task
+# from glob_parse.tasks import parse_avito_task
 from balance.models import Card
 from balance.models import Expenses as BalExpenses
 
@@ -270,7 +270,7 @@ def delete_loans(sender, instance, **kwargs):
 def property_post_save(sender, instance, created, **kwargs):
     if created:
         src = 'passives'
-        parse_avito_task.delay(src, instance.id, instance.city, instance.square)
+        # parse_avito_task.delay(src, instance.id, instance.city, instance.square)
 
 #
 #
