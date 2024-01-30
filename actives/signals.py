@@ -7,7 +7,7 @@ from django.urls import reverse
 from .models import *
 from .serializers import *
 from passives.models import Loans, MainLoans
-from glob_parse.tasks import parse_avito_task
+# from glob_parse.tasks import parse_avito_task
 from balance import models as bal
 from django.db import transaction
 from balance.models import Card, Income, Expenses
