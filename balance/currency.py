@@ -1,7 +1,7 @@
 import json
 import requests
 from django.http import JsonResponse
-from django_background_tasks import background
+from background_task import background
 from balance.models import Currency
 
 
