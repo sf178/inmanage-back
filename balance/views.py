@@ -26,11 +26,39 @@ class CurrencyListView(ListModelMixin, CreateModelMixin, GenericAPIView):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        is_many = isinstance(request.data, list)
+        if is_many:
+            # Обработка списка объектов
+            response_data = []
+            for item_data in request.data:
+                # Поиск или создание объекта по полю 'name'
+                instance = Currency.objects.filter(name=item_data['name']).first()
+                if instance:
+                    # Если объект существует, обновляем его
+                    serializer = self.get_serializer(instance, data=item_data)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                else:
+                    # Если объект не существует, создаем новый
+                    serializer = self.get_serializer(data=item_data)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                response_data.append(serializer.data)
+            headers = self.get_success_headers(response_data)
+            return Response(response_data, status=status.HTTP_200_OK, headers=headers)
+        else:
+            # Обработка одиночного объекта (аналогично списку)
+            instance = Currency.objects.filter(name=request.data['name']).first()
+            if instance:
+                serializer = self.get_serializer(instance, data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+            else:
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
 
 class PaymentListView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
