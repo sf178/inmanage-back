@@ -25,9 +25,11 @@ class Receipt(models.Model):
     class Meta:
         verbose_name = 'Receipt'
         verbose_name_plural = 'Receipts'
+
     @property
     def items_list(self):
             return self.items.all()
+
 
 class ReceiptItem(models.Model):
     receipt = models.ForeignKey(Receipt, related_name='items', on_delete=models.CASCADE)

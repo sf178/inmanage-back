@@ -12,6 +12,7 @@ from .serializers import ReceiptSerializer, ReceiptItemSerializer
 
 env = environ.Env()
 
+
 class ReceiptAPI(APIView):
 
     def post(self, request, *args, **kwargs):
