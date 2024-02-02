@@ -19,9 +19,3 @@ class Work(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     name = models.TextField(blank=True, null=True)
-
-#
-# class Project(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-#     name = models.TextField(blank=True, null=True)
