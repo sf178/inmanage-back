@@ -40,7 +40,7 @@ class WorkSerializer(serializers.ModelSerializer):
 
 
 class WorkIncomeSerializer(serializers.ModelSerializer):
-    work = DynamicWorkField(queryset=Work.objects.all(), required=False)
+    work = DynamicWorkField(required=False)
     # work_data = WorkSerializer(source='work', required=False)
     #project_data = ProjectSerializer(source='project', required=False)
 
