@@ -71,7 +71,7 @@ class WorkIncomeSerializer(serializers.ModelSerializer):
             )
             writeoff_account.income.add(income)
             work_income.child = income
-            work_income.save(update_fields='child')
+            work_income.save(update_fields=['child'])
 
 
         # Добавляем WorkIncome в income объекта Work, если он создан
