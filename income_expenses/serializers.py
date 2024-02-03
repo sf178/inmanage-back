@@ -56,7 +56,7 @@ class WorkIncomeSerializer(serializers.ModelSerializer):
         # work_income = WorkIncome.objects.create(**validated_data, work=work_instance)
 
         # Создаем объект WorkIncome
-        work_income = WorkIncome.objects.create(**validated_data)
+        work_income = WorkIncome.objects.create(**validated_data, user=self.context['request'].user)
 
         # Создаем связанный объект Income, если нужно
         if 'writeoff_account' in validated_data:
@@ -70,6 +70,8 @@ class WorkIncomeSerializer(serializers.ModelSerializer):
                 content_object=work_income
             )
             writeoff_account.income.add(income)
+            work_income.child = income
+            work_income.save(update_fields='child')
 
 
         # Добавляем WorkIncome в income объекта Work, если он создан
