@@ -1,8 +1,31 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from .models import WorkIncome, Work
 from balance.models import Card, Income
 from balance.serializers import BalanceIncomeSerializer as IncomeSerializer
+
+
+class DynamicWorkField(serializers.Field):
+    def to_representation(self, value):
+        # Возвращаем представление объекта Work при сериализации
+        return {'id': value.id, 'name': value.name}
+
+    def to_internal_value(self, data):
+        if isinstance(data, int):
+            # Попытка получить существующую работу по ID
+            try:
+                return Work.objects.get(id=data, user=self.context['request'].user)
+            except Work.DoesNotExist:
+                raise ValidationError("Work with the given ID does not exist")
+        elif isinstance(data, dict) and 'name' in data:
+            # Создание новой работы, если предоставлен словарь с полем name
+            work = Work.objects.create(**data, user=self.context['request'].user)
+            return work
+        else:
+            raise ValidationError("Incorrect data for work field")
+
 
 class WorkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,7 +40,7 @@ class WorkSerializer(serializers.ModelSerializer):
 
 
 class WorkIncomeSerializer(serializers.ModelSerializer):
-    # Добавляем вложенные сериализаторы для Work и Project
+    work = DynamicWorkField(queryset=Work.objects.all(), required=False)
     # work_data = WorkSerializer(source='work', required=False)
     #project_data = ProjectSerializer(source='project', required=False)
 
@@ -27,16 +50,10 @@ class WorkIncomeSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        work_data = validated_data.pop('work', None)
-        work_instance = None
+        work_instance = validated_data.get('work')
 
         # Создаем или получаем объект Work
-        if isinstance(work_data, dict):
-            # Если предоставлен словарь, создаем новый объект Work
-            work_instance = Work.objects.create(**work_data, user=self.context['request'].user)
-        elif isinstance(work_data, int):
-            # Если предоставлен ID, получаем существующий объект Work
-            work_instance = Work.objects.get(id=work_data, user=self.context['request'].user)
+        # work_income = WorkIncome.objects.create(**validated_data)
 
         # Создаем объект WorkIncome
         work_income = WorkIncome.objects.create(**validated_data, work=work_instance)
