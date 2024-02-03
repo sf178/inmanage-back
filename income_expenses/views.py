@@ -70,7 +70,7 @@ class WorkIncomeListView(mixins.ListModelMixin, mixins.CreateModelMixin, generic
     def post(self, request, *args, **kwargs):
         # serializer = self.get_serializer(data=request.data)
         # serializer.is_valid(raise_exception=True)
-        return self.create(self, request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
         # headers = self.get_success_headers(serializer.data)
         # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
