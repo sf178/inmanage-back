@@ -19,3 +19,6 @@ class Work(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     name = models.TextField(blank=True, null=True)
+    income = models.ManyToManyField(WorkIncome, blank=True, null=True, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+

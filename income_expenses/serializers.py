@@ -17,23 +17,23 @@ class WorkSerializer(serializers.ModelSerializer):
 
 class WorkIncomeSerializer(serializers.ModelSerializer):
     # Добавляем вложенные сериализаторы для Work и Project
-    work_data = WorkSerializer(source='work', required=False)
+    # work_data = WorkSerializer(source='work', required=False)
     #project_data = ProjectSerializer(source='project', required=False)
 
     class Meta:
         model = WorkIncome
         fields = '__all__'
 
-    def create(self, validated_data):
-        work_data = validated_data.pop('work', None)
-        #project_data = validated_data.pop('project', None)
-
-        if work_data:
-            work = Work.objects.create(**work_data)
-            validated_data['work'] = work
-
-        #if project_data:
-        #    project = Project.objects.create(**project_data)
-        #    validated_data['project'] = project
-
-        return WorkIncome.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     work_data = validated_data.pop('work', None)
+    #     #project_data = validated_data.pop('project', None)
+    #
+    #     if work_data:
+    #         work = Work.objects.create(**work_data)
+    #         validated_data['work'] = work
+    #
+    #     #if project_data:
+    #     #    project = Project.objects.create(**project_data)
+    #     #    validated_data['project'] = project
+    #
+    #     return WorkIncome.objects.create(**validated_data)

@@ -5,7 +5,7 @@ urlpatterns = [
     # Маршруты для WorkIncome
     path('', WorkIncomeListView.as_view(), name='workincome-list'),
     path('<int:pk>/', WorkIncomeDetailView.as_view(), name='workincome-detail'),
-    path('create/', WorkIncomeCreateView.as_view(), name='workincome-create'),
+    # path('create/', WorkIncomeCreateView.as_view(), name='workincome-create'),
 
     # Маршруты для Work
     path('works/', WorkListView.as_view(), name='work-list'),
