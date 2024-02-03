@@ -6,7 +6,7 @@ from .models import WorkIncome, Work
 class WorkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Work
-        fields = ['id', 'user', 'name']
+        fields = '__all__'
 
 
 # class ProjectSerializer(serializers.ModelSerializer):
