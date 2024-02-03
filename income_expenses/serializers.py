@@ -10,7 +10,8 @@ from balance.serializers import BalanceIncomeSerializer as IncomeSerializer
 class DynamicWorkField(serializers.Field):
     def to_representation(self, value):
         # Возвращаем представление объекта Work при сериализации
-        return {'id': value.id, 'name': value.name}
+        # return {'id': value.id, 'name': value.name}
+        return value.id
 
     def to_internal_value(self, data):
         if isinstance(data, int):
