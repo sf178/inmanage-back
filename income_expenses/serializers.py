@@ -60,8 +60,8 @@ class WorkIncomeSerializer(serializers.ModelSerializer):
 
         # Создаем связанный объект Income, если нужно
         if 'writeoff_account' in validated_data:
-            writeoff_account = Card.objects.get(id=validated_data['writeoff_account'], user=self.context['request'].user)
-
+            # writeoff_account = Card.objects.get(id=validated_data['writeoff_account'], user=self.context['request'].user)
+            writeoff_account = validated_data['writeoff_account']
             income = Income.objects.create(
                 user=self.context['request'].user,
                 writeoff_account=writeoff_account,
