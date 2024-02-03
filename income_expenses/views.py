@@ -1,7 +1,11 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import generics, permissions, mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from balance.models import Card
+from balance.serializers import BalanceIncomeSerializer as IncomeSerializer
 from test_backend.custom_methods import IsAuthenticatedCustom
 from rest_framework import mixins, generics, status
 from .models import WorkIncome, Work
@@ -21,24 +25,47 @@ class WorkIncomeListView(mixins.ListModelMixin, mixins.CreateModelMixin, generic
 
     def perform_create(self, serializer):
         work_data = self.request.data.get('work')
+        writeoff_account_id = self.request.data.get('writeoff_account')
+        funds = self.request.data.get('funds')
+        comment = self.request.data.get('comment')
+
+        # Создание или получение объекта Work
         if isinstance(work_data, dict):
-            # Создание новой работы, если предоставлен объект work с полем name.
+            # Создание новой работы
             work_serializer = WorkSerializer(data=work_data)
             if work_serializer.is_valid(raise_exception=True):
                 work = work_serializer.save(user=self.request.user)
-                serializer.save(user=self.request.user, work=work)
-                work.income.add(serializer.instance)  # Добавление в income для новой работы
             else:
                 raise ValidationError(work_serializer.errors)
         else:
-            # Привязка к существующему Work по id и добавление в income
-            try:
-                work = Work.objects.get(id=work_data, user=self.request.user)
-            except Work.DoesNotExist:
-                raise ValidationError("Work with the given ID does not exist")
+            # Получение существующей работы
+            work = Work.objects.get(id=work_data, user=self.request.user)
 
-            serializer.save(user=self.request.user, work=work)
-            work.income.add(serializer.instance)  # Добавление в income для существующей работы
+        # Создание объекта WorkIncome
+        work_income = serializer.save(user=self.request.user, work=work)
+
+        # Добавление WorkIncome к списку доходов работы
+        work.income.add(work_income)
+
+        # Создание связанного объекта Income
+        if writeoff_account_id is not None:
+            writeoff_account = Card.objects.get(id=writeoff_account_id, user=self.request.user)
+            content_type = ContentType.objects.get_for_model(WorkIncome)
+            income_data = {
+                'user': self.request.user,
+                'writeoff_account': writeoff_account,
+                'funds': funds,
+                'comment': comment,
+                'content_type': content_type,
+                'object_id': work_income.id
+            }
+            income_serializer = IncomeSerializer(data=income_data)
+            if income_serializer.is_valid(raise_exception=True):
+                income = income_serializer.save()
+                work_income.child = income
+                work_income.save()
+            else:
+                raise ValidationError(income_serializer.errors)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
