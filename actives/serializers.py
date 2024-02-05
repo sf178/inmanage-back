@@ -118,11 +118,30 @@ class MainTransportSerializer(serializers.ModelSerializer):
         model = MainTransport
         fields = '__all__'
 
+class MainJewelriesSerializer(serializers.ModelSerializer):
+    jewelries = JewelrySerializer(many=True, read_only=True, required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
+
+    class Meta:
+        model = MainTransport
+        fields = '__all__'
+
+
+class MainSecuritiesSerializer(serializers.ModelSerializer):
+    securities = SecuritiesSerializer(many=True, read_only=True, required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
+
+    class Meta:
+        model = MainTransport
+        fields = '__all__'
+
 
 class ActivesSerializer(serializers.ModelSerializer):
     properties = MainPropertySerializer(read_only=True, required=False, allow_null=True)
     transports = MainTransportSerializer(read_only=True, required=False, allow_null=True)
     businesses = MainBusinessesSerializer(read_only=True, required=False, allow_null=True)
+    jewelries = MainJewelriesSerializer(read_only=True, required=False, allow_null=True)
+    securities = MainSecuritiesSerializer(read_only=True, required=False, allow_null=True)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
