@@ -32,10 +32,14 @@ def create_actives(sender, instance, created, **kwargs):
         main_properties, _ = act.MainProperties.objects.get_or_create(user=instance)
         main_transport, _ = act.MainTransport.objects.get_or_create(user=instance)
         main_businesses, _ = act.MainBusinesses.objects.get_or_create(user=instance)
+        main_jewelries, _ = act.MainJewelry.objects.get_or_create(user=instance)
+        main_securities, _ = act.MainSecurities.objects.get_or_create(user=instance)
         actives.properties = main_properties
         actives.transports = main_transport
         actives.businesses = main_businesses
-        actives.save(update_fields=['properties', 'transports', 'businesses'])
+        actives.jewelries = main_jewelries
+        actives.securities = main_securities
+        actives.save(update_fields=['properties', 'transports', 'businesses', 'jewelries', 'securities'])
         instance.all_actives = actives
         instance.save()
 

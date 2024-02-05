@@ -4,7 +4,7 @@ from django.db import models
 from front.models import CustomUser
 from simple_history.models import HistoricalRecords
 from django.contrib.postgres.fields import ArrayField
-
+from django.db.models import JSONField
 # Create your models here.
 
 class Currency(models.Model):
@@ -17,20 +17,13 @@ class Currency(models.Model):
 
 
 class Payment(models.Model):
-    # PAYMENT_FREQUENCY_CHOICES = [
-    #     ('once', 'Once'),
-    #     ('daily', 'Daily'),
-    #     ('weekly', 'Weekly'),
-    #     ('monthly', 'Monthly')
-    # ]
-
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
     name = models.TextField(blank=True, null=True)
     amount = models.FloatField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
-    is_paid = models.BooleanField(default=False)
-    # frequency = models.CharField(max_length=10, choices=PAYMENT_FREQUENCY_CHOICES, default='once')
+    # is_paid = models.BooleanField(default=False)
+    is_paid = JSONField(default=dict, blank=True, null=True)
     frequency = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()

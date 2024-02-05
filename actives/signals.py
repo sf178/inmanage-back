@@ -13,6 +13,68 @@ from django.db import transaction
 from balance.models import Card, Income, Expenses
 
 
+@receiver(post_save, sender=Jewelry)
+def update_main_jewelries(sender, instance, created, **kwargs):
+    main_jewelries = MainJewelry.objects.get(user=instance.user)
+    # main_loans = MainLoans.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)  # получаем объект actives для этого пользователя
+
+    if created:
+        main_jewelries.jewelries.add(instance)
+        main_jewelries.total_funds += instance.purchase_cost
+        # if instance.loan:
+        #     main_loans.total_funds -= instance.loan_link.sum
+        #     main_loans.save(update_fields=['total_funds'])
+        main_jewelries.save(update_fields=['total_funds'])
+        actives.total_funds += instance.purchase_cost
+        actives.save()
+
+
+@receiver(post_delete, sender=Jewelry)
+def delete_jewelries(sender, instance, **kwargs):
+    main_jewelries = MainJewelry.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)
+    main_jewelries.jewelries.remove(instance)
+
+    main_jewelries.total_funds -= instance.purchase_cost
+
+    main_jewelries.save(update_fields=['total_funds'])
+
+    actives.total_funds -= instance.purchase_cost
+    actives.save()
+
+
+@receiver(post_save, sender=Securities)
+def update_main_jewelries(sender, instance, created, **kwargs):
+    main_securities = MainSecurities.objects.get(user=instance.user)
+    # main_loans = MainLoans.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)  # получаем объект actives для этого пользователя
+
+    if created:
+        main_securities.securities.add(instance)
+        main_securities.total_funds += instance.market_price
+        # if instance.loan:
+        #     main_loans.total_funds -= instance.loan_link.sum
+        #     main_loans.save(update_fields=['total_funds'])
+        main_securities.save(update_fields=['total_funds'])
+        actives.total_funds += instance.market_price
+        actives.save()
+
+
+@receiver(post_delete, sender=Securities)
+def delete_securities(sender, instance, **kwargs):
+    main_securities = MainSecurities.objects.get(user=instance.user)
+    actives = Actives.objects.get(user=instance.user)
+    main_securities.securities.remove(instance)
+
+    main_securities.total_funds -= instance.market_price
+
+    main_securities.save(update_fields=['total_funds'])
+
+    actives.total_funds -= instance.market_price
+    actives.save()
+
+
 @receiver(post_save, sender=ActivesIncome)
 def create_income_from_actives(sender, instance, created, **kwargs):
     if created:
@@ -296,7 +358,7 @@ def update_main_businesses(sender, instance, created, **kwargs):
     actives = Actives.objects.get(user=instance.user)
     if created:
         main_businesses.businesses.add(instance)
-        main_businesses.total_funds += instance.revenue
+        main_businesses.total_funds += instance.total_worth
         if instance.loan:
             main_loans.total_funds -= instance.loan_link.sum
             main_loans.save(update_fields=['total_funds'])
@@ -341,6 +403,7 @@ def update_business_totals(sender, instance, created, **kwargs):
 
 @receiver(m2m_changed, sender=Business.income.through)
 @receiver(m2m_changed, sender=Business.expenses.through)
+@receiver(m2m_changed, sender=Business.equipment)
 def update_business_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
         update_business_totals(sender=Business, instance=instance, created=False)

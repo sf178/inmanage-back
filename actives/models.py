@@ -167,6 +167,7 @@ class Business(models.Model):
     direction = models.TextField(blank=True, null=True)
     bought_price = models.FloatField(blank=True, null=True, default=0.0)
     #investment_type = models.TextField()
+    total_worth = models.FloatField(blank=True, null=True, default=0.0)
     month_income = models.FloatField(blank=True, null=True, default=0.0)
     month_expense = models.FloatField(blank=True, null=True, default=0.0)
     income = models.ManyToManyField('actives.ActivesIncome', blank=True, related_name='+')
@@ -316,12 +317,28 @@ class MainBusinesses(models.Model):
     businesses = models.ManyToManyField(Business, blank=True, null=True)
 
 
+class MainJewelry(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
+    total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    jewelries = models.ManyToManyField(Jewelry, blank=True, null=True)
+
+
+class MainSecurities(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
+    total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    securities = models.ManyToManyField(Securities, blank=True, null=True)
+
+
 class Actives(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE)
     properties = models.ForeignKey(MainProperties, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     transports = models.ForeignKey(MainTransport, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     businesses = models.ForeignKey(MainBusinesses, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
+    jewelries = models.ForeignKey(MainJewelry, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
+    securities = models.ForeignKey(MainSecurities, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
     total_income = models.FloatField(blank=True, null=True, default=0.0)
     total_expenses = models.FloatField(blank=True, null=True, default=0.0)
