@@ -118,12 +118,13 @@ class MainTransportSerializer(serializers.ModelSerializer):
         model = MainTransport
         fields = '__all__'
 
+
 class MainJewelriesSerializer(serializers.ModelSerializer):
     jewelries = JewelrySerializer(many=True, read_only=True, required=False, allow_null=True)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
-        model = MainTransport
+        model = Jewelry
         fields = '__all__'
 
 
@@ -132,7 +133,7 @@ class MainSecuritiesSerializer(serializers.ModelSerializer):
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
-        model = MainTransport
+        model = Securities
         fields = '__all__'
 
 
