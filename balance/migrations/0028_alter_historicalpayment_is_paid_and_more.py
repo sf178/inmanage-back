@@ -10,14 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='historicalpayment',
-            name='is_paid',
-            field=models.JSONField(blank=True, default=dict, null=True),
-        ),
-        migrations.AlterField(
-            model_name='payment',
-            name='is_paid',
-            field=models.JSONField(blank=True, default=dict, null=True),
-        ),
+
     ]
