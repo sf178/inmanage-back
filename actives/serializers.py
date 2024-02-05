@@ -120,7 +120,7 @@ class MainTransportSerializer(serializers.ModelSerializer):
 
 
 class MainJewelriesSerializer(serializers.ModelSerializer):
-    jewelries = JewelrySerializer(many=True, read_only=True, required=False, allow_null=True)
+    jewelries = JewelrySerializer(many=True, read_only=True)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
@@ -129,7 +129,7 @@ class MainJewelriesSerializer(serializers.ModelSerializer):
 
 
 class MainSecuritiesSerializer(serializers.ModelSerializer):
-    securities = SecuritiesSerializer(many=True, read_only=True, required=False, allow_null=True)
+    securities = SecuritiesSerializer(many=True, read_only=True)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
