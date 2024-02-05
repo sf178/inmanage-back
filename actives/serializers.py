@@ -124,7 +124,7 @@ class MainJewelriesSerializer(serializers.ModelSerializer):
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
-        model = Jewelry
+        model = MainJewelry
         fields = '__all__'
 
 
@@ -133,7 +133,7 @@ class MainSecuritiesSerializer(serializers.ModelSerializer):
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
-        model = Securities
+        model = MainSecurities
         fields = '__all__'
 
 
