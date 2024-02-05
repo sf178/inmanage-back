@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models import JSONField
 # Create your models here.
 
+
 class Currency(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.TextField(blank=True, null=True)
@@ -72,6 +73,7 @@ class Balance(models.Model):
     currency = models.TextField(blank=True, null=True)
     card_list = models.ManyToManyField(Card, blank=True, null=True, related_name='+')
     favourite_cards = models.ManyToManyField(Card, blank=True, null=True, related_name='+')
+    payments = models.ManyToManyField(Payment, blank=True, null=True, related_name='+')
     card_funds = models.FloatField(blank=True, null=True)
     card_income = models.FloatField(blank=True, null=True)
     card_expenses = models.FloatField(blank=True, null=True)

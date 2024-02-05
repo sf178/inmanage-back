@@ -8,6 +8,18 @@ from .views import BalanceListView
 from django.db import transaction
 
 
+@receiver(post_save, sender=Payment)
+def add_payment(sender, instance, **kwargs):
+    user = instance.user
+    balance = Balance.objects.get(user=user)
+    balance.payments.add(instance)
+
+@receiver(post_delete, sender=Payment)
+def delete_payment(sender, instance, **kwargs):
+    user = instance.user
+    balance = Balance.objects.get(user=user)
+    balance.payments.remove(instance)
+
 @receiver(post_save, sender=act.Actives)
 @receiver(post_save, sender=pas.Passives)
 @receiver(post_save, sender=Card)
