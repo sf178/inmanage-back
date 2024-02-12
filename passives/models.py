@@ -9,7 +9,7 @@ class Loans(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=255, blank=True)
-    data = models.DateTimeField(blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
     insurance = models.BooleanField(default=False, blank=True)
     insurance_sum = models.FloatField(blank=True, null=True, default=0.0)
     remainder = models.FloatField(blank=True, null=True, default=0.0)

@@ -38,6 +38,7 @@ class PreviousInventory(models.Model):
 
 class InventoryAsset(models.Model):
     id = models.AutoField(primary_key=True)
+    inventory = models.ForeignKey('inventory.Inventory', on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     added = models.BooleanField(default=False, null=True, blank=True)
     text = models.TextField(null=True, blank=True)
@@ -47,7 +48,7 @@ class InventoryAsset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"InventoryAsset {self.id} - {self.user.username}"
+        return f"InventoryAsset {self.id} - {self.user}"
 
 class Inventory(models.Model):
     id = models.AutoField(primary_key=True)

@@ -1,4 +1,7 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
+
+from inventory.models import Inventory
 from passives.models import Loans
 from simple_history.models import HistoricalRecords
 from datetime import datetime, timezone
@@ -61,8 +64,9 @@ class Property(models.Model):
     city = models.TextField(blank=True, null=True)
     street = models.TextField(blank=True, null=True)
     building_number = models.TextField(blank=True, null=True)
-    owner = models.TextField(blank=True)
-    rent_type = models.BooleanField(blank=True, null=True)
+    owner = models.TextField(blank=True, null=True)
+    rent_type = models.TextField(blank=True, null=True)
+    rent_price = models.FloatField(blank=True, null=True, default=0.0)
     bought_price = models.FloatField(blank=True, null=True, default=0.0)
     actual_price = models.FloatField(blank=True, null=True, default=0.0)
     revenue = models.FloatField(blank=True, null=True, default=0.0)
@@ -198,6 +202,20 @@ class Business(models.Model):
     def __str__(self):
         return f'ID: {self.id}'
 
+    def calculate_total_worth(self):
+        # Подсчет total_cost всех связанных Inventory объектов
+        inventory_total_cost = 0
+        # Получаем ContentType для модели Business
+        business_content_type = ContentType.objects.get_for_model(self)
+        # Ищем все объекты Inventory, связанные с этим бизнесом
+        inventories = Inventory.objects.filter(content_type=business_content_type, object_id=self.id)
+        for inventory in inventories:
+            inventory_total_cost += inventory.total_cost
+
+        # Суммируем revenue бизнеса и общую стоимость инвентаря
+        total_worth = self.revenue + inventory_total_cost
+        return total_worth
+
     class Meta:
         verbose_name = 'business'
         verbose_name_plural = 'businesses'
@@ -331,6 +349,20 @@ class MainSecurities(models.Model):
     securities = models.ManyToManyField(Securities, blank=True, null=True)
 
 
+class MainDeposits(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
+    total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    deposits = models.ManyToManyField('actives_deposit.ActivesDeposit', blank=True, null=True)
+
+
+class MainLoans(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
+    total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    loans = models.ManyToManyField('actives_deposit.ActivesLoans', blank=True, null=True)
+
+
 class Actives(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE)
@@ -339,6 +371,8 @@ class Actives(models.Model):
     businesses = models.ForeignKey(MainBusinesses, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     jewelries = models.ForeignKey(MainJewelry, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     securities = models.ForeignKey(MainSecurities, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
+    deposits = models.ForeignKey(MainDeposits, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
+    loans = models.ForeignKey(MainLoans, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
     total_income = models.FloatField(blank=True, null=True, default=0.0)
     total_expenses = models.FloatField(blank=True, null=True, default=0.0)

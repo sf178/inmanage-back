@@ -13,6 +13,16 @@ from django.db import transaction
 from balance.models import Card, Income, Expenses
 
 
+@receiver(post_delete, sender=Property)
+@receiver(post_delete, sender=Transport)
+@receiver(post_delete, sender=Business)
+def delete_linked_loan(sender, instance, **kwargs):
+    # Проверяем, есть ли у экземпляра свойство 'loan' и удаляем связанный объект Loan, если он существует
+    loan_attr = getattr(instance, 'loan', None)
+    if loan_attr and isinstance(loan_attr, Loans):
+        loan_attr.delete()
+
+
 @receiver(post_save, sender=Jewelry)
 def update_main_jewelries(sender, instance, created, **kwargs):
     main_jewelries = MainJewelry.objects.get(user=instance.user)

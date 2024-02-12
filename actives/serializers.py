@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import *
+from actives_deposit.models import *
+from actives_deposit.serializers import *
 from passives import serializers as pas
 from inventory import serializers as inv
 from test_backend.custom_methods import CustomDateTimeField
@@ -137,12 +139,32 @@ class MainSecuritiesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MainLoansSerializer(serializers.ModelSerializer):
+    loans = ActivesLoansSerializer(many=True, read_only=True)
+    created_at = CustomDateTimeField(required=False)
+
+    class Meta:
+        model = MainLoans
+        fields = '__all__'
+
+
+class MainDepositsSerializer(serializers.ModelSerializer):
+    deposits = ActivesDepositsSerializer(many=True, read_only=True)
+    created_at = CustomDateTimeField(required=False)
+
+    class Meta:
+        model = MainDeposits
+        fields = '__all__'
+
+
 class ActivesSerializer(serializers.ModelSerializer):
     properties = MainPropertySerializer(read_only=True, required=False, allow_null=True)
     transports = MainTransportSerializer(read_only=True, required=False, allow_null=True)
     businesses = MainBusinessesSerializer(read_only=True, required=False, allow_null=True)
     jewelries = MainJewelriesSerializer(read_only=True, required=False, allow_null=True)
     securities = MainSecuritiesSerializer(read_only=True, required=False, allow_null=True)
+    loans = MainLoansSerializer(read_only=True, required=False, allow_null=True)
+    deposits = MainDepositsSerializer(read_only=True, required=False, allow_null=True)
     created_at = CustomDateTimeField(required=False)
 
     class Meta:

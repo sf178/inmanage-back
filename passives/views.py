@@ -37,6 +37,7 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
 
+
 class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = LoansSerializer
     lookup_field = 'id'

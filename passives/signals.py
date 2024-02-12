@@ -9,6 +9,16 @@ from balance.models import Card
 from balance.models import Expenses as BalExpenses
 
 
+@receiver(post_delete, sender=Property)
+@receiver(post_delete, sender=Transport)
+#@receiver(post_delete, sender=Business)
+def delete_linked_loan(sender, instance, **kwargs):
+    # Проверяем, есть ли у экземпляра свойство 'loan' и удаляем связанный объект Loan, если он существует
+    loan_attr = getattr(instance, 'loan', None)
+    if loan_attr and isinstance(loan_attr, Loans):
+        loan_attr.delete()
+
+
 @receiver(post_save, sender=Expenses)
 def create_expenses_from_passives(sender, instance, created, **kwargs):
     if created:

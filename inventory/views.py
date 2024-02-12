@@ -61,7 +61,7 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                     # Создаем новый объект
                     asset_serializer = InventoryAssetSerializer(data=asset_data)
                     asset_serializer.is_valid(raise_exception=True)
-                    asset_instance = asset_serializer.save(user=instance.user)
+                    asset_instance = asset_serializer.save(user=instance.user, inventory=instance)
                     instance.assets.add(asset_instance)
                 elif asset_id:
                     # Обновляем существующий объект

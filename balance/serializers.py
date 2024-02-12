@@ -26,6 +26,7 @@ class CardSerializer(serializers.ModelSerializer):
 
 class BalanceSerializer(serializers.ModelSerializer):
     card_list = CardSerializer(many=True, read_only=True, required=False)
+    payments = PaymentSerializer(many=True, read_only=True, required=False)
     # favourite_cards = CardSerializer(many=True, required=False)
     favourite_cards = serializers.PrimaryKeyRelatedField(
         many=True,

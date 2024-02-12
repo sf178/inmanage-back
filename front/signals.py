@@ -18,7 +18,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 def create_balance(sender, instance, created, **kwargs):
     if created:
         balance = bal.Balance.objects.create(user=instance)
-        card = bal.Card.objects.create(user=instance, name='Наличный счет', bank=False, loan=False)
+        card = bal.Card.objects.create(user=instance, name='Наличный счет', bank=False, loan=False, currency='RUB')
         balance.card_list.add(card)
         balance.save()
         instance.balance = balance
@@ -34,11 +34,15 @@ def create_actives(sender, instance, created, **kwargs):
         main_businesses, _ = act.MainBusinesses.objects.get_or_create(user=instance)
         main_jewelries, _ = act.MainJewelry.objects.get_or_create(user=instance)
         main_securities, _ = act.MainSecurities.objects.get_or_create(user=instance)
+        main_loans, _ = act.MainLoans.objects.get_or_create(user=instance)
+        main_deposits, _ = act.MainDeposits.objects.get_or_create(user=instance)
         actives.properties = main_properties
         actives.transports = main_transport
         actives.businesses = main_businesses
         actives.jewelries = main_jewelries
         actives.securities = main_securities
+        actives.loans = main_loans
+        actives.deposits = main_deposits
         actives.save(update_fields=['properties', 'transports', 'businesses', 'jewelries', 'securities'])
         instance.all_actives = actives
         instance.save()
