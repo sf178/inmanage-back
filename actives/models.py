@@ -203,19 +203,7 @@ class Business(models.Model):
     def __str__(self):
         return f'ID: {self.id}'
 
-    def calculate_total_worth(self):
-        # Подсчет total_cost всех связанных Inventory объектов
-        inventory_total_cost = 0
-        # Получаем ContentType для модели Business
-        business_content_type = ContentType.objects.get_for_model(self)
-        # Ищем все объекты Inventory, связанные с этим бизнесом
-        inventories = Inventory.objects.filter(content_type=business_content_type, object_id=self.id)
-        for inventory in inventories:
-            inventory_total_cost += inventory.total_cost
 
-        # Суммируем revenue бизнеса и общую стоимость инвентаря
-        total_worth = self.revenue + inventory_total_cost
-        return total_worth
 
     class Meta:
         verbose_name = 'business'
