@@ -12,7 +12,8 @@ def update_inventory_total_cost(sender, instance, **kwargs):
     # Предположим, что у InventoryAsset есть ForeignKey к Inventory
     inventory = instance.inventory
     if inventory:
-        inventory.total_cost = inventory.assets.aggregate(Sum('price'))['price__sum'] or 0
+        total_cost = sum(asset.price for asset in inventory.assets.all())
+        inventory.total_cost = total_cost
         inventory.save()
         # Вызов функции обновления total_worth для связанного бизнеса
         update_business_total_worth(inventory)
@@ -30,6 +31,6 @@ def update_business_total_worth(inventory):
 def calculate_business_total_worth(business_instance):
     # Пересчёт total_worth для бизнеса
     inventory = business_instance.equipment
-
+    worth = business_instance.revenue + inventory.total_cost
     # Предположим, что revenue уже есть в бизнесе
-    return business_instance.revenue + inventory.total_cost
+    return worth
