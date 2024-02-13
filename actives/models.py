@@ -162,6 +162,7 @@ class TransportImage(models.Model):
         verbose_name_plural = 'transport-image'
         ordering = ('id',)
 
+
 class Business(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.TextField(blank=True, null=True)
