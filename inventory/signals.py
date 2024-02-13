@@ -16,6 +16,7 @@ def update_inventory_total_cost_before_delete(sender, instance, **kwargs):
         # Пересчитываем total_worth для связанного бизнеса, если есть
         update_business_total_worth(inventory)
 
+
 @receiver(m2m_changed, sender=Inventory.assets.through)
 def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
@@ -27,7 +28,7 @@ def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
             business_model = instance.content_type.model_class()
             if issubclass(business_model, Business):
                 business_instance = business_model.objects.get(id=instance.object_id)
-                update_business_total_worth(business_instance)
+                update_business_total_worth(instance)
 
 # @receiver(post_save, sender=InventoryAsset)
 # @receiver(post_delete, sender=InventoryAsset)
