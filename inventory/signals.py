@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_save, post_delete, m2m_changed, pre_delete, pre_save
 from django.dispatch import receiver
 from django.db.models import Sum
 from .models import InventoryAsset, Inventory
@@ -6,8 +6,10 @@ from actives.models import Business
 from django.contrib.contenttypes.models import ContentType
 
 
-@receiver(post_save, sender=InventoryAsset)
-@receiver(post_delete, sender=InventoryAsset)
+# @receiver(post_save, sender=InventoryAsset)
+# @receiver(post_delete, sender=InventoryAsset)
+@receiver(pre_delete, sender=InventoryAsset)
+@receiver(pre_save, sender=InventoryAsset)
 def update_inventory_total_cost(sender, instance, **kwargs):
     # Предположим, что у InventoryAsset есть ForeignKey к Inventory
     inventory = instance.inventory
@@ -17,6 +19,8 @@ def update_inventory_total_cost(sender, instance, **kwargs):
         inventory.save()
         # Вызов функции обновления total_worth для связанного бизнеса
         update_business_total_worth(inventory)
+
+
 
 
 def update_business_total_worth(inventory):
