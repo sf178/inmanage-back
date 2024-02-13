@@ -5,6 +5,7 @@ from .models import InventoryAsset, Inventory
 from actives.models import Business
 from django.contrib.contenttypes.models import ContentType
 
+
 @receiver(pre_delete, sender=InventoryAsset)
 def update_inventory_total_cost_before_delete(sender, instance, **kwargs):
     # Проверяем, связан ли asset с каким-либо инвентарем
@@ -27,7 +28,7 @@ def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
         if instance.content_type and instance.object_id:
             business_model = instance.content_type.model_class()
             if issubclass(business_model, Business):
-                business_instance = business_model.objects.get(id=instance.object_id)
+                business_instance = Business.objects.get(id=instance.object_id)
                 update_business_total_worth(instance)
 
 # @receiver(post_save, sender=InventoryAsset)
@@ -50,13 +51,9 @@ def update_business_total_worth(inventory):
         business_model = inventory.content_type.model_class()
         if issubclass(business_model, Business):
             business_instance = business_model.objects.get(id=inventory.object_id)
-            business_instance.total_worth = calculate_business_total_worth(business_instance)
+            inventory = business_instance.equipment
+            business_instance.total_worth = business_instance.revenue + inventory.total_cost
             business_instance.save()
 
 
-def calculate_business_total_worth(business_instance):
-    # Пересчёт total_worth для бизнеса
-    inventory = business_instance.equipment
-    worth = business_instance.revenue + inventory.total_cost
-    # Предположим, что revenue уже есть в бизнесе
-    return worth
+
