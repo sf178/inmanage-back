@@ -13,10 +13,10 @@ def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
         instance.total_cost = total_cost
         instance.save()
 
-        if instance.inventory.content_type and instance.inventory.object_id:
-            business_model = instance.inventory.content_type.model_class()
+        if instance.content_type and instance.object_id:
+            business_model = instance.content_type.model_class()
             if issubclass(business_model, Business):
-                business_instance = business_model.objects.get(id=instance.inventory.object_id)
+                business_instance = business_model.objects.get(id=instance.object_id)
                 update_business_total_worth(business_instance)
 
 def update_business_total_worth(business_instance):

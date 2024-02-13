@@ -33,8 +33,8 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
     def perform_create(self, serializer):
         # Проверка на наличие 'user' в data перед сохранением
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
-        if 'user' in serializer.validated_data:
-            raise ValidationError("You cannot set the user manually.")
+        # if 'user' in serializer.validated_data:
+        #     raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
 
 
