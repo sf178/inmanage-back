@@ -14,8 +14,8 @@ def update_inventory_total_cost(sender, instance, **kwargs):
     # Предположим, что у InventoryAsset есть ForeignKey к Inventory
     inventory = instance.inventory
     if inventory:
-        total_cost = sum(asset.price for asset in inventory.assets.all())
-        inventory.total_cost = total_cost
+        inventory = Inventory.objects.get(pk=instance.inventory.pk)
+        inventory.total_cost = sum(asset.price for asset in inventory.assets.all())
         inventory.save()
         # Вызов функции обновления total_worth для связанного бизнеса
         update_business_total_worth(inventory)
