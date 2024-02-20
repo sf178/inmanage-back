@@ -208,7 +208,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
     @staticmethod
     def calculate_totals(user, timezone='UTC'):
         user_timezone = pytz.timezone(timezone)
-        today = make_aware(now()).astimezone(user_timezone)
+        today = now().astimezone(user_timezone)
         start_of_day = today.replace(hour=0, minute=0, second=0, microsecond=0)
         start_of_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
