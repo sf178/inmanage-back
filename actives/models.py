@@ -110,9 +110,10 @@ class Transport(models.Model):
     #name = models.TextField(blank=True, null=True)
     model = models.TextField(blank=True, null=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    owner = models.TextField(blank=True, null=True)
+    owner_count = models.TextField(blank=True, null=True)
     owner_type = models.BooleanField(blank=True, null=True)
-    vin = models.CharField(max_length=17, blank=True, null=True)
+    # vin = models.CharField(max_length=17, blank=True, null=True)
+    year = models.TextField(blank=True, null=True)
     use = models.TextField(blank=True, null=True)
     bought_price = models.FloatField(blank=True, null=True, default=0.0)
     average_market_price = models.FloatField(blank=True, null=True, default=0.0)
@@ -171,6 +172,7 @@ class Business(models.Model):
     type = models.TextField(blank=True, null=True)
     direction = models.TextField(blank=True, null=True)
     bought_price = models.FloatField(blank=True, null=True, default=0.0)
+    card = models.ForeignKey('balance.Card', on_delete=models.DO_NOTHING, blank=True, null=True)
     #investment_type = models.TextField()
     total_worth = models.FloatField(blank=True, null=True, default=0.0)
     month_income = models.FloatField(blank=True, null=True, default=0.0)
@@ -345,11 +347,11 @@ class MainDeposits(models.Model):
     deposits = models.ManyToManyField('actives_deposit.ActivesDeposit', blank=True, null=True)
 
 
-class MainLoans(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
-    total_funds = models.FloatField(blank=True, null=True, default=0.0)
-    loans = models.ManyToManyField('actives_deposit.ActivesLoans', blank=True, null=True)
+# class MainLoans(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
+#     total_funds = models.FloatField(blank=True, null=True, default=0.0)
+#     loans = models.ManyToManyField('actives_deposit.ActivesLoans', blank=True, null=True)
 
 
 class Actives(models.Model):
@@ -361,7 +363,7 @@ class Actives(models.Model):
     jewelries = models.ForeignKey(MainJewelry, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     securities = models.ForeignKey(MainSecurities, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     deposits = models.ForeignKey(MainDeposits, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
-    loans = models.ForeignKey(MainLoans, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
+    # loans = models.ForeignKey(MainLoans, on_delete=models.DO_NOTHING, blank=True, related_name='+', null=True)
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
     total_income = models.FloatField(blank=True, null=True, default=0.0)
     total_expenses = models.FloatField(blank=True, null=True, default=0.0)

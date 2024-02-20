@@ -39,10 +39,10 @@ class PropertyAdmin(admin.ModelAdmin):
 
 class TransportAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'user_id', 'mark', 'model', 'owner', 'owner_type', 'vin', 'use', 'bought_price', 'initial_payment', 'loan_term',
+        'id', 'user', 'mark', 'model', 'owner_count', 'owner_type', 'year', 'use', 'bought_price', 'initial_payment', 'loan_term',
         'percentage', 'month_payment', 'month_income', 'month_expense', 'average_profit', 'revenue'
     )
-    list_filter = ('user_id', 'mark', 'model', 'owner', 'owner_type', 'use')
+    list_filter = ('user', 'mark', 'model', 'owner_count', 'owner_type', 'use')
     search_fields = ('mark', 'model', 'owner', 'vin')
 
 

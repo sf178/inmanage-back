@@ -22,6 +22,7 @@ class Loans(models.Model):
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
+    is_borrowed = models.BooleanField(default=False, blank=True, null=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -42,7 +43,8 @@ class Property(models.Model):
     street = models.TextField(blank=True, null=True)
     building_number = models.TextField(blank=True)
     owner = models.TextField(blank=True, null=True)
-    rent_type = models.BooleanField(blank=True, null=True)
+    rent_type = models.TextField(blank=True, null=True)
+    rent_price = models.FloatField(blank=True, null=True, default=0.0)
     bought_price = models.FloatField(blank=True, null=True, default=0.0)
     actual_price = models.FloatField(blank=True, null=True, default=0.0)
     #### loans part ####

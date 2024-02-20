@@ -1,4 +1,8 @@
+from datetime import datetime
+
+import pytz
 from django.http import JsonResponse
+from django.utils.timezone import make_aware, now
 from rest_framework import generics, permissions, mixins
 from django.db.models import Sum, Q
 from rest_framework.exceptions import ValidationError
@@ -202,9 +206,18 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
 
     '''тестовая хуйня, удалить если не сработает'''
     @staticmethod
-    def calculate_totals(user):
+    def calculate_totals(user, timezone='UTC'):
+        user_timezone = pytz.timezone(timezone)
+        today = make_aware(now()).astimezone(user_timezone)
+        start_of_day = today.replace(hour=0, minute=0, second=0, microsecond=0)
+        start_of_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
         total_funds = 0
         card_funds = 0
+        daily_income = 0
+        daily_expense = 0
+        monthly_income = 0
+        monthly_expense = 0
 
         # From Actives
         active = Actives.objects.filter(user=user).first()
@@ -214,22 +227,25 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         # From Passives
         passive = Passives.objects.filter(user=user).first()
         if passive:
-            total_funds += (passive.total_funds or 0)
+            total_funds -= (passive.total_funds or 0)
 
         # From Cards
         cards = Card.objects.filter(user=user)
         for card in cards:
             card_funds += (card.remainder or 0)
-
-        # total_funds учитывает стоимость всех активов и пассивов, плюс остатки на картах
-        total_funds += card_funds
-
-        # total_income и total_expenses равны card_income и card_expenses соответственно
+            daily_income += card.income.filter(created_at__gte=start_of_day).aggregate(Sum('funds'))['funds__sum'] or 0
+            daily_expense += card.expenses.filter(created_at__gte=start_of_day).aggregate(Sum('funds'))[
+                                 'funds__sum'] or 0
+            monthly_income += card.income.filter(created_at__gte=start_of_month).aggregate(Sum('funds'))[
+                                  'funds__sum'] or 0
+            monthly_expense += card.expenses.filter(created_at__gte=start_of_month).aggregate(Sum('funds'))[
+                                   'funds__sum'] or 0
         card_income = sum(card.total_income or 0 for card in cards)
         card_expenses = sum(card.total_expense or 0 for card in cards)
 
-        return card_income, card_expenses, total_funds, card_funds
+        total_funds += card_funds
 
+        return daily_income, daily_expense, monthly_income, monthly_expense, card_income, card_expenses, total_funds, card_funds
     '''ниже нормальная версия, использовать при неуспехе'''
     # @staticmethod
     # def calculate_totals(user):
@@ -271,20 +287,23 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
     #     return total_income, total_expenses, total_funds, card_funds, card_income, card_expenses
 
     def get(self, request, *args, **kwargs):
-        user = self.request.user
-        balance = Balance.objects.filter(user=user).first()  # or create a new one
+        user_timezone_str = request.headers.get('Time-Zone', 'UTC')
+        user = request.user
+        balance, created = Balance.objects.get_or_create(user=user)
 
-        # total_income, total_expenses, total, card_funds, card_income, card_expenses = self.calculate_totals(user=user)
-        card_income, card_expenses, total, card_funds = self.calculate_totals(user=user)
+        daily_income, daily_expense, monthly_income, monthly_expense, card_income, card_expenses, total_funds, card_funds = self.calculate_totals(user, user_timezone_str)
+
+        balance.daily_income = daily_income
+        balance.daily_expense = daily_expense
+        balance.monthly_income = monthly_income
+        balance.monthly_expense = monthly_expense
         balance.total_income = card_income
         balance.total_expenses = card_expenses
-        balance.total = total
+        balance.total = total_funds
         balance.card_funds = card_funds
-        balance.card_income = card_income
-        balance.card_expenses = card_expenses
         balance.save()
 
-        serializer = self.get_serializer(balance)
+        serializer = self.serializer_class(balance)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):

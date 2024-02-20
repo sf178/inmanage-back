@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('object_id', models.PositiveIntegerField(blank=True, null=True)),
                 ('launch_status', models.BooleanField(blank=True, default=False, null=True)),
-                ('total_cost', models.FloatField(blank=True, default=0.0, null=True)),
+                ('total_actives_cost', models.FloatField(blank=True, default=0.0, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True, null=True)),
                 ('assets', models.ManyToManyField(blank=True, related_name='assets', to='inventory.inventoryasset')),
                 ('content_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),

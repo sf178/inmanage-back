@@ -16,13 +16,13 @@ from .serializers import *
 # from сars_parser.parser.main import get_average
 from .passives_scripts.transport_mark_model.main import set_mark_model
 
-
+### Кредиты
 class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = LoansSerializer
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return Loans.objects.filter(user=self.request.user)
+        return Loans.objects.filter(user=self.request.user, is_borrowed=False)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -35,7 +35,7 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         # if 'user' in serializer.validated_data:
         #     raise ValidationError("You cannot set the user manually.")
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user, is_borrowed=False)
 
 
 class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -44,7 +44,7 @@ class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return Loans.objects.filter(user=self.request.user)
+        return Loans.objects.filter(user=self.request.user, is_borrowed=False)
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -76,7 +76,73 @@ class LoansDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
-        return Loans.objects.filter(user=self.request.user)
+        return Loans.objects.filter(user=self.request.user, is_borrowed=False)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+### Займы
+class BorrowListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
+    serializer_class = LoansSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Loans.objects.filter(user=self.request.user, is_borrowed=True)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.perform_create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        # Проверка на наличие 'user' в data перед сохранением
+        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
+        # if 'user' in serializer.validated_data:
+        #     raise ValidationError("You cannot set the user manually.")
+        serializer.save(user=self.request.user, is_borrowed=True)
+
+
+class BorrowUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
+    serializer_class = LoansSerializer
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Loans.objects.filter(user=self.request.user, is_borrowed=True)
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # expenses_instances = []
+
+        if 'expenses' in request.data:
+            expenses_data = request.data.pop('expenses')
+            for expense in expenses_data:
+                expenses_serializer = PassiveExpensesSerializer(data=expense)
+                expenses_serializer.is_valid(raise_exception=True)
+                expenses_instance = expenses_serializer.save(user_id=instance.user.id, loan=instance)
+                instance.expenses.add(expenses_instance)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        #
+        # if expenses_instances:
+        #     instance.expenses.add(*[expense.id for expense in expenses_instances])
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
+
+
+class BorrowDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
+    serializer_class = LoansSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return Loans.objects.filter(user=self.request.user, is_borrowed=True)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
@@ -185,7 +251,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                     content_type=inventory.content_type,
                     object_id=inventory.object_id,
                     launch_status=False,
-                    total_cost=inventory.total_cost
+                    total_cost=inventory.total_actives_cost
                 )
                 # Копирование связанных assets и expenses
                 try:
@@ -397,6 +463,7 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
+
 
 # View mixin for retrieving, updating, and deleting a specific Expenses object
 class ExpensesDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):

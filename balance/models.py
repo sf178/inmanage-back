@@ -52,6 +52,10 @@ class Card(models.Model):
     expenses = models.ManyToManyField('Expenses', blank=True, related_name='+')
     total_expense = models.FloatField(blank=True, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_editable = models.BooleanField(blank=True, null=True, default=False)
+    is_business = models.BooleanField(blank=True, null=True, default=False)
+    is_deletable = models.BooleanField(blank=True, null=True, default=True)
+
     #image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
     history = HistoricalRecords()
 

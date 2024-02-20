@@ -39,11 +39,11 @@ urlpatterns = [
     path('deposits/del/<int:pk>/', ActivesDepositDeleteView.as_view(), name='deposit-delete'),
 
     # Loans URLs
-    path('loans/', ActivesLoansListView.as_view(), name='loans-list'),
-    # path('securities/create/', SecuritiesCreateView.as_view(), name='securities-create'),
-    path('loans/<int:pk>/', ActivesLoansDetailView.as_view(), name='loans-detail'),
-    path('loans/up/<int:pk>/', ActivesLoansUpdateView.as_view(), name='loans-update'),
-    path('loans/del/<int:pk>/', ActivesLoansDeleteView.as_view(), name='loans-delete'),
+    # path('loans/', ActivesLoansListView.as_view(), name='loans-list'),
+    # # path('securities/create/', SecuritiesCreateView.as_view(), name='securities-create'),
+    # path('loans/<int:pk>/', ActivesLoansDetailView.as_view(), name='loans-detail'),
+    # path('loans/up/<int:pk>/', ActivesLoansUpdateView.as_view(), name='loans-update'),
+    # path('loans/del/<int:pk>/', ActivesLoansDeleteView.as_view(), name='loans-delete'),
 
     path('incomes/', IncomeListView.as_view(), name='income-list'),
     path('incomes/<int:pk>', IncomeDetailView.as_view(), name='income-detail'),

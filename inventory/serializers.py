@@ -12,12 +12,12 @@ class InventoryAssetSerializer(serializers.ModelSerializer):
         fields= '__all__'
 
 
-class PreviousInventoryAssetSerializer(serializers.ModelSerializer):
-    created_at = CustomDateTimeField(required=False)
-
-    class Meta:
-        model = InventoryAsset
-        fields= '__all__'
+# class PreviousInventoryAssetSerializer(serializers.ModelSerializer):
+#     created_at = CustomDateTimeField(required=False)
+#
+#     class Meta:
+#         model = InventoryAsset
+#         fields= '__all__'
 
 
 class InventoryExpensesSerializer(serializers.ModelSerializer):
@@ -28,19 +28,19 @@ class InventoryExpensesSerializer(serializers.ModelSerializer):
         fields= '__all__'
 
 
-class PreviousInventorySerializer(serializers.ModelSerializer):
-    assets = PreviousInventoryAssetSerializer(many=True, read_only=True)
-    expenses = InventoryExpensesSerializer(many=True, read_only=True)
-    created_at = CustomDateTimeField(required=False)
-
-    class Meta:
-        model = Inventory
-        fields = '__all__'
+# class PreviousInventorySerializer(serializers.ModelSerializer):
+#     assets = PreviousInventoryAssetSerializer(many=True, read_only=True)
+#     expenses = InventoryExpensesSerializer(many=True, read_only=True)
+#     created_at = CustomDateTimeField(required=False)
+#
+#     class Meta:
+#         model = Inventory
+#         fields = '__all__'
 
 
 class InventorySerializer(serializers.ModelSerializer):
     assets = InventoryAssetSerializer(many=True, read_only=True)
-    previous_inventories = PreviousInventorySerializer(many=True, read_only=True)
+    # previous_inventories = PreviousInventorySerializer(many=True, read_only=True)
     expenses = InventoryExpensesSerializer(many=True, read_only=True)
     created_at = CustomDateTimeField(required=False)
 

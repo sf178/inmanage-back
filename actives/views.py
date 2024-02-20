@@ -14,6 +14,7 @@ from .models import *
 import passives.models as pas
 import inventory.models as inv
 from .serializers import *
+from balance.models import Card, Balance
 # from сars_parser.parser.main import get_average
 from .actives_scripts.transport_mark_model.main import set_mark_model
 
@@ -265,7 +266,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin, mixin
                     content_type=inventory.content_type,
                     object_id=inventory.object_id,
                     launch_status=False,
-                    total_cost=inventory.total_cost
+                    total_cost=inventory.total_actives_cost
                 )
                 # Копирование связанных assets и expenses
                 try:
@@ -434,7 +435,8 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
 
         # Получение ID только что созданного объекта Business
         business_id = serializer.instance.id
-
+        bal = Balance.objects.filter(user=self.request.user).first()
+        worth = serializer.instance.revenue + serializer.instance.own_funds + serializer.instance.third_party_tools
         actives_content_type = ContentType.objects.get_for_model(Actives)
 
         # Создание нового объекта Inventory, используя ID объекта Business
@@ -444,11 +446,21 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
             object_id=business_id,  # Здесь устанавливаем значение для object_id
             launch_status=False
         )
+        new_card = Card.objects.create(
+            bank=False,
+            user=serializer.instance.user,
+            loan=False,
+            currency=bal.currency,
+            name=serializer.instance.name,
+            remainder=worth,
+            is_business=True
+        )
 
         # Обновление поля equipment в объекте Property
-        property_instance = serializer.instance
-        property_instance.equipment = new_inventory
-        property_instance.save()
+        business_instance = serializer.instance
+        business_instance.equipment = new_inventory
+        business_instance.card = new_card
+        business_instance.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -527,63 +539,65 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         # serializer.is_valid(raise_exception=True)
         # self.perform_update(serializer)
         # return Response(serializer.data)
-    def update(self, request, *args, **kwargs):
-        business_instance = self.get_object()
-        inventory = business_instance.equipment
-        if not inventory:
-            if inventory.launch_status:
-                inventory.launch_status = not inventory.launch_status
-                inventory.save()
-                business_instance.save(update_fields=['equipment'])
-                serializer = PropertySerializer(business_instance)
-                return Response(serializer.data)
 
-            # Если уже существует Inventory с launch_status равным False
-            elif inventory.launch_status:
-                inventory.launch_status = False
-                # inventory.save()
-
-                # Создание объекта PreviousInventory на основе текущего состояния inventory
-                previous_inv = inv.PreviousInventory.objects.create(
-                    user=inventory.user,
-                    content_type=inventory.content_type,
-                    object_id=inventory.object_id,
-                    launch_status=False,
-                    total_cost=inventory.total_cost
-                )
-                # Копирование связанных assets и expenses
-                try:
-                    for asset in inventory.assets.all():
-                        prev_asset = inv.PreviousInventoryAsset.objects.create(
-                            user=asset.user,
-                            text=asset.text,
-                            added=asset.added,
-                            price=asset.price,
-                            flag=asset.flag
-                        )
-                        previous_inv.assets.add(prev_asset)
-                except:
-                    pass
-                try:
-                    for expense in inventory.expenses.all():
-                        previous_inv.expenses.add(expense)
-                except:
-                    pass
-
-                # Связь с предыдущим инвентарем
-                if inventory.previous_inventories.exists():
-                    last_previous_inventory = inventory.previous_inventories.latest('created_at')
-                    previous_inv.previous_inventory.set([last_previous_inventory])
-                    previous_inv.save()
-
-                # Добавляем созданный объект PreviousInventory в поле previous_inventories текущего inventory
-                inventory.previous_inventories.add(previous_inv)
-                inventory.save()  # Удостоверимся, что изменения сохранены
-
-                business_instance.save()
-
-            serializer = PropertySerializer(business_instance)
-            return Response(serializer.data)
+    ### Ниже часть с Инвентаризацией
+    # def update(self, request, *args, **kwargs):
+    #     business_instance = self.get_object()
+    #     inventory = business_instance.equipment
+    #     if not inventory:
+    #         if inventory.launch_status:
+    #             inventory.launch_status = not inventory.launch_status
+    #             inventory.save()
+    #             business_instance.save(update_fields=['equipment'])
+    #             serializer = PropertySerializer(business_instance)
+    #             return Response(serializer.data)
+    #
+    #         # Если уже существует Inventory с launch_status равным False
+    #         elif inventory.launch_status:
+    #             inventory.launch_status = False
+    #             # inventory.save()
+    #
+    #             # Создание объекта PreviousInventory на основе текущего состояния inventory
+    #             previous_inv = inv.PreviousInventory.objects.create(
+    #                 user=inventory.user,
+    #                 content_type=inventory.content_type,
+    #                 object_id=inventory.object_id,
+    #                 launch_status=False,
+    #                 total_cost=inventory.total_actives_cost
+    #             )
+    #             # Копирование связанных assets и expenses
+    #             try:
+    #                 for asset in inventory.assets.all():
+    #                     prev_asset = inv.PreviousInventoryAsset.objects.create(
+    #                         user=asset.user,
+    #                         text=asset.text,
+    #                         added=asset.added,
+    #                         price=asset.price,
+    #                         flag=asset.flag
+    #                     )
+    #                     previous_inv.assets.add(prev_asset)
+    #             except:
+    #                 pass
+    #             try:
+    #                 for expense in inventory.expenses.all():
+    #                     previous_inv.expenses.add(expense)
+    #             except:
+    #                 pass
+    #
+    #             # Связь с предыдущим инвентарем
+    #             if inventory.previous_inventories.exists():
+    #                 last_previous_inventory = inventory.previous_inventories.latest('created_at')
+    #                 previous_inv.previous_inventory.set([last_previous_inventory])
+    #                 previous_inv.save()
+    #
+    #             # Добавляем созданный объект PreviousInventory в поле previous_inventories текущего inventory
+    #             inventory.previous_inventories.add(previous_inv)
+    #             inventory.save()  # Удостоверимся, что изменения сохранены
+    #
+    #             business_instance.save()
+    #
+    #         serializer = PropertySerializer(business_instance)
+    #         return Response(serializer.data)
 
 
 class BusinessDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):

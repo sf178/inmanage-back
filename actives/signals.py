@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_save, post_delete, m2m_changed, pre_save, pre_delete
 from django.dispatch import receiver
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -11,6 +11,7 @@ from passives.models import Loans, MainLoans
 from balance import models as bal
 from django.db import transaction
 from balance.models import Card, Income, Expenses
+from inventory.models import Inventory, InventoryAsset
 
 
 @receiver(post_delete, sender=Property)
@@ -198,13 +199,16 @@ def delete_business(sender, instance, **kwargs):
     actives = Actives.objects.get(user=instance.user)
     main_businesses.businesses.remove(instance)
 
-    main_businesses.total_funds -= instance.revenue
+    main_businesses.total_funds -= instance.equipment.total_actives_cost
     main_businesses.total_income -= instance.total_income
     main_businesses.total_expenses -= instance.total_expense
     main_businesses.save(update_fields=['total_funds', 'total_income', 'total_expenses'])
 
     actives.total_funds -= instance.revenue
     actives.save()
+
+    if instance.card:
+            instance.card.delete()
 
 
 @receiver(post_save, sender=Transport)
@@ -373,7 +377,7 @@ def update_main_businesses(sender, instance, created, **kwargs):
             main_loans.total_funds -= instance.loan_link.sum
             main_loans.save(update_fields=['total_funds'])
         main_businesses.save(update_fields=['total_funds'])
-        actives.total_funds += instance.revenue
+        actives.total_funds += instance.total_worth
         actives.save()
 
 
@@ -391,7 +395,7 @@ def update_business_totals(sender, instance, created, **kwargs):
 
     old_income = instance.total_income or 0
     old_expense = instance.total_expense or 0
-
+    old_worth = instance.total_worth or 0
     # Проверяем, была ли изменена связь income или expenses.
     if sender == Business.income.through:
         instance.total_income = sum(income.funds for income in instance.income.all())
@@ -403,21 +407,35 @@ def update_business_totals(sender, instance, created, **kwargs):
         change_in_expense = instance.total_expense - old_expense
         main_businesses.total_expenses += change_in_expense
         actives.total_expenses += change_in_expense
+    elif sender == Business.equipment.assets:
+        instance.total_worth = instance.equipment.total_actives_cost
+        # change_in_worth = instance.total_worth - old_worth
+        # main_businesses.total_funds += change_in_worth
 
     # сохраняем изменения
-    instance.save(update_fields=['total_income', 'total_expense'])
+    instance.save(update_fields=['total_income', 'total_expense', 'total_worth'])
     main_businesses.save(update_fields=['total_income', 'total_expenses'])
     actives.save()
 
     del instance._updating_totals
 
+
 @receiver(m2m_changed, sender=Business.income.through)
 @receiver(m2m_changed, sender=Business.expenses.through)
-@receiver(m2m_changed, sender=Business.equipment)
 def update_business_totals_on_income_change(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
-        update_business_totals(sender=Business, instance=instance, created=False)
+        update_business_totals(sender=sender, instance=instance, created=False)
 
+
+@receiver(pre_save, sender=InventoryAsset)
+@receiver(pre_delete, sender=InventoryAsset)
+def inventory_asset_changed(sender, instance, **kwargs):
+    # Проверяем, связан ли InventoryAsset с Inventory, который в свою очередь связан с Business
+    if hasattr(instance, 'inventory') and instance.inventory:
+        inventory = instance.inventory
+        if inventory.content_type and inventory.content_type.model == 'business':
+            business_instance = inventory.content_type.get_object_for_this_type(id=inventory.object_id)
+            update_business_totals(sender=Business.equipment.assets, instance=business_instance)
 
 @receiver(post_save, sender=Property)
 def property_post_save(sender, instance, created, **kwargs):
