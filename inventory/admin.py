@@ -4,7 +4,7 @@ from .models import *
 
 @admin.register(Inventory)
 class InventoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'launch_status', 'total_actives_cost', 'created_at']
+    list_display = ['id', 'user', 'launch_status', 'created_at']
     search_fields = ['user__username', 'launch_status']
 
 
