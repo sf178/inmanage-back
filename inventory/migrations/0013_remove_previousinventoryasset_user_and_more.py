@@ -24,6 +24,11 @@ class Migration(migrations.Migration):
             field=models.FloatField(blank=True, default=0.0, null=True),
         ),
         migrations.AddField(
+            model_name='inventory',
+            name='total_actives_cost',
+            field=models.FloatField(blank=True, default=0.0, null=True),
+        ),
+        migrations.AddField(
             model_name='inventoryasset',
             name='count',
             field=models.FloatField(blank=True, default=0.0, null=True),
