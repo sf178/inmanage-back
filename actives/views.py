@@ -461,7 +461,7 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         business_instance.equipment = new_inventory
         business_instance.card = new_card
         business_instance.save()
-
+        bal.card_list.add(new_card)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
