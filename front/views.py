@@ -166,8 +166,8 @@ class ConfirmRegistrationView(APIView):
         user_data = request.data.copy()
         user_data["phone_number"] = temp_user.phone_number
 
-        user_serializer = CustomUserSerializer(data=user_data)
-        user_serializer.is_valid(raise_exception=True)
+        # user_serializer = CustomUserSerializer(data=user_data)
+        # user_serializer.is_valid(raise_exception=True)
 
         created_user = CustomUser.objects.create_user(phone_number=user_data['phone_number'], password=user_data["password"])
         profile = UserProfile.objects.get(user=created_user)
