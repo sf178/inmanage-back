@@ -171,8 +171,10 @@ class ConfirmRegistrationView(APIView):
 
         created_user = CustomUser.objects.create_user(phone_number=user_data['phone_number'], password=user_data["password"])
         profile = UserProfile.objects.get(user=created_user)
-        profile.name = user_data["name"]
-        profile.birthdate = user_data["birthdate"]
+        if user_data["name"]:
+            profile.name = user_data["name"]
+        if user_data["birthdate"]:
+            profile.birthdate = user_data["birthdate"]
         profile.save()
         # Удаление временного объекта пользователя
         temp_user.delete()
