@@ -80,7 +80,7 @@ class LoginView(APIView):
             password=serializer.validated_data['password'])
 
         if not user:
-            return Response({"error": "Invalid phone number or password"}, status="400")
+            return Response({"error": "Неправильный номер или пароль"}, status="400")
 
         Jwt.objects.filter(user_id=user.id).delete()
 
@@ -109,9 +109,14 @@ class RegisterView(APIView):
         phone_number = serializer.validated_data.pop("phone_number")
         # verification_code = str(random.randint(1000, 9999))
         # send_sms(phone_number, f"Your verification code is: {verification_code}")
+        user_exists = CustomUser.objects.filter(phone_number=phone_number).exists()
+        if user_exists:
+            return Response({"error": "Пользователь с данным номером уже существует."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         # temp_token = str(phone_number)[-4:]  # последние 4 цифры номера телефона
         temp_token = str(random.randint(1000, 9999))
+
         temp_user = TemporaryCustomUser.objects.filter(phone_number=phone_number).first()
         if temp_user:
             temp_user.temp_token = temp_token
@@ -124,7 +129,7 @@ class RegisterView(APIView):
         # Создание объекта TemporaryCustomUser с temp_token
 
 
-        return Response({"temp_token": temp_token, "message": "Verification code sent."},
+        return Response({"temp_token": temp_token, "message": "Код верификации отправлен в смс."},
                         status=status.HTTP_201_CREATED)
 
 
@@ -136,17 +141,17 @@ class ConfirmRegistrationView(APIView):
         verification_code = request.data.get("code")
 
         if not temp_token or not verification_code:
-            return Response({"error": "Missing required data."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Отсутствует промежуточный ключ."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Проверка кода (пока просто 1111)
         if verification_code != "1111":
-            return Response({"error": "Incorrect verification code."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Неправильный код верификации."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Получение объекта TemporaryCustomUser по temp_token
         try:
             temp_user = TemporaryCustomUser.objects.get(temp_token=temp_token)
         except TemporaryCustomUser.DoesNotExist:
-            return Response({"error": "Invalid token or data expired."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Неправильный или истекший токен."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Дешифровка пароля
 
@@ -188,12 +193,12 @@ class RefreshView(APIView):
             active_jwt = Jwt.objects.get(
                 refresh=serializer.validated_data["refresh"])
         except Jwt.DoesNotExist:
-            return Response({"error": "refresh token not found"}, status="400")
+            return Response({"error": "отсутствует токен"}, status="400")
         try:
             verification = Authentication.verify_token(serializer.validated_data["refresh"])
             if not verification:
                 return Response({
-                                "error": "Token is invalid or has expired"
+                                "error": "Токен истек или введен неправильно"
                                 # "timedelta": verification
                                  })
         except Exception as e:
