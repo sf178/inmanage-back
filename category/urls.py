@@ -5,6 +5,9 @@ from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
     path('personal/', PersonalExpenseCategoryListCreateView.as_view(), name='personal-category-list'),
+    path('personal/del/<int:pk>/', PersonalExpenseCategoryDeleteView.as_view(), name='general-category-delete'),
+    path('personal/up/<int:pk>/', PersonalExpenseCategoryUpdateView.as_view(), name='general-category-delete'),
+
     # path('asset/', AssetCategoryListCreateView.as_view(), name='asset-category-list'),
     # path('liability/', LiabilityCategoryListCreateView.as_view(), name='liability-category-list'),
     # path('general/', ExpenseGeneralCategoryListView.as_view(), name='general-category-list'),

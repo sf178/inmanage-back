@@ -44,6 +44,28 @@ class PersonalExpenseCategoryDetailView(mixins.RetrieveModelMixin, mixins.Update
         return self.destroy(request, *args, **kwargs)
 
 
+class PersonalExpenseCategoryDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = PersonalExpenseCategorySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return PersonalCategory.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class PersonalExpenseCategoryUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
+    serializer_class = PersonalExpenseCategorySerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return PersonalCategory.objects.filter(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
 # class AssetCategoryListCreateView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
 #     queryset = ActivesCategory.objects.all()
 #     serializer_class = AssetCategorySerializer
