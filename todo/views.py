@@ -56,16 +56,16 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         desc_list_data = request.data.pop('desc_list', [])
         task_serializer = self.get_serializer(data=request.data)
         task_serializer.is_valid(raise_exception=True)
-        task = task_serializer.save(user=self.request.user)
+        task = task_serializer.save(user=self.request.user.id)
         if 'project' in request.data:
             project_id = request.data['project']
-            project_instance = Project.objects.get(id=project_id, user=self.request.user.id)
+            project_instance = Project.objects.get(id=project_id, user=self.request.user)
             project_instance.tasks_list.add(task)
             task.project = project_instance
             task.save()  # Сохраняем изменение связанного проекта
         for item_data in desc_list_data:
             item_data['task'] = task.id
-            item_data['user'] = task.user
+            item_data['user'] = task.user.id
 
         item_serializer = TodoItemSerializer(data=desc_list_data, many=True)
         item_serializer.is_valid(raise_exception=True)
