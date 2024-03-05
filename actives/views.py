@@ -352,6 +352,9 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     lookup_field = 'id'
     permission_classes = [IsAuthenticatedCustom]
 
+    def get_queryset(self):
+        return Transport.objects.filter(user=self.request.user)
+
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         income_instances = []

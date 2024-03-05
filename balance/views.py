@@ -227,7 +227,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         # From Passives
         passive = Passives.objects.filter(user=user).first()
         if passive:
-            total_funds -= (passive.total_funds or 0)
+            total_funds += (passive.total_funds or 0)
 
         # From Cards
         cards = Card.objects.filter(user=user)
