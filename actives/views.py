@@ -365,7 +365,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for income in income_data:
                 income_serializer = ActivesIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=instance.user.id, transport=instance)
+                income_instance = income_serializer.save(user=instance.user, transport=instance)
                 income_instances.append(income_instance)
 
         if 'expenses' in request.data:
@@ -373,7 +373,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = ActivesExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user.id, transport=instance)
+                expenses_instance = expenses_serializer.save(user=instance.user, transport=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -506,7 +506,7 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for income in income_data:
                 income_serializer = ActivesIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
-                income_instance = income_serializer.save(user_id=instance.user.id, business=instance)
+                income_instance = income_serializer.save(user=instance.user, business=instance)
                 income_instances.append(income_instance)
 
         if 'expenses' in request.data:
@@ -514,7 +514,7 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             for expense in expenses_data:
                 expenses_serializer = ActivesExpensesSerializer(data=expense)
                 expenses_serializer.is_valid(raise_exception=True)
-                expenses_instance = expenses_serializer.save(user_id=instance.user.id, business=instance)
+                expenses_instance = expenses_serializer.save(user=instance.user, business=instance)
                 expenses_instances.append(expenses_instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
