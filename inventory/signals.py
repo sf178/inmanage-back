@@ -8,15 +8,18 @@ from django.contrib.contenttypes.models import ContentType
 
 @receiver(post_delete, sender=InventoryAsset)
 def update_inventory_total_cost_before_delete(sender, instance, **kwargs):
-    # Проверяем, связан ли asset с каким-либо инвентарем
     inventory = Inventory.objects.filter(assets=instance).first()
     if inventory:
-        # Вычитаем стоимость удаляемого asset из total_actives_cost инвентаря
-        instance.total_actives_cost = sum(
-            (asset.price * asset.count) for asset in instance.assets.all() if not asset.is_consumables)
-        instance.total_consumables_cost = sum(
-            (asset.price * asset.count) for asset in instance.assets.all() if asset.is_consumables)
+        # Пересчитываем стоимость активов и расходных материалов
+        inventory.total_actives_cost = sum((asset.price * asset.count) for asset in inventory.assets.all() if not asset.is_consumables)
+        inventory.total_consumables_cost = sum((asset.price * asset.count) for asset in inventory.assets.all() if asset.is_consumables)
+        inventory.save()
 
+        # Пересчитываем total_worth для связанного бизнеса, если есть
+        if inventory.content_type and inventory.content_type.model_class() == Business:
+            business_instance = Business.objects.get(id=inventory.object_id)
+            business_instance.total_worth = inventory.total_actives_cost
+            business_instance.save()
     # Пересчитываем total_worth для связанного бизнеса, если есть
 
 
