@@ -55,10 +55,12 @@ def create_passives(sender, instance, created, **kwargs):
         main_properties, _ = pas.MainProperties.objects.get_or_create(user=instance)
         main_transport, _ = pas.MainTransport.objects.get_or_create(user=instance)
         main_loans, _ = pas.MainLoans.objects.get_or_create(user=instance)
+        main_borrows, _ = pas.MainBorrows.objects.get_or_create(user=instance)
         passives.properties = main_properties
         passives.transports = main_transport
         passives.loans = main_loans
-        passives.save(update_fields=['properties', 'transports', 'loans'])
+        passives.borrows = main_borrows
+        passives.save(update_fields=['properties', 'transports', 'loans', 'borrows'])
         instance.all_passives = passives
         instance.save()
 
