@@ -421,8 +421,10 @@ def count_passives(sender, instance):
     #     total_funds += passives.businesses.total_funds or 0
     if passives.loans:
         total_funds += passives.loans.total_funds or 0
-    if passives.jewelries:
+    if passives.borrows:
         total_funds += passives.borrows.total_funds or 0
+    # if passives.jewelries:
+    #     total_funds += passives.borrows.total_funds or 0
     # if passives.deposits:
     #     total_funds += passives.deposits.total_funds or 0
 
