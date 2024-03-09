@@ -34,7 +34,7 @@ def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
         business_instance.save()
 
 
-@receiver(pre_delete, sender=InventoryAsset)
+@receiver(post_delete, sender=InventoryAsset)
 @receiver(pre_save, sender=InventoryAsset)
 def update_inventory_total_cost(sender, instance, **kwargs):
     # Предположим, что у InventoryAsset есть ForeignKey к Inventory
