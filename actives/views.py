@@ -439,7 +439,7 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         # Получение ID только что созданного объекта Business
         business_id = serializer.instance.id
         bal = Balance.objects.filter(user=self.request.user).first()
-        worth = serializer.instance.own_funds + serializer.instance.third_party_tools
+        worth = serializer.instance.own_funds_amount + serializer.instance.third_party_tools
         actives_content_type = ContentType.objects.get_for_model(Business)
 
         # Создание нового объекта Inventory, используя ID объекта Business
