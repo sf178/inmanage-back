@@ -275,7 +275,7 @@ def set_mainloans(sender, instance, created, **kwargs):
     if hasattr(instance, '_count'):
         return
     instance._count = True
-    instance.total_funds = sum(prop.bought_price for prop in instance.transport.all() if not prop.object_id)
+    instance.total_funds = sum(prop.bought_price for prop in instance.loans.all() if not prop.object_id)
     instance.save(update_fields=['total_funds'])
     del instance._count
 
@@ -284,6 +284,24 @@ def set_mainloans(sender, instance, created, **kwargs):
 def set_mainloans_totals(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
         set_mainloans(sender=sender, instance=instance, created=False)
+
+
+@transaction.atomic
+def set_mainborrows(sender, instance, created, **kwargs):
+    # main_properties = MainProperties.objects.get(user=instance.user)
+    # actives = Actives.objects.get(user=instance.user)
+    if hasattr(instance, '_count'):
+        return
+    instance._count = True
+    instance.total_funds = sum(prop.bought_price for prop in instance.borrows.all())
+    instance.save(update_fields=['total_funds'])
+    del instance._count
+
+
+@receiver(m2m_changed, sender=MainBorrows.borrows.through)
+def set_mainloans_totals(sender, instance, action, **kwargs):
+    if action in ["post_add", "post_remove", "post_clear"]:
+        set_mainborrows(sender=sender, instance=instance, created=False)
 
 
 @transaction.atomic
