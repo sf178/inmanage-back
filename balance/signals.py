@@ -107,43 +107,43 @@ def update_property_totals_on_income_change(sender, instance, action, **kwargs):
         update_card_totals(sender=sender, instance=instance, created=False)
 
 #
-# def decrease_remainder(writeoff_account, instance):
-#     writeoff_account.remainder = writeoff_account.remainder - instance.funds
-#     writeoff_account.save(update_fields=['remainder'])
-#
-#
-# def increase_remainder(writeoff_account, instance):
-#     writeoff_account.remainder = writeoff_account.remainder + instance.funds
-#     writeoff_account.save(update_fields=['remainder'])
+def decrease_remainder(writeoff_account, instance):
+    writeoff_account.remainder = writeoff_account.remainder - instance.funds
+    writeoff_account.save(update_fields=['remainder'])
 
 
-# @receiver(post_save, sender=Expenses)
-# @receiver(post_save, sender=Income)
-# def decrease_card_remainder(sender, instance, created, **kwargs):
-#     writeoff_account = instance.writeoff_account
-#     if writeoff_account:
-#         if sender == Expenses:
-#             decrease_remainder(writeoff_account, instance)
-#         if sender == Income:
-#             increase_remainder(writeoff_account, instance)
-#
-#
-# @receiver(post_delete, sender=Expenses)
-# @receiver(post_delete, sender=Income)
-# def increase_card_remainder(sender, instance, **kwargs):
-#     try:
-#         writeoff_account = instance.writeoff_account
-#         if writeoff_account:
-#             if sender == Expenses:
-#                 increase_remainder(writeoff_account, instance)
-#                 update_balance(sender=sender, instance=writeoff_account)
-#
-#             if sender == Income:
-#                 decrease_remainder(writeoff_account, instance)
-#                 update_balance(sender=sender, instance=writeoff_account)
-#
-#     except:
-#         pass
+def increase_remainder(writeoff_account, instance):
+    writeoff_account.remainder = writeoff_account.remainder + instance.funds
+    writeoff_account.save(update_fields=['remainder'])
+
+
+@receiver(post_save, sender=Expenses)
+@receiver(post_save, sender=Income)
+def decrease_card_remainder(sender, instance, created, **kwargs):
+    writeoff_account = instance.writeoff_account
+    if writeoff_account:
+        if sender == Expenses:
+            decrease_remainder(writeoff_account, instance)
+        if sender == Income:
+            increase_remainder(writeoff_account, instance)
+
+
+@receiver(post_delete, sender=Expenses)
+@receiver(post_delete, sender=Income)
+def increase_card_remainder(sender, instance, **kwargs):
+    try:
+        writeoff_account = instance.writeoff_account
+        if writeoff_account:
+            if sender == Expenses:
+                increase_remainder(writeoff_account, instance)
+                update_balance(sender=sender, instance=writeoff_account)
+
+            if sender == Income:
+                decrease_remainder(writeoff_account, instance)
+                update_balance(sender=sender, instance=writeoff_account)
+
+    except:
+        pass
 
 #
 # @receiver(post_delete, sender=act.ActivesExpenses)
