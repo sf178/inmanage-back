@@ -23,7 +23,7 @@ def update_inventory_total_cost_before_delete(sender, instance, **kwargs):
 
 @receiver(m2m_changed, sender=Inventory.assets.through)
 def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
-    if action in ["post_add", "post_remove", "post_clear", "post_save"]:
+    if action in ["post_add", "post_remove", "post_clear", "post_save", "post_delete"]:
         instance.total_actives_cost = sum((asset.price * asset.count) for asset in instance.assets.all() if not asset.is_consumables)
         instance.total_consumables_cost = sum((asset.price * asset.count) for asset in instance.assets.all() if asset.is_consumables)
 
@@ -35,7 +35,7 @@ def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
 
 
 @receiver(post_delete, sender=InventoryAsset)
-@receiver(pre_save, sender=InventoryAsset)
+@receiver(post_save, sender=InventoryAsset)
 def update_inventory_total_cost(sender, instance, **kwargs):
     # Предположим, что у InventoryAsset есть ForeignKey к Inventory
     inventory = instance.inventory
