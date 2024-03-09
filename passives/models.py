@@ -1,4 +1,4 @@
-
+from django.contrib.contenttypes.models import ContentType
 # Create your models here.
 from django.db import models
 from datetime import datetime
@@ -23,6 +23,8 @@ class Loans(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
     is_borrowed = models.BooleanField(default=False, blank=True, null=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -178,6 +180,15 @@ class MainLoans(models.Model):
     loans = models.ManyToManyField(Loans, blank=True)
 
 
+class MainBorrows(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
+    total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    total_expenses = models.FloatField(blank=True, null=True, default=0.0)
+    borrows = models.ManyToManyField(Loans, blank=True)
+
+
+
 class Passives(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
@@ -186,6 +197,7 @@ class Passives(models.Model):
     properties = models.ForeignKey(MainProperties, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='+')
     transports = models.ForeignKey(MainTransport, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='+')
     loans = models.ForeignKey(MainLoans, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='+')
+    borrows = models.ForeignKey(MainBorrows, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='+')
 
     def __str__(self):
         return f'ID: {self.id}'

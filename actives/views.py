@@ -439,8 +439,8 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         # Получение ID только что созданного объекта Business
         business_id = serializer.instance.id
         bal = Balance.objects.filter(user=self.request.user).first()
-        worth = serializer.instance.revenue + serializer.instance.own_funds + serializer.instance.third_party_tools
-        actives_content_type = ContentType.objects.get_for_model(Actives)
+        worth = serializer.instance.own_funds + serializer.instance.third_party_tools
+        actives_content_type = ContentType.objects.get_for_model(Business)
 
         # Создание нового объекта Inventory, используя ID объекта Business
         new_inventory = inv.Inventory.objects.create(
@@ -456,7 +456,9 @@ class BusinessListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
             currency=bal.currency,
             name=serializer.instance.name,
             remainder=worth,
-            is_business=True
+            is_business=True,
+            is_editable=True,
+            is_deletable=True
         )
 
         # Обновление поля equipment в объекте Property

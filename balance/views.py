@@ -358,7 +358,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user, is_editable=True, is_deletable=True)
 # class BalanceUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 #     queryset = Balance.objects.all()
 #     serializer_class = BalanceSerializer

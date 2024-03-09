@@ -40,7 +40,7 @@ class InventoryAsset(models.Model):
     id = models.AutoField(primary_key=True)
     inventory = models.ForeignKey('inventory.Inventory', on_delete=models.CASCADE, null=True, blank=True, related_name='+')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
-    count = models.FloatField(default=0.0, null=True, blank=True)
+    count = models.FloatField(default=1.0, null=True, blank=True)
     added = models.BooleanField(default=False, null=True, blank=True)
     text = models.TextField(null=True, blank=True)
     price = models.FloatField(default=0.0, null=True, blank=True)

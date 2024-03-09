@@ -6,25 +6,32 @@ from actives.models import Business
 from django.contrib.contenttypes.models import ContentType
 
 
-@receiver(pre_delete, sender=InventoryAsset)
+@receiver(post_delete, sender=InventoryAsset)
 def update_inventory_total_cost_before_delete(sender, instance, **kwargs):
     # Проверяем, связан ли asset с каким-либо инвентарем
     inventory = Inventory.objects.filter(assets=instance).first()
     if inventory:
         # Вычитаем стоимость удаляемого asset из total_actives_cost инвентаря
-        inventory.total_actives_cost -= instance.price
-        inventory.save()
-        # Пересчитываем total_worth для связанного бизнеса, если есть
+        instance.total_actives_cost = sum(
+            (asset.price * asset.count) for asset in instance.assets.all() if not asset.is_consumables)
+        instance.total_consumables_cost = sum(
+            (asset.price * asset.count) for asset in instance.assets.all() if asset.is_consumables)
+
+    # Пересчитываем total_worth для связанного бизнеса, если есть
 
 
 
 @receiver(m2m_changed, sender=Inventory.assets.through)
 def recalculate_inventory_total_cost(sender, instance, action, **kwargs):
-    if action in ["post_add", "post_remove", "post_clear"]:
-        instance.total_actives_cost = sum(asset.price for asset in instance.assets.all() if not asset.is_consumables)
-        instance.total_consumables_cost = sum(asset.price for asset in instance.assets.all() if asset.is_consumables)
+    if action in ["post_add", "post_remove", "post_clear", "post_save"]:
+        instance.total_actives_cost = sum((asset.price * asset.count) for asset in instance.assets.all() if not asset.is_consumables)
+        instance.total_consumables_cost = sum((asset.price * asset.count) for asset in instance.assets.all() if asset.is_consumables)
 
         instance.save()
+
+        business_instance = Business.objects.get(id=instance.object_id)
+        business_instance.total_worth = instance.total_actives_cost
+        business_instance.save()
 
 
 @receiver(pre_delete, sender=InventoryAsset)

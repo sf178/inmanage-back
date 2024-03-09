@@ -190,7 +190,7 @@ class RefreshView(APIView):
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        request
+        # request
         try:
             active_jwt = Jwt.objects.get(
                 refresh=serializer.validated_data["refresh"])
@@ -200,7 +200,7 @@ class RefreshView(APIView):
             verification = Authentication.verify_token(serializer.validated_data["refresh"])
             if not verification:
                 return Response({
-                                "error": "Токен истек или введен неправильно"
+                                "error": "Некорректный токен"
                                 # "timedelta": verification
                                  })
         except Exception as e:
