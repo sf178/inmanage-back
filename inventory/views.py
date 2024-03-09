@@ -56,7 +56,8 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 
                 if delete_flag and asset_id:
                     # Удаляем объект по ID
-                    InventoryAsset.objects.filter(id=asset_id).delete()
+                    asset = InventoryAsset.objects.get(id=asset_id)
+                    asset.delete()
                 elif asset_id is None:
                     # Создаем новый объект
                     asset_serializer = InventoryAssetSerializer(data=asset_data)
