@@ -69,6 +69,10 @@ class Inventory(models.Model):
     def __str__(self):
         return f"Inventory {self.id} - {self.user}"
 
+    def recalculate_totals(self):
+        self.total_actives_cost = sum((asset.price * asset.count) for asset in self.assets.all() if not asset.is_consumables)
+        self.total_consumables_cost = sum((asset.price * asset.count) for asset in self.assets.all() if asset.is_consumables)
+        self.save()
 
 class InventoryExpenses(models.Model):
     id = models.AutoField(primary_key=True)

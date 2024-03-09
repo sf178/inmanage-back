@@ -70,6 +70,7 @@ class InventoryUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                     asset_serializer = InventoryAssetSerializer(asset_instance, data=asset_data, partial=True)
                     asset_serializer.is_valid(raise_exception=True)
                     asset_serializer.save()
+        instance.recalculate_totals()
 
         if 'expenses' in request.data:
             expenses_data = request.data.pop('expenses')
