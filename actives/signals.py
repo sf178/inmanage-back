@@ -99,21 +99,21 @@ def delete_deposits(sender, instance, **kwargs):
 
 
 @transaction.atomic
-def set_maindeposits(sender, instance, created, **kwargs):
+def set_mainsecurities(sender, instance, created, **kwargs):
     # main_properties = MainProperties.objects.get(user=instance.user)
     # actives = Actives.objects.get(user=instance.user)
     if hasattr(instance, '_count'):
         return
     instance._count = True
-    instance.total_funds = sum(prop.sum for prop in instance.deposits.all())
+    instance.total_funds = sum(prop.sum for prop in instance.securities.all())
     instance.save(update_fields=['total_funds'])
     del instance._count
 
 
 @receiver(m2m_changed, sender=MainSecurities.securities.through)
-def set_maindeposits_totals(sender, instance, action, **kwargs):
+def set_mainsecurities_totals(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
-        set_maindeposits(sender=sender, instance=instance, created=False)
+        set_mainsecurities(sender=sender, instance=instance, created=False)
 
 
 # Конец раздела
