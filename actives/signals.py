@@ -483,20 +483,36 @@ def set_mainbusiness_totals(sender, instance, action, **kwargs):
 def count_actives(sender, instance):
     actives = Actives.objects.get(user=instance.user)
     total_funds = 0
+    total_income = 0
+    total_expenses = 0
     if actives.properties:
         total_funds += actives.properties.total_funds or 0
+        total_income += actives.properties.total_income or 0
+        total_expenses += actives.properties.total_expenses or 0
     if actives.transports:
         total_funds += actives.transports.total_funds or 0
+        total_income += actives.transports.total_income or 0
+        total_expenses += actives.transports.total_expenses or 0
     if actives.businesses:
         total_funds += actives.businesses.total_funds or 0
+        total_income += actives.businesses.total_income or 0
+        total_expenses += actives.businesses.total_expenses or 0
     if actives.securities:
         total_funds += actives.securities.total_funds or 0
+        total_income += actives.securities.total_income or 0
+        total_expenses += actives.securities.total_expenses or 0
     if actives.jewelries:
         total_funds += actives.jewelries.total_funds or 0
+        total_income += actives.jewelries.total_income or 0
+        total_expenses += actives.jewelries.total_expenses or 0
     if actives.deposits:
         total_funds += actives.deposits.total_funds or 0
+        total_income += actives.deposits.total_income or 0
+        total_expenses += actives.deposits.total_expenses or 0
 
     actives.total_funds = total_funds
+    actives.total_income = total_income
+    actives.total_expenses = total_expenses
     actives.save()
 
 

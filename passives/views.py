@@ -15,6 +15,16 @@ from .models import *
 from .serializers import *
 # from сars_parser.parser.main import get_average
 from .passives_scripts.transport_mark_model.main import set_mark_model
+from .signals import (
+    count_prop_income_expenses,
+    set_mainproperties,
+    set_mainloans,
+    set_mainborrows,
+    set_maintransport,
+    count_transport_income_expenses,
+    count_passives
+)
+
 
 ### Кредиты
 class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
@@ -28,7 +38,9 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.perform_create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+
+        return self.perform_create(serializer)
 
     def perform_create(self, serializer):
         # Проверка на наличие 'user' в data перед сохранением
@@ -94,7 +106,9 @@ class BorrowListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.perform_create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+
+        return self.perform_create(serializer)
 
     def perform_create(self, serializer):
         # Проверка на наличие 'user' в data перед сохранением
@@ -408,10 +422,35 @@ class PassivesListView(generics.ListAPIView):
         return Passives.objects.filter(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        user = request.user.id
+        user = request.user
 
-        instance = Passives.objects.filter(user=user).first()
-        serializer = self.get_serializer(instance)
+        # Пересчет общих моделей пассивов
+        main_properties = MainProperties.objects.filter(user=user).first()
+        if main_properties:
+            count_prop_income_expenses(main_properties)
+            set_mainproperties(None, main_properties, "post_add")
+
+        main_transport = MainTransport.objects.filter(user=user).first()
+        if main_transport:
+            count_transport_income_expenses(main_transport)
+            set_maintransport(None, main_transport, "post_add")
+
+        main_loans = MainLoans.objects.filter(user=user).first()
+        if main_loans:
+            set_mainloans(None, main_loans, "post_add")
+
+        main_borrows = MainBorrows.objects.filter(user=user).first()
+        if main_borrows:
+            set_mainborrows(None, main_borrows, "post_add")
+
+        # Пересчет самой модели пассивов
+        passives = Passives.objects.filter(user=user).first()
+        if passives:
+            count_passives(None, passives)
+
+        # Получение обновленной инстанции и сериализация данных
+        passives = Passives.objects.filter(user=user).first()
+        serializer = self.get_serializer(passives)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
         # return self.list(request, *args, **kwargs)

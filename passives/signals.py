@@ -431,22 +431,28 @@ def property_post_save(sender, instance, created, **kwargs):
 def count_passives(sender, instance):
     passives = Passives.objects.get(user=instance.user)
     total_funds = 0
+    total_expenses = 0
     if passives.properties:
         total_funds += passives.properties.total_funds or 0
+        total_expenses += passives.properties.total_expenses or 0
     if passives.transports:
         total_funds += passives.transports.total_funds or 0
+        total_expenses += passives.transports.total_expenses or 0
     # if passives.businesses:
     #     total_funds += passives.businesses.total_funds or 0
     if passives.loans:
         total_funds += passives.loans.total_funds or 0
+        total_expenses += passives.loans.total_expenses or 0
     if passives.borrows:
         total_funds += passives.borrows.total_funds or 0
+        total_expenses += passives.borrows.total_expenses or 0
     # if passives.jewelries:
     #     total_funds += passives.borrows.total_funds or 0
     # if passives.deposits:
     #     total_funds += passives.deposits.total_funds or 0
 
     passives.total_funds = total_funds
+    passives.total_expenses = total_expenses
     passives.save()
 
 
@@ -457,72 +463,6 @@ def count_passives(sender, instance):
 def set_passives(sender, instance, **kwargs):
     count_passives(sender, instance)
 
-#
-#
-#
-# def update_main_totals(instance, related_field):
-#     total_funds = 0.0
-#     total_expenses = 0.0
-#     related_objects = getattr(instance, related_field).all()
-#
-#     for obj in related_objects:
-#         total_funds += getattr(obj, 'actual_price', 0.0) or getattr(obj, 'remainder', 0.0) or getattr(obj, 'bought_price', 0.0)
-#         total_expense = getattr(obj, 'total_expense', 0.0)
-#         total_expenses += total_expense if total_expense is not None else 0.0
-#
-#     if hasattr(instance, 'total_funds'):
-#         instance.total_funds = total_funds
-#         instance.save(update_fields=['total_funds'])
-#     instance.total_expenses = total_expenses
-#     instance.save() # update_fields=['total_expenses']
-#
-#
-# @receiver(m2m_changed, sender=MainProperties.properties.through)
-# def update_main_properties_totals(sender, instance, action, **kwargs):
-#     if action == 'post_add':
-#         update_main_totals(instance, 'properties')
-#
-#
-# @receiver(m2m_changed, sender=MainTransport.transport.through)
-# def update_main_transport_totals(sender, instance, action, **kwargs):
-#     if action == 'post_add':
-#         update_main_totals(instance, 'transport')
-#
-#
-# @receiver(m2m_changed, sender=MainLoans.loans.through)
-# def update_main_loans_totals(sender, instance, action, **kwargs):
-#     if action == 'post_add':
-#         update_main_totals(instance, 'loans')
-
-#
-# @receiver(post_save, sender=MainProperties)
-# @receiver(post_save, sender=MainTransport)
-# @receiver(post_save, sender=MainLoans)
-# def update_passives_totals(sender, instance, **kwargs):
-#     passives = Passives.objects.get(user=instance.user)
-#     total_funds = 0
-#     total_expenses = 0
-#     if passives.properties:
-#         total_funds += passives.properties.total_funds or 0
-#         total_expenses += passives.properties.total_expenses or 0
-#     if passives.transports:
-#         total_funds += passives.transports.total_funds or 0
-#         total_expenses += passives.transports.total_expenses or 0
-#     if passives.loans:
-#         total_funds += passives.loans.total_funds or 0
-#         total_expenses += passives.loans.total_expenses or 0
-#
-#     # Получение объектов MainProperties, MainTransport и MainLoans для данного пользователя
-#     # total_funds = (passives.properties.total_funds or 0) + (passives.transports.total_funds or 0) + \
-#     #               (passives.loans.total_funds or 0)
-#     # total_expenses = (passives.properties.total_expenses or 0) + (passives.transports.total_expenses or 0) + \
-#     #                  (passives.loans.total_expenses or 0)
-#     # Суммирование полей total_funds и total_expenses из всех связанных объектов
-#     passives.total_funds = total_funds
-#     passives.total_expenses = total_expenses
-#
-#     # Сохранение обновленного объекта Passives
-#     passives.save()
 
 
 
