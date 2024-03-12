@@ -360,8 +360,8 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         income_instances = []
         expenses_instances = []
 
-        if 'income' in request.data:
-            income_data = request.data.pop('income')
+        if 'incomes' in request.data:
+            income_data = request.data.pop('incomes')
             for income in income_data:
                 income_serializer = ActivesIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
@@ -503,8 +503,8 @@ class BusinessUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         income_instances = []
         expenses_instances = []
 
-        if 'income' in request.data:
-            income_data = request.data.pop('income')
+        if 'incomes' in request.data:
+            income_data = request.data.pop('incomes')
             for income in income_data:
                 income_serializer = ActivesIncomeSerializer(data=income)
                 income_serializer.is_valid(raise_exception=True)
