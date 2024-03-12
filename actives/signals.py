@@ -36,7 +36,7 @@ def set_mainjewerlies(sender, instance, created, **kwargs):
 
 
 @receiver(m2m_changed, sender=MainJewelry.jewelries.through)
-def set_mainproperties_totals(sender, instance, action, **kwargs):
+def set_mainjewelries_totals(sender, instance, action, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
         set_mainjewerlies(sender=sender, instance=instance, created=False)
 
@@ -55,7 +55,7 @@ def delete_jewelries(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Securities)
-def update_main_jewelries(sender, instance, created, **kwargs):
+def update_main_securities(sender, instance, created, **kwargs):
     main_securities = MainSecurities.objects.get(user=instance.user)
     if created:
         main_securities.securities.add(instance)
@@ -96,6 +96,24 @@ def update_main_deposits(sender, instance, created, **kwargs):
 def delete_deposits(sender, instance, **kwargs):
     main_deposits = MainDeposits.objects.get(user=instance.user)
     main_deposits.deposits.remove(instance)
+
+
+@transaction.atomic
+def set_maindeposits(sender, instance, created, **kwargs):
+    # main_properties = MainProperties.objects.get(user=instance.user)
+    # actives = Actives.objects.get(user=instance.user)
+    if hasattr(instance, '_count'):
+        return
+    instance._count = True
+    instance.total_funds = sum(prop.sum for prop in instance.deposits.all())
+    instance.save(update_fields=['total_funds'])
+    del instance._count
+
+
+@receiver(m2m_changed, sender=MainDeposits.deposits.through)
+def set_maindeposits_totals(sender, instance, action, **kwargs):
+    if action in ["post_add", "post_remove", "post_clear"]:
+        set_maindeposits(sender=sender, instance=instance, created=False)
 
 
 @transaction.atomic

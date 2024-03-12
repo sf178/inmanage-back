@@ -17,6 +17,15 @@ from .serializers import *
 from balance.models import Card, Balance
 # from сars_parser.parser.main import get_average
 from .actives_scripts.transport_mark_model.main import set_mark_model
+from .signals import (
+    set_mainproperties_totals,
+    set_maintransport_totals,
+    set_mainbusiness_totals,
+    set_mainjewelries_totals,
+    set_mainsecurities_totals,
+    set_maindeposits_totals,
+    count_actives
+)
 
 
 class JewelryListView(mixins.ListModelMixin, generics.GenericAPIView, mixins.CreateModelMixin):
@@ -707,8 +716,40 @@ class ActiveList(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
 
-        instance = self.get_queryset().first()  # Note: This only returns the first active for the user
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        def get(self, request, *args, **kwargs):
+            # Пересчёт общих моделей активов
+            main_properties = MainProperties.objects.filter(user=request.user).first()
+            if main_properties:
+                set_mainproperties_totals(None, main_properties, "post_add")
+
+            main_transport = MainTransport.objects.filter(user=request.user).first()
+            if main_transport:
+                set_maintransport_totals(None, main_transport, "post_add")
+
+            main_businesses = MainBusinesses.objects.filter(user=request.user).first()
+            if main_businesses:
+                set_mainbusiness_totals(None, main_businesses, "post_add")
+
+            main_jewelries = MainJewelry.objects.filter(user=request.user).first()
+            if main_jewelries:
+                set_mainjewelries_totals(None, main_jewelries, "post_add")
+
+            main_securities = MainSecurities.objects.filter(user=request.user).first()
+            if main_securities:
+                set_mainsecurities_totals(None, main_securities, "post_add")
+
+            main_deposits = MainDeposits.objects.filter(user=request.user).first()
+            if main_deposits:
+                set_maindeposits_totals(None, main_deposits, "post_add")
+
+            # Пересчёт самого объекта активов
+            instance = self.get_queryset().first()
+            if instance:
+                count_actives(None, instance)
+
+            instance = self.get_queryset().first()
+
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
