@@ -338,6 +338,8 @@ class MainJewelry(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    total_income = models.FloatField(blank=True, null=True, default=0.0)
+    total_expenses = models.FloatField(blank=True, null=True, default=0.0)
     jewelries = models.ManyToManyField(Jewelry, blank=True, null=True)
 
 
@@ -345,6 +347,8 @@ class MainSecurities(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    total_income = models.FloatField(blank=True, null=True, default=0.0)
+    total_expenses = models.FloatField(blank=True, null=True, default=0.0)
     securities = models.ManyToManyField(Securities, blank=True, null=True)
 
 
@@ -352,6 +356,8 @@ class MainDeposits(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
+    total_income = models.FloatField(blank=True, null=True, default=0.0)
+    total_expenses = models.FloatField(blank=True, null=True, default=0.0)
     deposits = models.ManyToManyField('actives_deposit.ActivesDeposit', blank=True, null=True)
 
 
