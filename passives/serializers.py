@@ -5,6 +5,8 @@ from test_backend.custom_methods import CustomDateTimeField
 
 
 class LoansSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
