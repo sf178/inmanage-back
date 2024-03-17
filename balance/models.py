@@ -55,6 +55,7 @@ class Card(models.Model):
     is_editable = models.BooleanField(blank=True, null=True, default=True)
     is_business = models.BooleanField(blank=True, null=True, default=False)
     is_deletable = models.BooleanField(blank=True, null=True, default=True)
+    is_visible = models.BooleanField(blank=True, null=True, default=True)
 
     #image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
     history = HistoricalRecords()
