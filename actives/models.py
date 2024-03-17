@@ -57,6 +57,7 @@ class Securities(models.Model):
     total_income = models.FloatField(blank=True, null=True, default=0.0)
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
     count = models.IntegerField(blank=True, null=True)
+    sum = models.FloatField(blank=True, null=True, default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 

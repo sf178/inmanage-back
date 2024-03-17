@@ -57,6 +57,8 @@ def delete_jewelries(sender, instance, **kwargs):
 @receiver(post_save, sender=Securities)
 def update_main_securities(sender, instance, created, **kwargs):
     main_securities = MainSecurities.objects.get(user=instance.user)
+    instance.sum = instance.count * instance.cost
+    instance.save(update_fields=['sum'])
     if created:
         main_securities.securities.add(instance)
 

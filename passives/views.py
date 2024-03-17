@@ -47,7 +47,8 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         # if 'user' in serializer.validated_data:
         #     raise ValidationError("You cannot set the user manually.")
-        serializer.save(user=self.request.user, is_borrowed=False)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=self.request.user, is_borrowed=False)
 
 
 class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -115,13 +116,14 @@ class BorrowListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         # if 'user' in serializer.validated_data:
         #     raise ValidationError("You cannot set the user manually.")
-        borrow = serializer.save(user=self.request.user, is_borrowed=True)
+        if serializer.is_valid(raise_exception=True):
+            borrow = serializer.save(user=self.request.user, is_borrowed=True)
 
         # Затем получаем или создаем объект MainBorrow для текущего пользователя
-        main_borrow, created = MainBorrows.objects.get_or_create(user=self.request.user)
+            main_borrow, created = MainBorrows.objects.get_or_create(user=self.request.user)
 
         # Добавляем созданный объект Borrow в поле borrows объекта MainBorrow
-        main_borrow.borrows.add(borrow)
+            main_borrow.borrows.add(borrow)
 
 
 class BorrowUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -215,6 +217,7 @@ class PropertyListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Up
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
+
 
 class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = PropertySerializer
