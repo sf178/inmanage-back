@@ -18,7 +18,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 def create_balance(sender, instance, created, **kwargs):
     if created:
         balance = bal.Balance.objects.create(user=instance)
-        card = bal.Card.objects.create(user=instance, name='Наличный счет', bank=False, loan=False, currency='RUB', )
+        card = bal.Card.objects.create(user=instance, name='Наличный счет', bank=False, loan=False, currency='RUB', is_deletable=False)
         balance.card_list.add(card)
         balance.save()
         instance.balance = balance
