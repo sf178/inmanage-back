@@ -62,11 +62,20 @@ class MainTransportSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MainBorrowsSerializer(serializers.ModelSerializer):
+    borrows = LoansSerializer(many=True, read_only=True, required=False, allow_null=True)
+    created_at = CustomDateTimeField(required=False)
+
+    class Meta:
+        model = MainBorrows
+        fields = '__all__'
+
+
 class PassivesSerializer(serializers.ModelSerializer):
     properties = MainPropertiesSerializer(read_only=True, required=False, allow_null=True)
     transports = MainTransportSerializer(read_only=True, required=False, allow_null=True)
     loans = MainLoansSerializer(read_only=True, required=False, allow_null=True)
-    borrows = MainLoansSerializer(read_only=True, required=False, allow_null=True)
+    borrows = MainBorrowsSerializer(read_only=True, required=False, allow_null=True)
 
     created_at = CustomDateTimeField(required=False)
 
