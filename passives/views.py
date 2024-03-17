@@ -107,7 +107,7 @@ class BorrowListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data, user=self.request.user)
 
         return self.perform_create(serializer)
 
