@@ -66,6 +66,8 @@ class PassivesSerializer(serializers.ModelSerializer):
     properties = MainPropertiesSerializer(read_only=True, required=False, allow_null=True)
     transports = MainTransportSerializer(read_only=True, required=False, allow_null=True)
     loans = MainLoansSerializer(read_only=True, required=False, allow_null=True)
+    borrows = MainLoansSerializer(read_only=True, required=False, allow_null=True)
+
     created_at = CustomDateTimeField(required=False)
 
     class Meta:
