@@ -275,7 +275,7 @@ def set_mainloans(sender, instance, created, **kwargs):
     if hasattr(instance, '_count'):
         return
     instance._count = True
-    instance.total_funds = sum(prop.bought_price for prop in instance.loans.all() if not prop.object_id)
+    instance.total_funds = sum(prop.sum for prop in instance.loans.all() if not prop.object_id)
     instance.save(update_fields=['total_funds'])
     del instance._count
 
@@ -293,7 +293,7 @@ def set_mainborrows(sender, instance, created, **kwargs):
     if hasattr(instance, '_count'):
         return
     instance._count = True
-    instance.total_funds = sum(prop.bought_price for prop in instance.borrows.all())
+    instance.total_funds = sum(prop.sum for prop in instance.borrows.all())
     instance.save(update_fields=['total_funds'])
     del instance._count
 
