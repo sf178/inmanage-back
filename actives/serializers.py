@@ -13,6 +13,21 @@ def serialize_object_to_json(obj):
 
 
 class JewelrySerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        return Jewelry.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.purchase_cost = validated_data.get('purchase_cost', instance.purchase_cost)
+        instance.estimated_cost = validated_data.get('estimated_cost', instance.estimated_cost)
+        instance.comment = validated_data.get('comment', instance.comment)
+        if 'photo' in validated_data:
+            instance.photo.delete(save=False)  # Удалить старое изображение, не сохраняя объект
+            instance.photo = validated_data.get('photo')
+        instance.save()
+        return instance
+
     class Meta:
         model = Jewelry
         fields = '__all__'
@@ -56,13 +71,37 @@ class PropertySerializer(serializers.ModelSerializer):
     #     return instance
 
 
+class TransportImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransportImage
+        fields = ('image',)
+
+
 class TransportSerializer(serializers.ModelSerializer):
     loan_link = pas.LoansSerializer(many=False, required=False)
     created_at = CustomDateTimeField(required=False)
+    images = TransportImageSerializer(many=True, required=False)
 
     class Meta:
         model = Transport
         fields = '__all__'
+
+    def create(self, validated_data):
+        images_data = validated_data.pop('images', None)
+        transport = Transport.objects.create(**validated_data)
+        if images_data:
+            for image_data in images_data:
+                TransportImage.objects.create(transport=transport, **image_data)
+        return transport
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+        # Обновите поля instance здесь
+        if images_data:
+            instance.images.all().delete()  # Перед добавлением новых изображений удаляем старые
+            for image_data in images_data:
+                TransportImage.objects.create(transport=instance, **image_data)
+        return super().update(instance, validated_data)
 
 
 class BusinessSerializer(serializers.ModelSerializer):

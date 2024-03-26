@@ -117,6 +117,13 @@ def increase_remainder(writeoff_account, instance):
     writeoff_account.save(update_fields=['remainder'])
 
 
+@receiver(post_save, sender=Card)
+def create_linked_loan(sender, instance, created, **kwargs):
+    if instance.loan and created:
+        loan = pas.Loans.objects.create(user=instance.user, sum=instance.remainder, percentage=instance.percent, name=instance.name)
+        instance.loan_link = loan
+        instance.save(update_fields=['loan_link'])
+
 @receiver(post_save, sender=Expenses)
 @receiver(post_save, sender=Income)
 def decrease_card_remainder(sender, instance, created, **kwargs):

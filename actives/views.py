@@ -636,6 +636,7 @@ class IncomeListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView):
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
 
+
 # View mixin for retrieving, updating, and deleting a specific Income object
 class IncomeDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, generics.GenericAPIView):
     serializer_class = ActivesIncomeSerializer

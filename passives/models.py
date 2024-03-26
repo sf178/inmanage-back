@@ -13,7 +13,7 @@ class Loans(models.Model):
     insurance = models.BooleanField(default=False, blank=True)
     insurance_sum = models.FloatField(blank=True, null=True, default=0.0)
     remainder = models.FloatField(blank=True, null=True, default=0.0)
-    sum = models.FloatField(blank=True, null=True, default=0.0) #loan sum
+    sum = models.FloatField(blank=True, null=True, default=0.0)  # loan sum
     loan_term = models.BigIntegerField(blank=True, null=True)
     percentage = models.FloatField(blank=True, null=True, default=0.0)
     month_payment = models.FloatField(blank=True, null=True, default=0.0)
@@ -23,6 +23,7 @@ class Loans(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
     is_borrowed = models.BooleanField(default=False, blank=True, null=True)
+    is_card = models.BooleanField(default=False, blank=True, null=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     history = HistoricalRecords()
@@ -59,7 +60,8 @@ class Property(models.Model):
     month_payment = models.FloatField(blank=True, null=True, default=0.0)
     #### loans part
     equipment_price = models.FloatField(blank=True, null=True, default=0.0)
-    equipment = models.ForeignKey('inventory.Inventory', on_delete=models.SET_NULL, blank=True, null=True, related_name='+')
+    equipment = models.ForeignKey('inventory.Inventory', on_delete=models.SET_NULL, blank=True, null=True,
+                                  related_name='+')
 
     # month_income = models.FloatField()
     total_expense = models.FloatField(blank=True, null=True, default=0.0)
@@ -95,12 +97,13 @@ class PropertyAsset(models.Model):
         verbose_name_plural = 'property_asset'
         ordering = ('id',)
 
+
 class Transport(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, related_name='+', null=True)
-    #brand = models.TextField(blank=True)
+    # brand = models.TextField(blank=True)
     mark = models.TextField(blank=True, null=True)
-    #name = models.TextField(blank=True, null=True)
+    # name = models.TextField(blank=True, null=True)
     model = models.TextField(blank=True, null=True)
     owner = models.TextField(blank=True, null=True)
     owner_type = models.BooleanField(blank=True, default=0)
@@ -127,14 +130,32 @@ class Transport(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
-
     def __str__(self):
         return f'ID: {self.id}'
+
+    def create(self, validated_data):
+        images_data = validated_data.pop('images', None)
+        transport = Transport.objects.create(**validated_data)
+        if images_data:
+            for image_data in images_data:
+                TransportImage.objects.create(transport=transport, **image_data)
+        return transport
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+        # Обновите поля instance здесь
+        if images_data:
+            instance.images.all().delete()  # Перед добавлением новых изображений удаляем старые
+            for image_data in images_data:
+                TransportImage.objects.create(transport=instance, **image_data)
+        return super().update(instance, validated_data)
 
     class Meta:
         verbose_name = 'transport'
         verbose_name_plural = 'transport'
         ordering = ('id',)
+
+
 
 
 class TransportImage(models.Model):
@@ -158,6 +179,7 @@ class MainProperties(models.Model):
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
     total_expenses = models.FloatField(blank=True, null=True, default=0.0)
     properties = models.ManyToManyField(Property, blank=True)
+
     def __str__(self):
         return f'ID: {self.id}'
 
@@ -168,6 +190,7 @@ class MainTransport(models.Model):
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
     total_expenses = models.FloatField(blank=True, null=True, default=0.0)
     transport = models.ManyToManyField(Transport, blank=True)
+
     def __str__(self):
         return f'ID: {self.id}'
 
@@ -186,7 +209,6 @@ class MainBorrows(models.Model):
     total_funds = models.FloatField(blank=True, null=True, default=0.0)
     total_expenses = models.FloatField(blank=True, null=True, default=0.0)
     borrows = models.ManyToManyField(Loans, blank=True)
-
 
 
 class Passives(models.Model):
@@ -212,13 +234,14 @@ class Expenses(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
     property = models.ForeignKey('passives.Property', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, null=True,
+                                  related_name='+')
     loan = models.ForeignKey('passives.Loans', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True,
+                                         related_name='+')
     # category = models.ForeignKey('category.PersonalCategory', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     child = models.ForeignKey('balance.Expenses', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     funds = models.FloatField(blank=True, null=True, default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
-

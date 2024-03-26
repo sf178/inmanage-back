@@ -7,6 +7,7 @@ from test_backend.custom_methods import IsAuthenticatedCustom
 
 from .models import *
 from .serializers import *
+from balance import models as bal
 from rest_framework.response import Response
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -66,7 +67,7 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         for item_data in desc_list_data:
             item_data['task'] = task.id
             item_data['user'] = task.user.id
-
+        payment = bal.Payment.objects.create(user=self.request.user)
         item_serializer = TodoItemSerializer(data=desc_list_data, many=True)
         item_serializer.is_valid(raise_exception=True)
         items = item_serializer.save()
@@ -125,15 +126,20 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         instance = self.get_object()
         instance._is_put_request = True
         request.data['done'] = not instance.done
-        if request.data['done'] == True and instance.desc_list != []:
-            for item in instance.desc_list.all():
-                if item.done != request.data['done']:
-                    item.done = request.data['done']
-                    item.save()
+        if request.data['done'] == True:
+            if instance.desc_list != []:
+                for item in instance.desc_list.all():
+                    if item.done != request.data['done']:
+                        item.done = request.data['done']
+                        item.save()
+            payments = bal.Payment.objects.filter(user=instance.user, task=instance)
+            for payment in payments:
+                pass
         request.data['expenses_is_completed'] = not instance.expenses_is_completed
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        del instance._is_put_request
         return Response(serializer.data)
 
 
