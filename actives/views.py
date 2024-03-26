@@ -353,7 +353,10 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
         # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
-        serializer.save(user=self.request.user)
+        transport = serializer.save(user=self.request.user)
+        images_data = self.request.FILES.getlist('images')  # Получение списка загруженных файлов изображений
+        for img in images_data:
+            TransportImage.objects.create(transport=transport, image=img)
 
 
 class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
@@ -384,6 +387,13 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                 expenses_serializer.is_valid(raise_exception=True)
                 expenses_instance = expenses_serializer.save(user=instance.user, transport=instance)
                 expenses_instances.append(expenses_instance)
+        if 'images' in request.data:
+            images_data = request.FILES.getlist('images')
+            instance.images.all().delete()  # Это пример, настроить по вашему усмотрению
+
+            # Добавление новых изображений
+            for img in images_data:
+                TransportImage.objects.create(transport=instance, image=img)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
