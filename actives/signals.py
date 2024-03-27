@@ -317,6 +317,8 @@ def create_card_from_loan(loan):
     )
     loan.writeoff_account = card
     loan.save(update_fields=['writeoff_account'])
+    balance = bal.Balance.objects.get(user=loan.user)
+    balance.card_list.add(card)
 
 # Обновление сумм
 # Недвижимость

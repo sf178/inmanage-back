@@ -60,6 +60,8 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
         card.percentage = instance.percentage
         card.remainder = instance.remainder
         card.save(update_fields=['loan_link', 'percentage', 'remainder'])
+        balance = bal.Balance.objects.get(user=instance.user)
+        balance.card_list.add(card)
 
 
 class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):

@@ -5,7 +5,7 @@ from .models import *
 from .serializers import *
 from django.db import transaction
 # from glob_parse.tasks import parse_avito_task
-from balance.models import Card
+from balance.models import Card, Balance
 from balance.models import Expenses as BalExpenses
 
 
@@ -114,6 +114,8 @@ def create_card_from_loan(loan):
     )
     loan.writeoff_account = card
     loan.save(update_fields=['writeoff_account'])
+    balance = Balance.objects.get(user=loan.user)
+    balance.card_list.add(card)
 
 
 @receiver(post_save, sender=Property)
