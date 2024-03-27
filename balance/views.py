@@ -7,7 +7,8 @@ from rest_framework import generics, permissions, mixins
 from django.db.models import Sum, Q
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, \
+    DestroyModelMixin
 from .models import *
 from .serializers import *
 from test_backend.custom_methods import IsAuthenticatedCustom
@@ -106,39 +107,36 @@ class PaymentUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
         return self.partial_update(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-
+        partial = kwargs.pop('partial', True)  # Устанавливаем partial=True, чтобы разрешить частичное обновление
         instance = self.get_object()
-        instance._is_put_request = True
-        # response = self.update(request, *args, **kwargs)
-        payment = self.get_object()
+        if instance.task:
+            # Получаем текущее значение is_paid до обновления
+            current_is_paid = instance.is_paid.copy()
 
-        # Проверяем, есть ли обновления в поле is_paid
-        is_paid = payment.is_paid
-        if any(value == True for value in is_paid.values()):
-            task = payment.task
-            if task:
-                task.done = True
-                task.save()
-                request.data['done'] = task.done
-                if request.data['done'] == True:
-                    if task.desc_list:
-                        for item in task.desc_list.all():
-                            if item.done != request.data['done']:
-                                item.done = request.data['done']
-                                item.save()
-                if request.data['done'] == False:
-                    if task.desc_list:
-                        for item in task.desc_list.all():
-                            if item.done != request.data['done']:
-                                item.done = request.data['done']
-                                item.save()
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        del instance._is_put_request
-        return Response(serializer.data)
+            # Обновляем объект Payment с новыми данными
+            updated_instance = serializer.save()
+
+            # Получаем обновленное значение is_paid и проверяем, были ли удалены какие-либо подтверждения платежей
+            updated_is_paid = updated_instance.is_paid
+            removed_payments = {date: paid for date, paid in current_is_paid.items() if date not in updated_is_paid}
+
+            if any(value is True for value in removed_payments.values()):
+                # Если были удалены подтверждения платежей, выполняем необходимые действия
+                task = updated_instance.task
+                if task and task.done:
+                    task.done = False
+                    task.save()
+                    # Обновляем все связанные элементы desc_list
+                    for item in task.desc_list.all():
+                        if item.done:
+                            item.done = False
+                            item.save()
+
+            return Response(serializer.data)
+
 
 class PaymentDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = PaymentSerializer
@@ -239,6 +237,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         return Balance.objects.filter(user=self.request.user)
 
     '''тестовая хуйня, удалить если не сработает'''
+
     @staticmethod
     def calculate_totals(user, timezone='UTC'):
         user_timezone = pytz.timezone(timezone)
@@ -280,7 +279,9 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         total_funds += card_funds
 
         return daily_income, daily_expense, monthly_income, monthly_expense, card_income, card_expenses, total_funds, card_funds
+
     '''ниже нормальная версия, использовать при неуспехе'''
+
     # @staticmethod
     # def calculate_totals(user):
     #     total_expenses = 0
@@ -325,7 +326,8 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         user = request.user
         balance, created = Balance.objects.get_or_create(user=user)
 
-        daily_income, daily_expense, monthly_income, monthly_expense, card_income, card_expenses, total_funds, card_funds = self.calculate_totals(user, user_timezone_str)
+        daily_income, daily_expense, monthly_income, monthly_expense, card_income, card_expenses, total_funds, card_funds = self.calculate_totals(
+            user, user_timezone_str)
 
         balance.daily_income = daily_income
         balance.daily_expense = daily_expense
@@ -379,7 +381,7 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
                         return Response({"error": f"Card with id {card_id} does not exist."},
                                         status=status.HTTP_400_BAD_REQUEST)
             else:
-               return Response({"error": "favourite_cards must be a list."},
+                return Response({"error": "favourite_cards must be a list."},
                                 status=status.HTTP_400_BAD_REQUEST)
 
         instance = Balance.objects.filter(user=user).first()
@@ -393,6 +395,8 @@ class BalanceListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cre
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user, is_editable=True, is_deletable=True)
+
+
 # class BalanceUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
 #     queryset = Balance.objects.all()
 #     serializer_class = BalanceSerializer

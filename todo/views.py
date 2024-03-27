@@ -129,14 +129,15 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         instance._is_put_request = True
-        request.data['done'] = not instance.done
-        if request.data['done'] == True:
+        target_done_status = not instance.done
+
+        if target_done_status:
             if instance.desc_list != []:
                 for item in instance.desc_list.all():
                     if item.done != request.data['done']:
                         item.done = request.data['done']
                         item.save()
-        if request.data['done'] == False:
+        if not target_done_status:
             if instance.desc_list != []:
                 for item in instance.desc_list.all():
                     if item.done != request.data['done']:
@@ -147,9 +148,13 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
             # Преобразование поля is_paid из JSON в словарь Python, обновление и сохранение обратно
             is_paid_dict = payment.is_paid
             today_str = timezone.now().date().isoformat()  # Получаем сегодняшнюю дату в формате YYYY-MM-DD
-            is_paid_dict[today_str] = True  # Обновляем статус оплаты на True для сегодняшней даты
+            if target_done_status:
+                is_paid_dict[today_str] = True
+            else:
+                # Если задача не выполнена, удаляем отметку о выполнении для сегодняшнего дня
+                is_paid_dict[today_str] = None  # Удаление записи, если задача становится невыполненной
             payment.is_paid = is_paid_dict  # Сохраняем обновленный словарь обратно в поле is_paid
-            payment.save()
+            payment.save(update_fields=['is_paid'])
         request.data['expenses_is_completed'] = not instance.expenses_is_completed
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)

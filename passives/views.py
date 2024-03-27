@@ -7,7 +7,8 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 from rest_framework.views import APIView
 from django.db.models import Sum
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, \
+    DestroyModelMixin
 from django.contrib.contenttypes.models import ContentType
 import inventory.models as inv
 import balance.models as bal
@@ -45,23 +46,29 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
         serializer.is_valid(raise_exception=True)
 
         # Создание карточки перед сохранением основного объекта
-        card = bal.Card.objects.create(
-            user=request.user,
-            remainder=serializer.validated_data.get('sum', 0),  # Замените 'sum' на соответствующее поле, если требуется
-            from_loan=True,
-        )
 
-        self.perform_create(serializer, card)
+        self.perform_create(serializer)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def perform_create(self, serializer, card):
-        instance = serializer.save(user=self.request.user, is_borrowed=False, writeoff_account=card)
-        card.loan_link = instance
+    def perform_create(self, serializer):
+        instance = serializer.save(user=self.request.user, is_borrowed=False)
+        card = bal.Card.objects.create(
+            user=self.request.user,
+            name=instance.name,
+            remainder=instance.sum,  # Замените 'sum' на соответствующее поле, если требуется
+            from_loan=True,
+            percentage=instance.percentage,
+            is_editable=False,  # Карточка создается автоматически и не редактируется пользователем
+            is_deletable=False,  # Карточка не удаляется, так как связана с займом
+            is_visible=True
+        )
+        instance.writeoff_account = card
+        instance.save(update_fields=['writeoff_account'])
         card.percentage = instance.percentage
-        card.remainder = instance.remainder
-        card.save(update_fields=['loan_link', 'percentage', 'remainder'])
+        # card.remainder = instance.remainder
+        card.save(update_fields=['loan_link', 'percentage'])
         balance = bal.Balance.objects.get(user=instance.user)
         balance.card_list.add(card)
 
@@ -134,10 +141,10 @@ class BorrowListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
         if serializer.is_valid(raise_exception=True):
             borrow = serializer.save(user=self.request.user, is_borrowed=True)
 
-        # Затем получаем или создаем объект MainBorrow для текущего пользователя
+            # Затем получаем или создаем объект MainBorrow для текущего пользователя
             main_borrow, created = MainBorrows.objects.get_or_create(user=self.request.user)
 
-        # Добавляем созданный объект Borrow в поле borrows объекта MainBorrow
+            # Добавляем созданный объект Borrow в поле borrows объекта MainBorrow
             main_borrow.borrows.add(borrow)
             headers = self.get_success_headers(serializer.data)
 
@@ -242,6 +249,7 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     permission_classes = [IsAuthenticatedCustom]
 
     lookup_field = 'id'
+
     def get_queryset(self):
         return Property.objects.filter(user=self.request.user)
 
@@ -328,9 +336,9 @@ class PropertyUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
             serializer = PropertySerializer(property_instance)
             return Response(serializer.data)
 
-
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
 
 class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = PropertySerializer
@@ -357,7 +365,7 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        #serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
+        # serializer.validated_data['actual_price'] = serializer.validated_data['bought_price']
 
         # brand = request.data['mark']
         # name = request.data['model']
@@ -391,6 +399,7 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
         if 'user' in serializer.validated_data:
             raise ValidationError("You cannot set the user manually.")
         serializer.save(user=self.request.user)
+
 
 class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = TransportSerializer
@@ -527,7 +536,6 @@ class ExpensesListView(ListModelMixin, CreateModelMixin, generics.GenericAPIView
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-
         return self.perform_create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
