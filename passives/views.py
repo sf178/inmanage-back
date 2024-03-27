@@ -419,8 +419,8 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         if 'images' in request.data:
             images = request.FILES.getlist('images')
             for image in images:
-                TransportImage.objects.create(transport=instance, image=image)
-
+                img_instance = TransportImage.objects.create(transport=instance, image=image)
+                instance.images.add(img_instance)
         #
         # if expenses_instances:
         #     instance.expenses.add(*[expense.id for expense in expenses_instances])
