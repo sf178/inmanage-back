@@ -87,11 +87,11 @@ class TransportSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        images_data = validated_data.pop('images', None)
+        images = validated_data.pop('images', [])
         transport = Transport.objects.create(**validated_data)
-        if images_data:
-            for image_data in images_data:
-                TransportImage.objects.create(transport=transport, **image_data)
+        for image in images:
+            TransportImage.objects.create(transport=transport,
+                                          image=image['image'])  # Предполагается, что 'image' - это файл
         return transport
 
     def update(self, instance, validated_data):

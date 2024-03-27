@@ -387,13 +387,6 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
                 expenses_serializer.is_valid(raise_exception=True)
                 expenses_instance = expenses_serializer.save(user=instance.user, transport=instance)
                 expenses_instances.append(expenses_instance)
-        if 'images' in request.data:
-            images_data = request.FILES.getlist('images')
-            instance.images.all().delete()  # Это пример, настроить по вашему усмотрению
-
-            # Добавление новых изображений
-            for img in images_data:
-                TransportImage.objects.create(transport=instance, image=img)
 
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)

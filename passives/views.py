@@ -3,6 +3,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+
 from rest_framework.views import APIView
 from django.db.models import Sum
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
@@ -344,6 +346,7 @@ class PropertyDeleteView(generics.GenericAPIView, mixins.DestroyModelMixin):
 class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     serializer_class = TransportSerializer
     permission_classes = [IsAuthenticatedCustom]
+    parser_classes = (JSONParser, MultiPartParser, FormParser)  # Поддержка JSON и Multipart
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
@@ -393,6 +396,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = TransportSerializer
     lookup_field = 'id'
     permission_classes = [IsAuthenticatedCustom]
+    parser_classes = (JSONParser, MultiPartParser, FormParser)  # Поддержка JSON и Multipart
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
@@ -412,6 +416,11 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        if 'images' in request.data:
+            images = request.FILES.getlist('images')
+            for image in images:
+                TransportImage.objects.create(transport=instance, image=image)
+
         #
         # if expenses_instances:
         #     instance.expenses.add(*[expense.id for expense in expenses_instances])

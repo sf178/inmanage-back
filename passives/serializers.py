@@ -26,13 +26,37 @@ class PropertySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TransportImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransportImage
+        fields = ('image',)
+
+
 class TransportSerializer(serializers.ModelSerializer):
     loan_link = LoansSerializer(many=False, required=False)
     created_at = CustomDateTimeField(required=False)
+    images = TransportImageSerializer(many=True, required=False)
 
     class Meta:
         model = Transport
         fields = '__all__'
+
+    def create(self, validated_data):
+        images = validated_data.pop('images', [])
+        transport = Transport.objects.create(**validated_data)
+        for image in images:
+            TransportImage.objects.create(transport=transport,
+                                          image=image['image'])  # Предполагается, что 'image' - это файл
+        return transport
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+        # Обновите поля instance здесь
+        if images_data:
+            instance.images.all().delete()  # Перед добавлением новых изображений удаляем старые
+            for image_data in images_data:
+                TransportImage.objects.create(transport=instance, **image_data)
+        return super().update(instance, validated_data)
 
 
 class MainPropertiesSerializer(serializers.ModelSerializer):
