@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transportimage',
             name='image',
-            field=models.ImageField(blank=True, null=True, upload_to=test_backend.custom_methods.PathAndRename('actives_transport_images/')),
+            field=models.ImageField(blank=True, null=True, upload_to=test_backend.custom_methods.RandomFileName('actives_transport_images/')),
         ),
     ]

@@ -11,16 +11,17 @@ from uuid import uuid4
 
 
 @deconstructible
-class PathAndRename(object):
-    def __init__(self, sub_path):
-        self.path = sub_path
+class RandomFileName(object):
+    def __init__(self, path):
+        self.path = path
 
     def __call__(self, instance, filename):
         ext = filename.split('.')[-1]
-        # Установите ваш собственный способ определения имени файла
-        filename = '{}_{}.{}'.format(instance.user.id, now().strftime("%Y%m%d%H%M%S"), ext)
-        # возвращаем полный путь к файлу
-        return os.path.join(self.path, filename)
+        # Генерация уникального имени файла
+        filename = '{}.{}'.format(uuid4().hex, ext)
+        # Возвращение пути с новым именем файла
+        return self.path + filename
+
 
 class IsAuthenticatedCustom(BasePermission):
 

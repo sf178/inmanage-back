@@ -6,7 +6,7 @@ from passives.models import Loans
 from simple_history.models import HistoricalRecords
 from datetime import datetime, timezone
 
-from test_backend.custom_methods import PathAndRename
+from test_backend.custom_methods import RandomFileName
 
 
 # Create your models here.
@@ -183,7 +183,7 @@ class Transport(models.Model):
 class TransportImage(models.Model):
     id = models.AutoField(primary_key=True)
     transport = models.ForeignKey('actives.Transport', on_delete=models.CASCADE, blank=True, related_name='+')
-    image = models.ImageField(upload_to=PathAndRename('actives_transport_images/'), blank=True, null=True)
+    image = models.ImageField(upload_to=RandomFileName('actives_transport_images/'), blank=True, null=True)
     def __str__(self):
         return f'ID: {self.id}'
 
