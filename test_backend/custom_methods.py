@@ -1,10 +1,26 @@
+import os
+from django.utils.deconstruct import deconstructible
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from django.utils import timezone
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from django.utils.timezone import now
+from uuid import uuid4
 
+
+@deconstructible
+class PathAndRename(object):
+    def __init__(self, sub_path):
+        self.path = sub_path
+
+    def __call__(self, instance, filename):
+        ext = filename.split('.')[-1]
+        # Установите ваш собственный способ определения имени файла
+        filename = '{}_{}.{}'.format(instance.user.id, now().strftime("%Y%m%d%H%M%S"), ext)
+        # возвращаем полный путь к файлу
+        return os.path.join(self.path, filename)
 
 class IsAuthenticatedCustom(BasePermission):
 

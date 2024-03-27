@@ -4,6 +4,8 @@ from django.db import models
 from datetime import datetime
 from simple_history.models import HistoricalRecords
 
+from test_backend.custom_methods import PathAndRename
+
 
 class Loans(models.Model):
     id = models.AutoField(primary_key=True)
@@ -162,7 +164,7 @@ class Transport(models.Model):
 class TransportImage(models.Model):
     id = models.AutoField(primary_key=True)
     transport = models.ForeignKey('passives.Transport', on_delete=models.CASCADE, blank=True, related_name='+')
-    image = models.ImageField(upload_to='passives_transport_images/', blank=True, null=True)
+    image = models.ImageField(upload_to=PathAndRename('passives_transport_images/'), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
