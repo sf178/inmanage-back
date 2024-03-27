@@ -8,6 +8,7 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
 from django.db.models import Sum
 from django.contrib.contenttypes.models import ContentType
 from test_backend.custom_methods import IsAuthenticatedCustom
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 from django.shortcuts import get_object_or_404
 from .models import *
@@ -330,6 +331,7 @@ class TransportListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.C
     serializer_class = TransportSerializer
     permission_classes = [IsAuthenticatedCustom]
     lookup_field = 'id'
+    parser_classes = (JSONParser, MultiPartParser, FormParser)  # Поддержка JSON и Multipart
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
@@ -363,6 +365,7 @@ class TransportUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):
     serializer_class = TransportSerializer
     lookup_field = 'id'
     permission_classes = [IsAuthenticatedCustom]
+    parser_classes = (JSONParser, MultiPartParser, FormParser)  # Поддержка JSON и Multipart
 
     def get_queryset(self):
         return Transport.objects.filter(user=self.request.user)
