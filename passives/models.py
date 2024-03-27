@@ -7,7 +7,7 @@ from simple_history.models import HistoricalRecords
 
 class Loans(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('front.CustomUser', on_delete=models.DO_NOTHING)
+    user = models.ForeignKey('front.CustomUser', on_delete=models.CASCADE, related_name='+')
     name = models.CharField(max_length=255, blank=True)
     date = models.DateTimeField(blank=True, null=True)
     insurance = models.BooleanField(default=False, blank=True)
@@ -24,7 +24,8 @@ class Loans(models.Model):
     image = models.ImageField(upload_to='bank_images/', blank=True, null=True)
     is_borrowed = models.BooleanField(default=False, blank=True, null=True)
     is_card = models.BooleanField(default=False, blank=True, null=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, null=True, related_name='+')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, related_name='+')
     object_id = models.PositiveIntegerField(blank=True, null=True)
     history = HistoricalRecords()
 

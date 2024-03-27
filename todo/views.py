@@ -10,6 +10,7 @@ from .serializers import *
 from balance import models as bal
 from rest_framework.response import Response
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.conf import settings
 from django.utils.timezone import make_aware
 from django.shortcuts import get_object_or_404
@@ -67,7 +68,10 @@ class TodoTaskListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Cr
         for item_data in desc_list_data:
             item_data['task'] = task.id
             item_data['user'] = task.user.id
-        payment = bal.Payment.objects.create(user=self.request.user)
+        if task.amount:
+            payment = bal.Payment.objects.create(user=self.request.user, task=task, amount=task.amount, date=task.date_end, name=task.title)
+            task.child = payment
+            task.save(update_fields=['child'])
         item_serializer = TodoItemSerializer(data=desc_list_data, many=True)
         item_serializer.is_valid(raise_exception=True)
         items = item_serializer.save()
@@ -132,9 +136,20 @@ class TodoTaskDetailView(generics.GenericAPIView, mixins.RetrieveModelMixin, mix
                     if item.done != request.data['done']:
                         item.done = request.data['done']
                         item.save()
-            payments = bal.Payment.objects.filter(user=instance.user, task=instance)
-            for payment in payments:
-                pass
+        if request.data['done'] == False:
+            if instance.desc_list != []:
+                for item in instance.desc_list.all():
+                    if item.done != request.data['done']:
+                        item.done = request.data['done']
+                        item.save()
+        if instance.child:
+            payment = instance.child
+            # Преобразование поля is_paid из JSON в словарь Python, обновление и сохранение обратно
+            is_paid_dict = payment.is_paid
+            today_str = timezone.now().date().isoformat()  # Получаем сегодняшнюю дату в формате YYYY-MM-DD
+            is_paid_dict[today_str] = True  # Обновляем статус оплаты на True для сегодняшней даты
+            payment.is_paid = is_paid_dict  # Сохраняем обновленный словарь обратно в поле is_paid
+            payment.save()
         request.data['expenses_is_completed'] = not instance.expenses_is_completed
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)

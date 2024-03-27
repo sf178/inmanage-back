@@ -71,6 +71,7 @@ def create_loan_property(sender, instance, created, **kwargs):
             is_borrowed=False
         )
         loan.save()
+        create_card_from_loan(loan)
         instance.loan_link = loan
         instance.save(update_fields=['loan_link'])
 
@@ -94,8 +95,25 @@ def create_loan_transport(sender, instance, created, **kwargs):
             is_borrowed=False
         )
         loan.save()
+        create_card_from_loan(loan)
         instance.loan_link = loan
         instance.save(update_fields=['loan_link'])
+
+
+def create_card_from_loan(loan):
+    card = Card.objects.create(
+        user=loan.user,
+        name=loan.name,
+        loan_link=loan,
+        from_loan=True,
+        percentage=loan.percentage,
+        remainder=loan.remainder,
+        is_editable=False,  # Карточка создается автоматически и не редактируется пользователем
+        is_deletable=False,  # Карточка не удаляется, так как связана с займом
+        is_visible=True
+    )
+    loan.writeoff_account = card
+    loan.save(update_fields=['writeoff_account'])
 
 
 @receiver(post_save, sender=Property)

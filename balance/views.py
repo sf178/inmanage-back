@@ -105,6 +105,40 @@ class PaymentUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
+    def put(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+
+        instance = self.get_object()
+        instance._is_put_request = True
+        # response = self.update(request, *args, **kwargs)
+        payment = self.get_object()
+
+        # Проверяем, есть ли обновления в поле is_paid
+        is_paid = payment.is_paid
+        if any(value == True for value in is_paid.values()):
+            task = payment.task
+            if task:
+                task.done = True
+                task.save()
+                request.data['done'] = task.done
+                if request.data['done'] == True:
+                    if task.desc_list:
+                        for item in task.desc_list.all():
+                            if item.done != request.data['done']:
+                                item.done = request.data['done']
+                                item.save()
+                if request.data['done'] == False:
+                    if task.desc_list:
+                        for item in task.desc_list.all():
+                            if item.done != request.data['done']:
+                                item.done = request.data['done']
+                                item.save()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        del instance._is_put_request
+        return Response(serializer.data)
 
 class PaymentDeleteView(mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = PaymentSerializer

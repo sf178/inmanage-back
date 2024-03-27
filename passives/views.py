@@ -8,6 +8,7 @@ from django.db.models import Sum
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from django.contrib.contenttypes.models import ContentType
 import inventory.models as inv
+import balance.models as bal
 from test_backend.custom_methods import IsAuthenticatedCustom
 
 from django.shortcuts import get_object_or_404
@@ -39,19 +40,26 @@ class LoansListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Creat
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        return self.perform_create(serializer)
+        # Создание карточки перед сохранением основного объекта
+        card = bal.Card.objects.create(
+            user=request.user,
+            remainder=serializer.validated_data.get('sum', 0),  # Замените 'sum' на соответствующее поле, если требуется
+            from_loan=True,
+        )
 
-    def perform_create(self, serializer):
-        # Проверка на наличие 'user' в data перед сохранением
-        # Если 'user' уже присутствует, это может означать попытку инъекции данных, и следует вернуть ошибку
-        # if 'user' in serializer.validated_data:
-        #     raise ValidationError("You cannot set the user manually.")
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(user=self.request.user, is_borrowed=False)
-            headers = self.get_success_headers(serializer.data)
+        self.perform_create(serializer, card)
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer, card):
+        instance = serializer.save(user=self.request.user, is_borrowed=False, writeoff_account=card)
+        card.loan_link = instance
+        card.percentage = instance.percentage
+        card.remainder = instance.remainder
+        card.save(update_fields=['loan_link', 'percentage', 'remainder'])
 
 
 class LoansUpdateView(generics.GenericAPIView, mixins.UpdateModelMixin):

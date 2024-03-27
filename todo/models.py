@@ -51,6 +51,8 @@ class TodoTask(models.Model):
     color = models.TextField(blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
     writeoff_account = models.ForeignKey('balance.Card', on_delete=models.CASCADE, blank=True, null=True)
+    amount = models.FloatField(blank=True, null=True, default=None)
+    child = models.ForeignKey('balance.Payment', on_delete=models.CASCADE, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True)
     date_start = models.DateTimeField(blank=True, null=True)

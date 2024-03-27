@@ -154,6 +154,23 @@ class Transport(models.Model):
     def __str__(self):
         return f'ID: {self.id}'
 
+    def create(self, validated_data):
+        images_data = validated_data.pop('images', None)
+        transport = Transport.objects.create(**validated_data)
+        if images_data:
+            for image_data in images_data:
+                TransportImage.objects.create(transport=transport, **image_data)
+        return transport
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+        # Обновите поля instance здесь
+        if images_data:
+            instance.images.all().delete()  # Перед добавлением новых изображений удаляем старые
+            for image_data in images_data:
+                TransportImage.objects.create(transport=instance, **image_data)
+        return super().update(instance, validated_data)
+
     class Meta:
         verbose_name = 'transport'
         verbose_name_plural = 'transport'
